@@ -83,68 +83,38 @@
       </div>
       <div class="main-panel">
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
-          <div class="container-fluid">
-            <div class="navbar-wrapper">
-              <div class="navbar-toggle d-inline">
-                <button type="button" class="navbar-toggler">
-                  <span class="navbar-toggler-bar bar1"></span>
-                  <span class="navbar-toggler-bar bar2"></span>
-                  <span class="navbar-toggler-bar bar3"></span>
-                </button>
-              </div>
-              <a class="navbar-brand" id="mylogo" href="./containerList.html">BaePo</a>
+
+          <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
+            <div class="container-fluid">
+              <div class="navbar-wrapper">
+                <div class="navbar-toggle d-inline">
+                  <button type="button" class="navbar-toggler">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                  </button>
+                </div>
+                <a class="navbar-brand" id="mylogo" href="./containerList.html">BaePo</a>
             </div>
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target="#navigation"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-bar navbar-kebab"></span>
               <span class="navbar-toggler-bar navbar-kebab"></span>
               <span class="navbar-toggler-bar navbar-kebab"></span>
             </button>
             <div class="collapse navbar-collapse" id="navigation">
               <ul class="navbar-nav ml-auto">
-                <!-- 프로필 아이콘 -->
                 <li class="dropdown nav-item">
-                  <a
-                    href="#"
-                    class="dropdown-toggle nav-link"
-                    data-toggle="dropdown"
-                  >
-                    <p>
-                      <i class="tim-icons icon-single-02"></i>
-                    </p>
+                  <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <div class="photo">
+                      <img src="../assets/img/anime3.png" alt="Profile Photo">
+                    </div>
                     <b class="caret d-none d-lg-block d-xl-block"></b>
-                    <p class="d-lg-none">로그아웃</p>
                   </a>
                   <ul class="dropdown-menu dropdown-navbar">
-                    <li class="nav-link">
-                      <a
-                        href="javascript:void(0)"
-                        class="nav-item dropdown-item"
-                        >내 정보</a
-                      >
-                    </li>
-                    <li class="nav-link">
-                      <a
-                        href="javascript:void(0)"
-                        class="nav-item dropdown-item"
-                        >가이드</a
-                      >
-                    </li>
+                    <li class="nav-link"><a href="./mypage.html" class="nav-item dropdown-item">Profile</a></li>
+                    <li class="nav-link"><a href="#" class="nav-item dropdown-item">Guide</a></li>
                     <li class="dropdown-divider"></li>
-                    <li class="nav-link">
-                      <a
-                        href="javascript:void(0)"
-                        class="nav-item dropdown-item"
-                        >로그아웃</a
-                      >
-                    </li>
+                    <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Log out</a></li>
                   </ul>
                 </li>
                 <li class="separator d-lg-none"></li>
@@ -204,7 +174,7 @@
                     </div>
                     <!-- 톱니바퀴 클릭 효과 줘야함 ==> 배포관리 페이지로 이동 -->
                     <div class="col-lg-2">
-                      <h4 class="card-title">
+                      <h4 class="card-title text-right">
                         <i class="tim-icons icon-settings-gear-63"></i>
                       </h4>
                     </div>
@@ -280,28 +250,32 @@
                 <div class="card-header">
                   <div class="row">
                     <div class="col-lg-2">
-                      <h4 class="card-title">LOG</h4>
+                      <h3 class="card-title">LOG</h3>
                     </div>
                     <div class="col-lg-8">
+                      <div class="form-group">
+                        <form action="/search/result" method="GET">
+                          <input type="text" id="searchWord" name="searchWord" class="form-control" placeholder="로그를 검색하세요">
+                        </form>
+                      </div>
+                      <!--
                       <form action="/search/result" method="GET">
                         <input
                           type="text"
-                          id="searchWord"
-                          name="searchWord"
-                          placeholder="SEARCH"
+                          id="searchWord" name="searchWord"
                           maxlength="50"
                           size="60"
                         />
-                      </form>
+                      </form>-->
                     </div>
                       <!-- <input id="searchButton" type="image" src="" style="width:25px; height:25px;" alt="Submit Form"/> -->
                     <div class="col-lg-2">
                       <button
-                        class="btn btn-primary btn-block"
+                        class="btn btn-fab btn-icon btn-round btn-primary"
                         onclick="demo.showNotification('bottom','right')"
                       >
                           <!-- onclick ==> 검색값 넘겨주기 -->
-                          로그 검색
+                          <i class="tim-icons icon-zoom-split "></i>
                       </button>
                     </div>
                   </div>

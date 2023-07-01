@@ -17679,11 +17679,12 @@ table.tablesorter thead tr .headerSortDown {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+
 .sidebar .logo .simple-text,
 .off-canvas-sidebar .logo .simple-text {
   text-transform: uppercase;
   /*padding: 0.5rem 0;*/
-  padding: 0.5rem 3rem;
+  padding: 0.5rem 0.5rem; /*ahn (origin)padding: 0.5rem 3rem; */
   display: block;
   white-space: nowrap;
   color: #ffffff;
