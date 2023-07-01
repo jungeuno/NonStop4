@@ -14,7 +14,15 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-*/
+
+/* logo style지정 */ 
+#mylogo {
+  /*
+  color:#5e72e4; font-weight:bolder;
+  */
+  color:#FFFFFF; font-weight:bolder;
+}
+
 /*     brand Colors              */
 /* navbar color */
 :root {
@@ -17674,7 +17682,8 @@ table.tablesorter thead tr .headerSortDown {
 .sidebar .logo .simple-text,
 .off-canvas-sidebar .logo .simple-text {
   text-transform: uppercase;
-  padding: 0.5rem 0;
+  /*padding: 0.5rem 0;*/
+  padding: 0.5rem 3rem;
   display: block;
   white-space: nowrap;
   color: #ffffff;
@@ -20441,5 +20450,6 @@ Copyright (c) 2015 Daniel Eden
   padding-left: 0;
   padding-right: 0;
 }
+
 
 /*# sourceMappingURL=dashboard-free.css.map */
