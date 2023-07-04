@@ -16,8 +16,8 @@
   <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link href="../assets/css/black-dashboard.css?v=1.0.0" rel="stylesheet" />
-  <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="../assets/demo/demo.css" rel="stylesheet" />
+  <!-- BsMultiSelect css 파일-->
+  <link href="../assets/css/BsMultiSelect.bs4.css" rel="stylesheet" />
 </head>
 
 <body class="">
@@ -115,45 +115,64 @@
               </div>
               <div class="card-body">
                 <form>
-
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="form-group">
-                        <h5 class="mt-4 my-2">컨테이너 이름</h5>
-                        <input type="text" class="form-control" placeholder="컨테이너의 이름을 입력하세요">
-                      </div>
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <h5 class="mt-4 my-2">컨테이너 이름</h5>
+                      <input type="text" class="form-control" placeholder="컨테이너의 이름을 입력하세요">
                     </div>
                   </div>
-
-                  <div class="row">
-                    <div class="col-12">
+                  <div class="form-row">
                       <div class="form-group">
                         <h5 class="mt-4 my-2">컨테이너 배포 파일 업로드</h5>
-                        <button type="button" title class="btn btn-sm" data-original-title="upload File">
-                          <i class="tim-icons icon-upload"></i>
-                        </button>
+                        <label for="inputUploadFile">
+                          <button type="button" id="btnUploadFile" class="btn btn-sm" data-original-title="upload File" onclick="">
+                            <i class="tim-icons icon-upload"></i>
+                          </button>
+                        </label>
+                        <input type="file" id="inputUploadFile">
                       </div>
-                    </div>
                   </div>
 
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="form-group">
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <label for="devEnv">
                         <h5 class="mt-4 my-2">개발환경</h5>
-                        <input type="text" class="form-control" placeholder="개발환경을 선택하세요">
-                      </div>
+                        <small id="devEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
+                      </label>
+                      <select id="devEnv" class="form-control" multiple="multiple" >
+                        <option  value="0">apache</option>
+                        <option  value="1">nginx</option>
+                        <option  value="2">bootstrap</option>
+                        <option  value="3">vue</option>
+                        <option  value="4">react</option>
+                        <option  value="5">django</option>
+                        <option  value="6">springboot</option>
+                        <option  value="7">mysql</option>
+                        <option  value="8">mssql</option>
+                        <option  value="9">mariadb</option>
+                        <option  value="10">kotlin</option>
+                        <option  value="11">python</option>
+                        <option  value="12">c#</option>
+                        <option  value="13">go</option>
+                        <option  value="14">rust</option>
+                        <option  value="15">ruby</option>
+                      </select>
                     </div>
                   </div>
 
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="form-group">
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <label for="pubCountry">
                         <h5 class="mt-4 my-2">배포 국가</h5>
-                        <input type="text" class="form-control" placeholder="배포 국가를 선택하세요">
-                      </div>
+                        <small id="pubCountryHelp" class="form-text text-muted">1개 이상의 배포 국가를 선택해주세요</small>
+                      </label>
+                      <select id="pubCountry" class="form-control" multiple="multiple" >
+                        <option  value="0">South Korea</option>
+                        <option  value="1">USA</option>
+                        <option  value="1">Japan</option>
+                      </select>
                     </div>
                   </div>
-
                 </form>
               </div>
 
@@ -198,139 +217,17 @@
     </div>
   </div>
 
+
   <!--   Core JS Files   -->
   <script src="../assets/js/core/jquery.min.js"></script>
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!--  Google Maps Plugin    -->
-  <!-- Place this tag in your head or just before your close body tag. -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chart JS -->
-  <script src="../assets/js/plugins/chartjs.min.js"></script>
-  <!--  Notifications Plugin    -->
-  <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/black-dashboard.min.js?v=1.0.0"></script><!-- Black Dashboard DEMO methods, don't include it in your project! -->
-  <script src="../assets/demo/demo.js"></script>
-  <script>
-    $(document).ready(function() {
-      $().ready(function() {
-        $sidebar = $('.sidebar');
-        $navbar = $('.navbar');
-        $main_panel = $('.main-panel');
+  <script src="../assets/js/plugins/BsMultiSelect.bs4.min.js" type="text/javascript"></script>
+  <script src="../assets/js/deploy.js" type="text/javascript"></script>
 
-        $full_page = $('.full-page');
-
-        $sidebar_responsive = $('body > .navbar-collapse');
-        sidebar_mini_active = true;
-        white_color = false;
-
-        window_width = $(window).width();
-
-        fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
-
-
-
-        $('.fixed-plugin a').click(function(event) {
-          if ($(this).hasClass('switch-trigger')) {
-            if (event.stopPropagation) {
-              event.stopPropagation();
-            } else if (window.event) {
-              window.event.cancelBubble = true;
-            }
-          }
-        });
-
-        $('.fixed-plugin .background-color span').click(function() {
-          $(this).siblings().removeClass('active');
-          $(this).addClass('active');
-
-          var new_color = $(this).data('color');
-
-          if ($sidebar.length != 0) {
-            $sidebar.attr('data', new_color);
-          }
-
-          if ($main_panel.length != 0) {
-            $main_panel.attr('data', new_color);
-          }
-
-          if ($full_page.length != 0) {
-            $full_page.attr('filter-color', new_color);
-          }
-
-          if ($sidebar_responsive.length != 0) {
-            $sidebar_responsive.attr('data', new_color);
-          }
-        });
-
-        $('.switch-sidebar-mini input').on("switchChange.bootstrapSwitch", function() {
-          var $btn = $(this);
-
-          if (sidebar_mini_active == true) {
-            $('body').removeClass('sidebar-mini');
-            sidebar_mini_active = false;
-            blackDashboard.showSidebarMessage('Sidebar mini deactivated...');
-          } else {
-            $('body').addClass('sidebar-mini');
-            sidebar_mini_active = true;
-            blackDashboard.showSidebarMessage('Sidebar mini activated...');
-          }
-
-          // we simulate the window Resize so the charts will get updated in realtime.
-          var simulateWindowResize = setInterval(function() {
-            window.dispatchEvent(new Event('resize'));
-          }, 180);
-
-          // we stop the simulation of Window Resize after the animations are completed
-          setTimeout(function() {
-            clearInterval(simulateWindowResize);
-          }, 1000);
-        });
-
-        $('.switch-change-color input').on("switchChange.bootstrapSwitch", function() {
-          var $btn = $(this);
-
-          if (white_color == true) {
-
-            $('body').addClass('change-background');
-            setTimeout(function() {
-              $('body').removeClass('change-background');
-              $('body').removeClass('white-content');
-            }, 900);
-            white_color = false;
-          } else {
-
-            $('body').addClass('change-background');
-            setTimeout(function() {
-              $('body').removeClass('change-background');
-              $('body').addClass('white-content');
-            }, 900);
-
-            white_color = true;
-          }
-
-
-        });
-
-        $('.light-badge').click(function() {
-          $('body').addClass('white-content');
-        });
-
-        $('.dark-badge').click(function() {
-          $('body').removeClass('white-content');
-        });
-      });
-    });
-  </script>
-  <script>
-    $(document).ready(function() {
-      // Javascript method's body can be found in assets/js/demos.js
-      demo.initDashboardPageCharts();
-
-    });
-  </script>
   <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
     window.TrackJS &&
