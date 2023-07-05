@@ -1,0 +1,25 @@
+services:
+  frontend:
+    image: nginx:latest
+    restart: always
+    ports:
+      - 3333:80
+    volumes:
+      - /home/sjmama/frontend:/usr/share/nginx/html
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_mysql_root_password
+      MMYSQL_DATABASE: your_mysql_database_name
+      MMYSQL_USER: your_mysql_username
+      MMYSQL_PASSWORD: your_mysql_password
+    volumes:
+    - /home/sjmama/sql:/var/lib/mysql
+  backend:
+    volumes:
+      - /home/sjmama/backend:/backend
+    build:
+      context: .
+      dockerfile: pydockerfile
+    restart: always

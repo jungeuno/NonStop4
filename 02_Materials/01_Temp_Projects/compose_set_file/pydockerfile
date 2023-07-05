@@ -1,0 +1,5 @@
+FROM python:latest
+WORKDIR /backend
+RUN ls /backend
+COPY /backend /backend
+CMD ["python", "test.py"]
