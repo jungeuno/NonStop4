@@ -19,3 +19,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# test directory
+02_Materials/01_Temp_Projects/Baepo/src/main/webapp/test

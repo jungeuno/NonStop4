@@ -19,7 +19,9 @@
   box-shadow: none;
 }
 .dashboardcode-bsmultiselect ul.form-control.disabled {
-  background-color: #e9ecef;
+
+  /*background-color: #e9ecef;*/
+  background-color:#222a42 !important;
 }
 .dashboardcode-bsmultiselect ul.form-control::-moz-placeholder {
   color: #6c757d;
