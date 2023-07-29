@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <title>
-    Black Dashboard by Creative Tim
+    Baepo
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
@@ -22,34 +22,33 @@
   <div class="wrapper">
 
     <div class="sidebar">
-        <div class="sidebar-wrapper">
-          <div class="logo">
-            <a href="javascript:void(0)" class="simple-text logo-normal">
-              My Services
-            </a>
-          </div>
-          <ul class="nav">
-            <li class="active">
-              <a href="./myServices.html">
-                <i class="tim-icons icon-chart-pie-36"></i>
-                <p>당근마켓</p>
-              </a>
-            </li>
-            <li>
-              <a href="./myServices.html">
-                <i class="tim-icons icon-chart-pie-36"></i>
-                <p>토스</p>
-              </a>
-            </li>
-            <li>
-              <a href="./icons.html">
-              <!-- 배포하기 화면으로 전환-->
-              <i class="tim-icons icon-simple-add"></i>
-              <p>서비스 추가</p>
-              <!-- </a> -->
-            </li>
-          </ul>
+      <div class="sidebar-wrapper">
+        <div class="logo">
+          <a href="javascript:void(0)" class="simple-text logo-normal">
+            My Services
+          </a>
         </div>
+        <ul class="nav">
+          <li class="active">
+            <a href="./containerDash.html">
+              <i class="tim-icons icon-chart-pie-36"></i>
+              <p class="font-weight-bold">당근마켓</p>
+            </a>
+          </li>
+          <li>
+            <a href="./containerDash.html">
+              <i class="tim-icons icon-chart-pie-36"></i>
+              <p class="font-weight-bold">토스</p>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:;" id="openAddServiceModalBtn">
+              <i class="tim-icons icon-simple-add"></i>
+              <p class="font-weight-bold">서비스 추가</p>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="main-panel ps">
       <!-- Navbar -->
@@ -81,9 +80,9 @@
                 </a>
                 <ul class="dropdown-menu dropdown-navbar">
                   <li class="nav-link"><a href="./mypage.html" class="nav-item dropdown-item">Profile</a></li>
-                  <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Guide</a></li>
+                  <li class="nav-link"><a href="#" class="nav-item dropdown-item">Guide</a></li>
                   <li class="dropdown-divider"></li>
-                  <li class="nav-link"><a href="./" class="nav-item dropdown-item">Log out</a></li>
+                  <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Log out</a></li>
                 </ul>
               </li>
               <li class="separator d-lg-none"></li>
@@ -91,18 +90,6 @@
           </div>
         </div>
       </nav>
-      <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <i class="tim-icons icon-simple-remove"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- End Navbar -->
 
       <!-- container list -->
@@ -115,136 +102,64 @@
                 <h3 class="card-title" id="service-name">Service2</h5>
               </div>
 
-              <div class="card-body">
-                <div class="row">
-
-                  <!--Container 1-->
-                  <div class="col-3" id="container-space">
-                    <div class="font-icon-detail py-3" id="container">
-                      <div class="row no-mp" id="container-row-1"> <!--no-mp:mx-0 my-0 px-0 py-0-->
-                        <div class="col-2 no-mp" id="container-state">
-                          <span class="badge badge-pill" id="container-state-icon" data-color="red">o</span>
-                        </div>
-                        <div class="col-8 no-mp"></div><!--빈공간-->
-                        <div class="col-2 no-mp" id="container-framework-img">
-                          <i class="fab fa-twitter"></i>
-                        </div>
+              <div class="card-body" id="containerListCard">
+                <div class="row" id="containerListCardRow1">
+                  <div class="card-group col-12">
+                    <div class="card col-4 mr-3" style="border:1px solid #e44cc4">
+                      <div class="card-header">
+                        <span class="badge badge-pill badge-info col-1"> </span>
+                        <i class="fab fa-twitter col-10 text-right pr-0"></i>
                       </div>
-                      <div class="row m-auto p-2" id="container-row-2">
-                        <div class="col-12 no-mp" id="div-container-name">
-                          <h4 id="container-name">Container1</h4>
-                        </div>
+                      <div class="card-body text-center">
+                        <h4 id="container-name">for test</h4>
                       </div>
-
-                      <div class="row no-mp" id="container-row-3">
-                        <div class="col-4 no-mp" id="btns-start-stop">
-                          <div class="row no-mp">
-                            <div class="col-6 no-mp">
-                              <button class="btn btn-primary btn-link no-mp" id="btn-start">
-                                <i class="tim-icons icon-triangle-right-17" ></i>
-                              </button>
-                            </div>
-                            <div class="col-6 no-mp">
-                              <button class="btn btn-primary btn-link no-mp" id="btn-stop">
-                                <i class="tim-icons icon-button-pause"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-2 no-mp"></div> <!--빈공간-->
-                        <div class="col-6 no-mp" id="btns-extra">
-                          <div class="row no-mp">
-                            <div class="col-4 no-mp" id="btn-alarm">
-                              <button class="btn btn-primary btn-link no-mp" id="btn-alarm">
-                                <i class="tim-icons icon-bell-55"></i>
-                              </button>
-                            </div>
-                            <div class="col-4 no-mp" id="btn-monitoring">
-                              <button class="btn btn-primary btn-link no-mp" id="btn-monitoring">
-                                <i class="tim-icons icon-tv-2"></i>
-                              </button>
-                            </div>
-                            <div class="col-4 no-mp" id="btn-manage">
-                              <button class="btn btn-primary btn-link no-mp" id="btn-manage">
-                                <i class="tim-icons icon-settings-gear-63"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                      <div class="card-footer text-center">
+                        <button class="btn btn-primary btn-link">
+                          <i class="tim-icons icon-triangle-right-17" ></i>
+                        </button>
+                        <button class="btn btn-primary btn-link">
+                          <i class="tim-icons icon-button-pause"></i>
+                        </button>
+                        <button class="btn btn-primary btn-link monitoring-btn">
+                          <i class="tim-icons icon-tv-2"></i>
+                        </button>
+                        <button class="btn btn-primary btn-link managing-btn">
+                          <i class="tim-icons icon-settings-gear-63"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="card col-4 mr-3" style="border:1px solid #e44cc4">
+                      <div class="card-header">
+                        <span class="badge badge-pill badge-info col-1"> </span>
+                        <i class="fab fa-twitter col-10 text-right pr-0"></i>
+                      </div>
+                      <div class="card-body text-center">
+                        <h4 id="container-name">for test</h4>
+                      </div>
+                      <div class="card-footer text-center">
+                        <button class="btn btn-primary btn-link">
+                          <i class="tim-icons icon-triangle-right-17" ></i>
+                        </button>
+                        <button class="btn btn-primary btn-link">
+                          <i class="tim-icons icon-button-pause"></i>
+                        </button>
+                        <button class="btn btn-primary btn-link monitoring-btn">
+                          <i class="tim-icons icon-tv-2"></i>
+                        </button>
+                        <button class="btn btn-primary btn-link managing-btn">
+                          <i class="tim-icons icon-settings-gear-63"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="card col-4" style="border:1px solid #e44cc4">
+                      <div class="card-body text-center">
+                        <button class="btn btn-primary btn-round btn-simple my-5" id="newContainerBtn">
+                          <i class="tim-icons icon-simple-add"></i>
+                        </button>
                       </div>
                     </div>
                   </div>
-
-
-                  <!--Container 2-->
-                  <div class="col-3" id="container-space">
-                    <div class="font-icon-detail py-3" id="container">
-                      <div class="row no-mp" id="container-row-1"> <!--no-mp:mx-0 my-0 px-0 py-0-->
-                        <div class="col-2 no-mp" id="container-state">
-                          <span class="badge container-state badge-danger" data-color="red"></span>
-                        </div>
-                        <div class="col-8 no-mp"></div><!--빈공간-->
-                        <div class="col-2 no-mp" id="container-framework-img">
-                          <i class="fab fa-twitter"></i>
-                        </div>
-                      </div>
-                      <div class="row m-auto p-2" id="container-row-2">
-                        <div class="col-12 no-mp" id="div-container-name">
-                          <h4 id="container-name">Container2</h4>
-                        </div>
-                      </div>
-                      <div class="row no-mp" id="container-row-3">
-                        <div class="col-4 no-mp" id="btns-start-stop">
-                          <div class="row no-mp">
-                            <div class="col-6 no-mp">
-                              <button class="btn btn-primary btn-link" id="btn-start">
-                                <i class="tim-icons icon-triangle-right-17" ></i>
-                              </button>
-                            </div>
-                            <div class="col-6 no-mp">
-                              <button class="btn btn-primary btn-link" id="btn-stop">
-                                <i class="tim-icons icon-button-pause"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-2 no-mp"></div><!--빈공간-->
-                        <div class="col-6 no-mp" id="btns-extra">
-                          <div class="row no-mp">
-                            <div class="col-4 no-mp" id="btn-alarm">
-                              <button class="btn btn-primary btn-link" id="btn-alarm">
-                                <i class="tim-icons icon-bell-55"></i>
-                              </button>
-                            </div>
-                            <div class="col-4 no-mp" id="btn-monitoring">
-                              <button class="btn btn-primary btn-link" id="btn-monitoring">
-                                <i class="tim-icons icon-tv-2"></i>
-                              </button>
-                            </div>
-                            <div class="col-4 no-mp" id="btn-manage">
-                              <button class="btn btn-primary btn-link" id="btn-manage">
-                                <i class="tim-icons icon-settings-gear-63"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!--container추가 버튼-->
-                  <div class="col-3" id="container-space">
-                    <div class="font-icon-detail py-3" id="container">
-                      <div class="row no-mp no-mp" id="btn-plus-container">
-                        <div class="col-12 no-mp py-sm-4">
-                          <button class="btn btn-primary btn-round btn-simple no-mp">
-                            <i class="tim-icons icon-simple-add"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+                  <!--card-group 종료-->
                 </div>
               </div>
             </div>
@@ -252,149 +167,40 @@
           </div>
       </div>
     </div>
+    <!-- for modal : new Service-->
+    <div class="modal fade" id="newServiceModal" tabindex="-1" aria-labelledby="add new service">
+      <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">새로운 서비스 생성하기</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+              <i class="tim-icons icon-simple-remove"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="#" accept-charset="utf-8" name="newServiceName" method="post"> <!--action 태그로 restful api지정해줘야 함-->
+              <div class="form-group">
+                <label for="newServiceName" class="col-form-label font-weight-bold" >서비스 이름</label>
+                <input type="text"  class="form-control-plaintext" id="newServiceName" placeholder="새 서비스의 이름을 입력하세요" required>
+                <button type="button" id="addServiceBtn" class="btn btn-sm mt-3">생성하기</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--End of modal-->
+
   </div>
 
   <!--   Core JS Files   -->
-  <script src="../assets/js/core/jquery.min.js"></script>
-  <script src="../assets/js/core/popper.min.js"></script>
-  <script src="../assets/js/core/bootstrap.min.js"></script>
-  <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!--  Google Maps Plugin    -->
-  <!-- Place this tag in your head or just before your close body tag. -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chart JS -->
-  <script src="../assets/js/plugins/chartjs.min.js"></script>
-  <!--  Notifications Plugin    -->
-  <script src="../assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/black-dashboard.min.js?v=1.0.0"></script><!-- Black Dashboard DEMO methods, don't include it in your project! -->
-  <script src="../assets/demo/demo.js"></script>
-  <script>
-    $(document).ready(function() {
-      $().ready(function() {
-        $sidebar = $('.sidebar');
-        $navbar = $('.navbar');
-        $main_panel = $('.main-panel');
-
-        $full_page = $('.full-page');
-
-        $sidebar_responsive = $('body > .navbar-collapse');
-        sidebar_mini_active = true;
-        white_color = false;
-
-        window_width = $(window).width();
-
-        fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
-
-
-
-        $('.fixed-plugin a').click(function(event) {
-          if ($(this).hasClass('switch-trigger')) {
-            if (event.stopPropagation) {
-              event.stopPropagation();
-            } else if (window.event) {
-              window.event.cancelBubble = true;
-            }
-          }
-        });
-
-        $('.fixed-plugin .background-color span').click(function() {
-          $(this).siblings().removeClass('active');
-          $(this).addClass('active');
-
-          var new_color = $(this).data('color');
-
-          if ($sidebar.length != 0) {
-            $sidebar.attr('data', new_color);
-          }
-
-          if ($main_panel.length != 0) {
-            $main_panel.attr('data', new_color);
-          }
-
-          if ($full_page.length != 0) {
-            $full_page.attr('filter-color', new_color);
-          }
-
-          if ($sidebar_responsive.length != 0) {
-            $sidebar_responsive.attr('data', new_color);
-          }
-        });
-
-        $('.switch-sidebar-mini input').on("switchChange.bootstrapSwitch", function() {
-          var $btn = $(this);
-
-          if (sidebar_mini_active == true) {
-            $('body').removeClass('sidebar-mini');
-            sidebar_mini_active = false;
-            blackDashboard.showSidebarMessage('Sidebar mini deactivated...');
-          } else {
-            $('body').addClass('sidebar-mini');
-            sidebar_mini_active = true;
-            blackDashboard.showSidebarMessage('Sidebar mini activated...');
-          }
-
-          // we simulate the window Resize so the charts will get updated in realtime.
-          var simulateWindowResize = setInterval(function() {
-            window.dispatchEvent(new Event('resize'));
-          }, 180);
-
-          // we stop the simulation of Window Resize after the animations are completed
-          setTimeout(function() {
-            clearInterval(simulateWindowResize);
-          }, 1000);
-        });
-
-        $('.switch-change-color input').on("switchChange.bootstrapSwitch", function() {
-          var $btn = $(this);
-
-          if (white_color == true) {
-
-            $('body').addClass('change-background');
-            setTimeout(function() {
-              $('body').removeClass('change-background');
-              $('body').removeClass('white-content');
-            }, 900);
-            white_color = false;
-          } else {
-
-            $('body').addClass('change-background');
-            setTimeout(function() {
-              $('body').removeClass('change-background');
-              $('body').addClass('white-content');
-            }, 900);
-
-            white_color = true;
-          }
-
-
-        });
-
-        $('.light-badge').click(function() {
-          $('body').addClass('white-content');
-        });
-
-        $('.dark-badge').click(function() {
-          $('body').removeClass('white-content');
-        });
-      });
-    });
-  </script>
-  <script>
-    $(document).ready(function() {
-      // Javascript method's body can be found in assets/js/demos.js
-      demo.initDashboardPageCharts();
-
-    });
-  </script>
-  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
-  <script>
-    window.TrackJS &&
-      TrackJS.install({
-        token: "ee6fab19c5a04ac1a32a645abde4613a",
-        application: "black-dashboard-free"
-      });
-  </script>
+  <script src="../assets/js/core/jquery.min.js" defer></script>
+  <script src="../assets/js/core/popper.min.js" defer></script>
+  <script src="../assets/js/core/bootstrap.min.js" defer></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js" defer></script>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js" defer></script>
+  <script src="../assets/js/black-dashboard/black-dashboard.min.js?v=1.0.0" defer></script>
+  <script src="../assets/js/containerList.js" defer></script>
 </body>
 
 </html>

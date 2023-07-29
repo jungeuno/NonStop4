@@ -23,6 +23,12 @@
   color:#FFFFFF; font-weight:bolder;
 }
 
+/*내가 만든 카드 스타일 containerList.html에서 사용할 것임*/
+.card-container {
+  border:1px solid #e44cc4;
+  border-radius: .1875rem;
+}
+
 /*     brand Colors              */
 /* navbar color */
 :root {
@@ -6605,7 +6611,7 @@ a.close.disabled {
 }
 
 .modal-backdrop.show {
-  opacity: 0.16;
+  opacity: 1; /* (modified) opacity:0.16; 이었는데 배경 흐리기 효과가 너무 적어서 변경해줌*/
 }
 
 .modal-header {
