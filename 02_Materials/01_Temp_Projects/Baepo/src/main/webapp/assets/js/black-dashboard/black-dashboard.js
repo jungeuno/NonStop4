@@ -60,14 +60,11 @@ var seq2 = 0,
     }
 
     if ($('.sidebar .sidebar-wrapper').length != 0) {
-
       var ps1 = new PerfectScrollbar('.sidebar .sidebar-wrapper');
       $('.table-responsive').each(function() {
         var ps2 = new PerfectScrollbar($(this)[0]);
       });
     }
-
-
 
     $html.addClass('perfect-scrollbar-on');
   } else {
@@ -81,10 +78,9 @@ $(document).ready(function() {
   var startchange = $('.row');
   var offset = startchange.offset();
   var scrollElement = navigator.platform.indexOf('Win') > -1 ? $(".ps") : $(window);
+
   scrollElement.scroll(function() {
-
     scroll_start = $(this).scrollTop();
-
     if (scroll_start > 50) {
       $(".navbar-minimize-fixed").css('opacity', '1');
     } else {
