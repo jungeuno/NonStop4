@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="../assets/img/apple-icon.png"
+    />
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
+    <title>Black Dashboard by Creative Tim</title>
+    <!--     Fonts and icons     -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800"
+      rel="stylesheet"
+    />
+    <link
+      href="https://use.fontawesome.com/releases/v5.0.6/css/all.css"
+      rel="stylesheet"
+    />
+    <!-- Nucleo Icons -->
+    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+    <!-- CSS Files -->
+    <!-- <link href="../assets/css/black-dashboard.css?v=1.0.0" rel="stylesheet" /> -->
+    <link
+      href="{{ url_for('static', filename='assets/css/black-dashboard.css') }}"
+      rel="stylesheet"
+    />
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <!-- <link href="../assets/demo/demo.css" rel="stylesheet" /> -->
+  </head>
+
+  <body class="">
+    <div class="wrapper">
+      <div class="main-panel">
+        <!-- Navbar -->
+        <div class="pt-5">
+          <h1 class="text-center" id="mylogo" href="./main.html">BaePo</h1>
+        </div>
+
+        <!-- End Navbar -->
+        <div class="content">
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="title">
+                    <a href="./main.html"><-홈으로</a>
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <form>
+                    <div class="row">
+                      <div class="col-md-1"></div>
+                      <div class="col-md-10">
+                        <div class="form-group">
+                          <h2 class="card-title">로그인</h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-1"></div>
+                      <div class="col-md-8">
+                        <div class="form-group">
+                          <label>가입한 계정으로 로그인 하세요</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row p-5">
+                      <div class="col-md-7 mx-auto">
+                        <div class="form-group">
+                          <button
+                            type="login"
+                            id="login-button"
+                            class="btn btn-primary"
+                          >
+                            구글 계정으로 로그인
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <div class="row p-5">
+                        <div class="col-md-12 mx-auto">
+                          <div class="form-group">
+                            <div class="card-text">
+                              아직 가입 하지 않으셨나요?
+                              <a href="./register.html" class="card-link"
+                                >회원가입</a
+                              >
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="text-center">
+                  <div class="card-footer">
+                    <small
+                      ><a href="#" class="card-link">서비스 이용약관</a>
+                      <a href="#" class="card-link">개인처리 방침</a></small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--   Core JS Files   -->
+    <script src="../assets/js/core/jquery.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="../assets/js/black-dashboard.min.js?v=1.0.0"></script>
+    <!-- Black Dashboard DEMO methods, don't include it in your project! -->
+    <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+    <script src="../assets/js/login.js"></script>
+  </body>
+</html>
