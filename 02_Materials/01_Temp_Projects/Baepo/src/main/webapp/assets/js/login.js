@@ -7,24 +7,24 @@ function saveUserInfo(){
     //save user-id 
 }
 
-async function login(baseURL){
-    console.log(`login func 진입`);
+const baseURL=window.location.origin;
+
+async function login(){
     const requestURI = `/login`;
     const url = baseURL + requestURI;
     alert(url);
     try{
         const response=await fetch(url,{
-            method: 'GET',
+            method: 'POST',
             redirect: 'error'
         });
     } catch(error) {
-        console.log(`login 함수에서 에러 발생 :\n${error}`);
+        console.log(`login 요청 과정에서 error 발생 :\n${error}`);
     }
 }
 
 $(document).ready(function() {
     $().ready(function() {
-        const baseURL = window.location.origin;
         const loginButton=document.querySelector("#login-button")
         loginButton.addEventListener("click",login);
 
