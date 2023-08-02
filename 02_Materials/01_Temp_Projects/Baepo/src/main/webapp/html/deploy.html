@@ -46,7 +46,7 @@
           <li>
             <a href="./icons.html">
             <i class="tim-icons icon-simple-add"></i>
-            <p class="font-weight-bold">서비스 추가</p>
+            <p class="font-weight-bold">새 서비스 배포하기</p>
           </li>
         </ul>
       </div>
@@ -100,19 +100,20 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">컨테이너 추가하기</h3>
+                <h3 class="card-title">서비스 배포하기</h3>
               </div>
               <div class="card-body">
                 <form>
                   <div class="form-row">
                     <div class="form-group col-12">
-                      <h5 class="mt-4 my-2">컨테이너 이름</h5>
-                      <input type="text" class="form-control" placeholder="컨테이너의 이름을 입력하세요">
+                      <h5 class="mt-4 my-2">서비스 이름</h5>
+                      <input type="text" class="form-control" placeholder="서비스의 이름을 입력하세요">
                     </div>
                   </div>
                   <div class="form-row">
                       <div class="form-group">
-                        <h5 class="mt-4 my-2">컨테이너 배포 파일 업로드</h5>
+                        <h5 class="mt-4 my-2">서비스 파일 업로드</h5>
+                        <small id="devEnvHelp" class="form-text text-muted">프론트, 백, 데이터베이스 파일을 하나의 zip파일로 압축해서 올려주세요</small>
                         <label for="inputUploadFile">
                           <button type="button" id="btnUploadFile" class="btn btn-sm" data-original-title="upload File" onclick="">
                             <i class="tim-icons icon-upload"></i>
