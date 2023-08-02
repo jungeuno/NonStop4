@@ -24,6 +24,20 @@ def login_page():
 def main_page():
     return render_template('main.html')
 
+@app.route('/register.html')
+def register_page():
+    return render_template('register.html')
+    
+@app.route('/mypage.html')
+def my_page():
+    if oauth2.has_credentials():
+        return render_template('mypage.html', useremail=oauth2.email)
+    
+@app.route('/editDeploy.html')
+def editDeploy_page():
+    if oauth2.has_credentials():
+        return render_template('editDeploy.html', useremail=oauth2.email)
+
 @app.route('/containerList.html')
 def containerList_page():
     if oauth2.has_credentials():
@@ -38,11 +52,6 @@ def containerDash_page():
 def deploy_page():
     if oauth2.has_credentials():
         return render_template('deploy.html', useremail=oauth2.email)
-
-@app.route('/editDeploy.html')
-def editDeploy_page():
-    if oauth2.has_credentials():
-        return render_template('editDeploy.html', useremail=oauth2.email)
 
 # Note that app.route should be the outermost decorator.
 # 로그인
