@@ -329,6 +329,10 @@ function startHtml() {
 
   loadData();
 
+  const userEmailP=document.querySelector("p#userEmail");
+  const userEmail=userEmailP.innerText;
+  localStorage.setItem("user-email",userEmail);
+
   /*for modal
   const openAddServiceModalBtn = document.getElementById(
     "openAddServiceModalBtn"
