@@ -51,11 +51,6 @@
         -> user-id, service-id 추출
         -> deploy.html로 이동 : user-id, service-id 담아서 
 */
-window.TrackJS &&
-  TrackJS.install({
-    token: "ee6fab19c5a04ac1a32a645abde4613a",
-    application: "black-dashboard-free",
-  });
 
 //class names for nav element 
 const TIMS_ICONS_CLASS="tim-icons";
@@ -89,16 +84,20 @@ const MONITORING_BUTTON_CLASS="monitoring-btn";
 const MANAGING_BUTTON_CLASS="managing-btn";
 const ICON_MONITORING_CLASS="icon-tv-2";
 const ICON_MANAGING_CLASS="icon-settings-gear-63";
-//for localstorage key
-const KEY_USER_EMAIL="user-email";
-const KEY_SERVICE_NAME="service-name";
 
 const baseURL=window.location.origin;
+const userId=localStorage.getItem("user-id");
 
-async function getServiceList(userEmail){
+window.TrackJS &&
+  TrackJS.install({
+    token: "ee6fab19c5a04ac1a32a645abde4613a",
+    application: "black-dashboard-free",
+  });
+
+async function getServiceList(userId) {
   //사용자 id를 가지고 서비스 목록을 가져온다
   //error처리는 함수 호출 부에서 then / catch로 처리
-  const requestURI = `/users/${userEmail}/services`;
+  const requestURI = `/users/${userId}/services`;
   const url = baseURL + requestURI;
   const options = {
     method: "GET",
@@ -120,33 +119,30 @@ async function getServiceList(userEmail){
 }
 
 async function handleNavElementClick(event){ //nav에서 특정 앱을 클릭하면 하는 작업
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
   console.log("handleNavElementClick Func Start..."); //for logging
   //1. 기존 active붙어있는 애한테서 active class 제거하기
   const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
   console.log(previousActiveLi);
   previousActiveLi.classList.remove(ACTIVE_CLASS);
-  localStorage.removeItem(KEY_SERVICE_NAME);
 
   //2. click된 li tag에 active class 붙이기
   event.target.parentNode.classList.add("active");
   
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
-  const serviceName=event.target.querySelector("p").innerText;
-  localStorage.setItem(KEY_SERVICE_NAME,serviceName);
-  const containerList=await getContainerList(userEmail,serviceName);
+  const serviceId=event.target.parentNode.id;
+  const containerList=await getContainerList(userId,serviceId);
   printContainerList(containerList);
 }
 
 function makeNavElement(serviceInfo){
   const li=document.createElement("li");
+  li.id=serviceInfo.serviceName;
   const a=document.createElement("a");
   const i=document.createElement("i");
   i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_CLASS);
   const p=document.createElement("p");
   p.classList.add(FONT_WEIGHT_BOLD_CLASS);
   p.innerText=serviceInfo["serviceName"];
-  li.id=p.innerText;
   a.appendChild(i);
   a.appendChild(p);
   li.appendChild(a);
@@ -154,20 +150,17 @@ function makeNavElement(serviceInfo){
 }
 
 function printNavWithServiceList(serviceList) {
-  const navUl=document.querySelector(".sidebar>.sidebar-wrapper ul.nav");
   for (let i = 0; i < serviceList.length; i++) {
     let li=makeNavElement(serviceList[i]);
     if(i===0){
       li.classList.add("active");
-      localStorage.setItem(KEY_SERVICE_NAME,li.id);
     }
-    navUl.appendChild(li);
   }
 }
 
 
-async function getContainerList(userEmail,serviceName) {
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers`;
+async function getContainerList(userId, serviceId) {
+  const requestURI = `/users/${userId}/services/${serviceId}/containers`;
   const url = baseURL + requestURI;
   const options = {
     method: "GET",
@@ -190,22 +183,18 @@ async function getContainerList(userEmail,serviceName) {
 }
 
 function printContainerList(containerList){
-  const cardGroupDiv=document.querySelector(".card .card-body>div.row>.card-group");
   for (let i = 0; i < containerList.length; i++) {
-    let cardDiv=makeNavElement(containerList[i]);
-    cardGroupDiv.appendChild(cardDiv);
+    makeNavElement(containerList[i]);
   }
 }
 
 function handleContainerRunButtonClick(event){ //container state stop -> run변경
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-  const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerName=cardDiv.id;
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers/${containerName}`;
+  const containerId=cardDiv.id;
+  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
   const url = baseURL + requestURI;
   const options = {
-    method: "UPDATE",
+    method: "POST",
     body : "run",
   };
   fetch(url,options)
@@ -221,14 +210,12 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
 }
 
 function handleContainerPauseButtonClick(event){ //container state run -> stop으로 변경
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-  const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerName=cardDiv.id;
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers/${containerName}`;
+  const containerId=cardDiv.id;
+  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
   const url = baseURL + requestURI;
   const options = {
-    method: "UPDATE",
+    method: "POST",
     body: "pause",
   };
   fetch(url,options)
@@ -244,11 +231,9 @@ function handleContainerPauseButtonClick(event){ //container state run -> stop�
 }
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-  const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerName=cardDiv.id;
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers/${containerName}`;
+  const containerId=cardDiv.id;
+  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
   const url = baseURL + requestURI;
   const options = {
     method: "GET",
@@ -256,10 +241,10 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
   fetch(url,options);
 }
 
-function handleServiceManagingButtonClick(event){ //editDeploy.html로 이동 userid,serviceid가지고
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-  const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
-  const requestURI = `/users/${userEmail}/services/${serviceName}/`;
+function handleContainerManagingButtonClick(event){ //editDeploy.html로 이동 userid,serviceid가지고
+  const cardDiv=event.target.parentNode.parentNode;
+  const containerId=cardDiv.id;
+  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
   const url = baseURL + requestURI;
   const options = {
     method: "UPDATE",
@@ -317,45 +302,77 @@ function makeContainerElement(containerInfo){
   containerMonitoringI.classList.add(TIMS_ICONS_CLASS,ICON_MONITORING_CLASS);
   containerMonitoringButton.appendChild(containerMonitoringI);
 
+  const containerManagingButton=document.createElement("button");
+  containerManagingButton.classList.add(BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS,MANAGING_BUTTON_CLASS);
+  containerManagingButton.addEventListener("click",handleContainerManagingButtonClick);
+  const containerManagingI=document.createElement("i");
+  containerManagingI.classList.add(TIMS_ICONS_CLASS,ICON_MANAGING_CLASS);
+  containerManagingButton.appendChild(containerManagingI);
+
   cardFooterDiv.appendChild(containerRunButton);
   cardFooterDiv.appendChild(containerPauseButton);
   cardFooterDiv.appendChild(containerMonitoringButton);
-
-  cardDiv.appendChild(cardHeaderDiv);
-  cardDiv.appendChild(cardBodyDiv);
-  cardDiv.appendChild(cardFooterDiv);
-  return cardDiv;
+  cardFooterDiv.appendChild(containerManagingButton);
 }
 
-async function loadData(userEmail){
-  const serviceList=await getServiceList(userEmail);
+async function loadData(){
+  const serviceList=await getServiceList(userId);
   printNavWithServiceList(serviceList);
 
-  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active").id;
-  const containerList=await getContainerList(userEmail,activeServiceName);
+  const activeServiceId=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active").id;
+  const containerList=await getContainerList(userId,activeServiceId);
   printContainerList(containerList);
 }
-
 function startHtml() {
   console.log("startHtml call");
   const sidebarNav = document.querySelector(".sidebar>.sidebar-wrapper ul.nav");
 
+  loadData();
+
   const userEmailP=document.querySelector("p#userEmail");
   const userEmail=userEmailP.innerText;
-  localStorage.setItem(KEY_USER_EMAIL,userEmail);
+  localStorage.setItem("user-email",userEmail);
 
-  loadData(userEmail);
-
+  /*for modal
+  const openAddServiceModalBtn = document.getElementById(
+    "openAddServiceModalBtn"
+  );
+  const addServiceBtn = document.getElementById("addServiceBtn");
+  $("#newServiceModal").on("shown.bs.modal", function () {
+    document.getElementById("newServiceName").focus();
+  });
+  openAddServiceModalBtn.addEventListener("click", () => {
+    $("#newServiceModal").modal("show");
+  });
+  addServiceBtn.addEventListener("click", () => {
+    const newServiceName = document.querySelector("#newServiceName").innerText;
+    console.log(newServiceName);
+    makeNavElement(newServiceName);
+  });
+  */
 
   const newContainerBtn = document.getElementById("openAddServiceModalBtn");
   newContainerBtn.addEventListener("click", function () {
     location.href = "deploy.html";
   });
 
-  const serviceManagingButton=document.querySelector("button#serviceManagingButton");
-  serviceManagingButton.addEventListener("click",handleServiceManagingButtonClick);
+  const monitoringBtns = document.querySelectorAll(".monitoring-btn");
+  for (let i = 0; i < monitoringBtns.length; i++) {
+    const btn = monitoringBtns[i];
+    btn.addEventListener("click", () => {
+      //사용자 id도 같이 보내줘야 한다.
+      location.href = "containerDash.html";
+    });
+  }
 
-
+  const managingBtns = document.querySelectorAll(".managing-btn");
+  for (let i = 0; i < managingBtns.length; i++) {
+    const btn = managingBtns[i];
+    btn.addEventListener("click", () => {
+      //사용자 id도 같이 보내줘야 한다.
+      location.href = "editDeploy.html";
+    });
+  }
 }
 
 $(document).ready(() => $().ready(startHtml));
