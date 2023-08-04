@@ -144,7 +144,7 @@ def handle_user_services(userEmail):
         print(user_data[userEmail])
         # 응답 메시지
         # response_data = {'message': 'Success'}
-        return user_data[userEmail]
+        return render_template('containerList.html', user_data[userEmail])
 
     return 'Fail'
 
