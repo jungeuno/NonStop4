@@ -21,7 +21,7 @@ data_file_path = 'data.json'
 # JSON 파일을 읽어서 데이터를 저장할 딕셔너리 생성
 user_data = {}
 if os.path.exists(data_file_path):
-    with open(data_file_path, 'r') as fp:
+    with open(data_file_path, 'r', encoding='utf-8') as fp:
         user_data = json.load(fp)
 
 # route 설정 & 페이지 렌더링
@@ -96,8 +96,8 @@ def logout():
 # json.dump 파일 프론트로 렌더링 되는지 확인 -> 상태 값은 모니터링 때, 받아올 수 있음 / 개발 환경은 프론트 체크 박스에서 받아와야 함. 
 
 # /users/${userEmail}/services 경로에 대한 엔드포인트 함수
-@app.route('/users/<string:userEmail>/services', methods=['POST', 'GET'])
-def handle_user_services(userEmail):
+@app.route('/services', methods=['POST', 'GET'])
+def handle_user_services():
     if request.method == 'POST':
         if 'uploadFile_name' in request.files:
             file = request.files['uploadFile_name']  # 업로드되는 파일 받기
@@ -109,7 +109,7 @@ def handle_user_services(userEmail):
         envx = request.form.getlist('envx')          # 선택된 개발 환경 리스트 받기
 
         # 폼 데이터 및 파일 정보를 확인하는 코드 (테스트용)
-        print('User :', userEmail)
+        print('User :', oauth2.email)
         print('Service Name:', program_name)
         print('Uploaded File Name:', file_name)
         print('file: ', file)
@@ -124,55 +124,31 @@ def handle_user_services(userEmail):
         # print(response_data)
 
         # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 객체 생성
-        if userEmail in user_data:
-            user_data[userEmail].append({
+        if oauth2.email in user_data:
+            user_data[oauth2.email].append({
                 'Service Name': program_name,
-                'Uploaded File Name': file_name,
+                'State': 'run',
                 'envx': envx
             })
         else:
-            user_data[userEmail] = [{
+            user_data[oauth2.email] = [{
                 'Service Name': program_name,
-                'Uploaded File Name': file_name,
+                'State': 'run',
                 'envx': envx
             }]
 
-        # JSON 파일에 데이터를 저장
-        with open(data_file_path, 'w') as fp:
-            json.dump(user_data, fp, sort_keys=True, indent=4)
+         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+        with open(data_file_path, 'w', encoding='utf-8') as fp:
+            json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
-        print(user_data[userEmail])
-        # 응답 메시지
-        # response_data = {'message': 'Success'}
-        return render_template('containerList.html', user_data[userEmail])
+        # 응답으로 JSON 형식의 데이터 반환
+        print(json.dumps({oauth2.email: user_data[oauth2.email]}))
+
+        # 응답으로 JSON 형식의 데이터 반환
+        return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}))
 
     return 'Fail'
 
-    #     # return render_template('containerLsit.html', service_name=programname)
-    #     folder_name = f"{oauth2.email}"             # 폴더명 (사용자 이름)
-    #     program_name = f"{programname}"             # 폴더명 (프로그램 명)
-    #     file_name = f"{filename}"                   # 파일명 (파일 명)
-
-    #     folder_path = os.path.join(BASE_DIR, 'userSource', folder_name)
-    #     os.makedirs(folder_path, exist_ok=True)
-
-    #     # 저장할 파일의 경로 설정
-    #     file_path = os.path.join(folder_path, file_name)
-    #     file.save(file_path)
-
-    #     # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행 // 파일 경로 논의 필요    !!!!!!!!!!!!!!!!!!
-    #     if file_path.endswith('.zip'):
-    #         unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-    #         with zipfile.ZipFile(file_path, 'r') as zip_ref:
-    #             zip_ref.extractall(unzip_folder_path)
-    #         os.remove(file_path)  # .zip 파일 삭제
-
-    #     # GitHub에 업로드
-    #     upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-
-    #     return render_template('containerList.html')
-    # else:
-    #     return 'alert 경고창 출력 & 초기화'
 
 # 파일 업로드 & Git Push 자동화
 # 해당 폴더에서 미리 userSource 폴더 안에서 [1. git init] [2. git remote add origin <깃허브주소링크>] 셋팅해주어야 함.

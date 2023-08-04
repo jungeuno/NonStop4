@@ -1,0 +1,26 @@
+{
+  "jungeuno76@gmail.com": [
+    {
+      "Service Name": "배포테스트",
+      "State": "run",
+      "envx": ["1", "3", "7", "11"]
+    },
+    {
+      "Service Name": "배포테스트",
+      "State": "run",
+      "envx": ["1", "3", "7", "11"]
+    }
+  ],
+  "jungeuno76@skuniv.ac.kr": [
+    {
+      "Service Name": "배포테스트",
+      "State": "run",
+      "envx": ["1", "3", "6", "7", "11"]
+    },
+    {
+      "Service Name": "테스트",
+      "State": "run",
+      "envx": ["1", "6", "11", "15"]
+    }
+  ]
+}

@@ -14,7 +14,7 @@ async function handleFormSubmit(event) {
     console.log(pair[0] + ": " + pair[1]);
   }
 
-  const requestURI = `/users/${userEmail}/services`;
+  const requestURI = `/services`;
   const url = baseURL + requestURI;
   const options = {
     method: "POST",
@@ -25,6 +25,7 @@ async function handleFormSubmit(event) {
     // 서버로부터의 응답 처리 로직
     // console.log("서버 응답:", response);
     if (response.ok) {
+      window.location.href = "/containerList.html";
       console.log("서버 응답:", response);
     }
   } catch (error) {
