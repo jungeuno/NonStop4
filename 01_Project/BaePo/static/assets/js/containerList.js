@@ -189,8 +189,10 @@ async function getContainerList(userEmail, serviceName) {
 }
 
 function printContainerList(containerList){
+  const cardGroupDiv=document.querySelector("div#containerListCard>.row>.card-group");
   for (let i = 0; i < containerList.length; i++) {
-    makeNavElement(containerList[i]);
+    let container=makeContainerElement(containerList[i]);
+    cardGroupDiv.appendChild(container);
   }
 }
 
@@ -247,23 +249,15 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
   fetch(url,options);
 }
 
-function handleContainerManagingButtonClick(event){ //editDeploy.html로 이동 userid,serviceid가지고
-  const cardDiv=event.target.parentNode.parentNode;
-  const containerId=cardDiv.id;
-  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "UPDATE",
-  };
-  fetch(url,options);
-}
 
-function makeContainerElement(containerInfo){
+function makeContainerElement(containerInfo){ //container data받아서 html에 표시해줄 요소 생성
+  //card 틀 div만들기
   const cardDiv=document.createElement("div");
   cardDiv.classList.add(CARD_CLASS,CARD_SIZE_CLASS,CARD_MARGIN_CLASS);
   cardDiv.style=CARD_STYLE;
   cardDiv.id=containerInfo.containerName;
 
+  //cardHeader div만들기 : state + env
   const cardHeaderDiv=document.createElement("div");
   cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
   const badgeSpan=document.createElement("span");
@@ -273,12 +267,14 @@ function makeContainerElement(containerInfo){
   cardHeaderDiv.appendChild(badgeSpan);
   cardHeaderDiv.appendChild(frameworkIconI);
 
+  //cardBody div 만들기 : name
   const cardBodyDiv=document.createElement("div");
   cardBodyDiv.classList.add(CARD_BODY_CLASS,TEXT_CENTER_CLASS);
   const containerNameH4=document.createElement("h4");
   containerNameH4.innerText=containerInfo.containerName;
   cardBodyDiv.appendChild(containerNameH4);
 
+  //cardFooter div만들기 : button
   const cardFooterDiv=document.createElement("div");
   cardFooterDiv.classList.add(CARD_FOOTER_CLASS,TEXT_CENTER_CLASS);
   const containerRunButton=document.createElement("button");
@@ -308,40 +304,54 @@ function makeContainerElement(containerInfo){
   containerMonitoringI.classList.add(TIMS_ICONS_CLASS,ICON_MONITORING_CLASS);
   containerMonitoringButton.appendChild(containerMonitoringI);
 
-  const containerManagingButton=document.createElement("button");
-  containerManagingButton.classList.add(BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS,MANAGING_BUTTON_CLASS);
-  containerManagingButton.addEventListener("click",handleContainerManagingButtonClick);
-  const containerManagingI=document.createElement("i");
-  containerManagingI.classList.add(TIMS_ICONS_CLASS,ICON_MANAGING_CLASS);
-  containerManagingButton.appendChild(containerManagingI);
-
   cardFooterDiv.appendChild(containerRunButton);
   cardFooterDiv.appendChild(containerPauseButton);
   cardFooterDiv.appendChild(containerMonitoringButton);
-  cardFooterDiv.appendChild(containerManagingButton);
+
+  //cardDiv에 cardHeader, cardBody, cardFooter담기
+  cardDiv.appendChild(cardHeaderDiv);
+  cardDiv.appendChild(cardBodyDiv);
+  cardDiv.appendChild(cardFooterDiv);
+
+  return cardDiv;
 }
 
-async function loadData(userEmail){
+async function handleServiceManaginButtonClick(event){
+  location.href=`${baseURL}/editDeploy.html`;
+
+}
+
+async function loadData(userEmail){ //데이터 구성하기 위해서 백앤드에 데이터 요청하고 화면구성하는 작업
   const serviceList=await getServiceList(userEmail);
   printNavWithServiceList(serviceList);
 
   const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active").id;
   const containerList=await getContainerList(userEmail,activeServiceName);
   printContainerList(containerList);
+
+  const serviceNameH3=document.querySelector("h3#serviceName");
+  serviceNameH3.innerText=activeServiceName;
 }
-function startHtml() {
+
+function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
   console.log("startHtml call");
 
   const userEmailP=document.querySelector("p#userEmail");
   const userEmail=userEmailP.innerText;
-  localStorage.setItem("user-email",userEmail);
+  localStorage.setItem(KEY_USER_EMAIL,userEmail);
 
   loadData(userEmail);
 
-  const newContainerBtn = document.getElementById("openAddServiceModalBtn");
+  const newContainerBtn = document.querySelector(".sidebar>.sidebar-wrapper nav li>a#deployButton");
+  console.log(newContainerBtn);
   newContainerBtn.addEventListener("click", function () {
     location.href = "deploy.html";
   });
+
+  const serviceManagingButton=document.querySelector("#serviceManagingButton");
+  console.log(serviceManagingButton);
+  serviceManagingButton.addEventListener("click",handleServiceManaginButtonClick);
+
 
 }
 
