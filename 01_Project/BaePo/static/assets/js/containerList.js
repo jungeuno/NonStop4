@@ -96,6 +96,7 @@ const KEY_SERVICE_NAME="service-name";
 const baseURL=window.location.origin;
 
 async function getServiceList(userEmail) {
+  console.log("getServiceList Func Starts...");
   //사용자 id를 가지고 서비스 목록을 가져온다
   //error처리는 함수 호출 부에서 then / catch로 처리
   const requestURI = `/users/${userEmail}/services`;
@@ -106,9 +107,11 @@ async function getServiceList(userEmail) {
   try{
     let response = await fetch(url, options);
     if (response.ok){
+      console.log("getServiceList : response : ",response);
       const serviceListJSON=await response.json();
-      console.log(serviceListJSON); 
+      console.log("getServiceList : response.json() : ",serviceListJSON);
       const serviceList=JSON.parse(serviceListJSON)["services"];
+      console.log("getSEerviceList : serviceList : ",serviceList);
       return serviceList;
     } else { //재요청 
       console.log(response.status);
@@ -132,7 +135,7 @@ async function handleNavElementClick(event){ //nav에서 특정 앱을 클릭하
   
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
   const serviceName=event.target.parentNode.id;
-  localStorage.getItem(KEY_SERVICE_NAME,serviceName);
+  localStorage.setItem(KEY_SERVICE_NAME,serviceName);
   const containerList=await getContainerList(userEmail,serviceName);
   printContainerList(containerList);
 }
@@ -316,11 +319,6 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   return cardDiv;
 }
 
-async function handleServiceManaginButtonClick(event){
-  location.href=`${baseURL}/editDeploy.html`;
-
-}
-
 async function loadData(userEmail){ //데이터 구성하기 위해서 백앤드에 데이터 요청하고 화면구성하는 작업
   const serviceList=await getServiceList(userEmail);
   printNavWithServiceList(serviceList);
@@ -342,15 +340,15 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 
   loadData(userEmail);
 
-  const newContainerBtn = document.querySelector(".sidebar>.sidebar-wrapper nav li>a#deployButton");
-  console.log(newContainerBtn);
+  const newContainerBtn = document.querySelector("#deployButton");
   newContainerBtn.addEventListener("click", function () {
     location.href = "deploy.html";
   });
 
   const serviceManagingButton=document.querySelector("#serviceManagingButton");
-  console.log(serviceManagingButton);
-  serviceManagingButton.addEventListener("click",handleServiceManaginButtonClick);
+  serviceManagingButton.addEventListener("click",()=>{
+    location.href="editDeploy.html"
+  });
 
 
 }

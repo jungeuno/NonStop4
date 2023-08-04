@@ -1,9 +1,10 @@
 const baseURL=window.location.origin;
-const userEmail=localStorage.getItem("user-email");
+const KEY_USER_EMAIL="user-email";
+const KEY_SERVICE_NAME="service-name";
 const formElemnt=document.querySelector("form#editDeployForm");
 
 function handleUpdateButtonClick(){
-    const requestURI=`/users/${userEmail}/services/`
+    const requestURI=`/users/${userEmail}/services/${serviceName}`
 
 
 }
@@ -12,6 +13,8 @@ function handleDeleteButtonClick(){
 }
 $(document).ready(function() {
     $().ready(function() {
+        const userEmail=localStorage.getItem(KEY_USER_EMAIL);
+        const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
         const updateButton=document.querySelector("button#updateButton");
         const deleteButton=document.querySelector("button#deleteButton");
 
