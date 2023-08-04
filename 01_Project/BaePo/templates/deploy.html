@@ -102,12 +102,15 @@
               <div class="card-header">
                 <h3 class="card-title">서비스 배포하기</h3>
               </div>
-              <form id="deployForm">
+              <form        
+                method="POST"
+                id="deployForm" 
+                enctype="multipart/form-data">
               <div class="card-body">
                   <div class="form-row">
                     <div class="form-group col-12">
                       <h5 class="mt-4 my-2">서비스 이름</h5>
-                      <input type="text" class="form-control" placeholder="서비스의 이름을 입력하세요" required>
+                      <input type="text" class="form-control" id="service_name" name="service_name" placeholder="서비스의 이름을 입력하세요" required>
                     </div>
                   </div>
                   <div class="form-row">
@@ -117,9 +120,10 @@
                         <label for="inputUploadFile">
                           <button type="button" id="btnUploadFile" class="btn btn-sm" data-original-title="upload File" onclick="">
                             <i class="tim-icons icon-upload"></i>
+                            <input type="file" id="inputUploadFile" name="uploadFile_name" required />
                           </button>
                         </label>
-                        <input type="file" id="inputUploadFile" required>
+                        <!-- <input type="file" id="inputUploadFile" name="uploadFile_name" required> -->
                       </div>
                   </div>
 
@@ -129,7 +133,7 @@
                         <h5 class="mt-4 my-2">개발환경</h5>
                         <small id="devEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
                       </label>
-                      <select id="devEnv" class="form-control" multiple="multiple" required>
+                      <select id="devEnv" class="form-control" multiple="multiple" name="envx" required>
                         <option  value="0">apache</option>
                         <option  value="1">nginx</option>
                         <option  value="2">bootstrap</option>
