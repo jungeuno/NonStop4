@@ -63,6 +63,8 @@ const ICON_CHART_PIE_CLASS="icon-chart-pie-36";
 const FONT_WEIGHT_BOLD_CLASS="font-weight-bold";
 const ACTIVE_CLASS="active";
 //class names for container element
+const CARD_GROUP_CLASS="card-group";
+const CARD_GROUP_SIZE_CLASS="col-12";
 const CARD_CLASS="card";
 const CARD_SIZE_CLASS="col-4";
 const CARD_MARGIN_CLASS="mr-3";
@@ -92,63 +94,71 @@ const ICON_MANAGING_CLASS="icon-settings-gear-63";
 //for localStorage key
 const KEY_USER_EMAIL="user-email";
 const KEY_SERVICE_NAME="service-name";
+const USER_DATA_KEY_SERVICE_NAME="Service Name";
+const USER_DATA_KEY_CONTAINERS="Containers";
+const CONTAINER_KEY_NAME="name";
+const CONTAINER_KEY_ENV="env";
+const CONTAINER_KEY_STATE="state";
 
 const baseURL=window.location.origin;
 
-async function getServiceList(userEmail) {
-  console.log("getServiceList Func Starts...");
-  //사용자 id를 가지고 서비스 목록을 가져온다
-  //error처리는 함수 호출 부에서 then / catch로 처리
-  const requestURI = `/users/${userEmail}/services`;
+async function getUserData(userEmail){
+  console.log("getUserData Func Start...");
+  const requestURI = "/services";
   const url = baseURL + requestURI;
   const options = {
     method: "GET",
   };
   try{
-    let response = await fetch(url, options);
-    if (response.ok){
-      console.log("getServiceList : response : ",response);
-      const serviceListJSON=await response.json();
-      console.log("getServiceList : response.json() : ",serviceListJSON);
-      const serviceList=JSON.parse(serviceListJSON)["services"];
-      console.log("getSEerviceList : serviceList : ",serviceList);
-      return serviceList;
-    } else { //재요청 
-      console.log(response.status);
-      //getServiceList(userId);
-    }
-  } catch(error) {
-    console.log(`register func에서 에러 발생 : \n${error}`);
+    const response=await fetch(url,options);
+    const userData=await response.json();
+    return userData[userEmail];
+
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
   }
 }
 
-async function handleNavElementClick(event){ //nav에서 특정 앱을 클릭하면 하는 작업
-  const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-  console.log("handleNavElementClick Func Start..."); //for logging
-  //1. 기존 active붙어있는 애한테서 active class 제거하기
+function cleanCardGroup(){
+  const cardBodyRow=document.querySelector("#containerListCard .row");
+  const prevCardGroup=document.querySelector("#containerListCard .row .card-group");
+  const newCardGroup=document.createElement("div");
+  newCardGroup.classList.add(CARD_GROUP_CLASS,CARD_GROUP_SIZE_CLASS);
+  cardBodyRow.replaceChild(newCardGroup,prevCardGroup);
+}
+
+async function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
+  console.log(event);
+  console.log(userData);
+  //active붙어있는 애한테서 active class 제거하기
   const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
   previousActiveLi.classList.remove(ACTIVE_CLASS);
   localStorage.removeItem(KEY_SERVICE_NAME);
 
-  //2. click된 li tag에 active class 붙이기
-  event.target.parentNode.classList.add("active");
+  //2. click된 li tag에 active class 붙이기 event.target : p tage
+  const a=event.target.parentNode;
+  const li=a.parentNode;
+  li.classList.add(ACTIVE_CLASS);
   
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
-  const serviceName=event.target.parentNode.id;
-  localStorage.setItem(KEY_SERVICE_NAME,serviceName);
-  const containerList=await getContainerList(userEmail,serviceName);
-  printContainerList(containerList);
+  const newActiveServiceName=li.id;
+  localStorage.setItem(KEY_SERVICE_NAME,newActiveServiceName);
+  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
+  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+
+  cleanCardGroup();
+  printContainerList(activeContainerList);
 }
 
-function makeNavElement(serviceInfo){
+function makeNavElement(serviceName){
   const li=document.createElement("li");
-  li.id=serviceInfo.serviceName;
+  li.id=serviceName;
   const a=document.createElement("a");
   const i=document.createElement("i");
   i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_CLASS);
   const p=document.createElement("p");
   p.classList.add(FONT_WEIGHT_BOLD_CLASS);
-  p.innerText=serviceInfo.serviceName;
+  p.innerText=serviceName;
   a.appendChild(i);
   a.appendChild(p);
   li.appendChild(a);
@@ -165,30 +175,7 @@ function printNavWithServiceList(serviceList) {
     }
     navUl.appendChild(li);
   }
-}
-
-
-async function getContainerList(userEmail, serviceName) {
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "GET",
-  };
-  try{
-    const response=await fetch(url,options);
-    if(response.ok){
-      const json=await response.json();
-      //json 가공해서 arr로 만들기
-      const containerList=JSON.parse(json)["containers"];
-      return containerList;
-    }
-    else{
-      //다시 요청보내기
-      console.log(response.status);
-    }
-  } catch(error) {
-    console.log(error);
-  }
+  navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
 }
 
 function printContainerList(containerList){
@@ -221,9 +208,10 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
 }
 
 function handleContainerPauseButtonClick(event){ //container state run -> stop으로 변경
+  const activeServiceName=localStorage.getItem(KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerId=cardDiv.id;
-  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
+  const containerName=cardDiv.id;
+  const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
   const url = baseURL + requestURI;
   const options = {
     method: "POST",
@@ -238,13 +226,24 @@ function handleContainerPauseButtonClick(event){ //container state run -> stop�
       badge.classList.add(BADGE_RED_CLASS);
       pauseButton.classList.add(BUTTON_DISABLED_CLASS);
       runButton.classList.remove(BUTTON_DISABLED_CLASS);
+    })
+    .catch((error)=>{
+      console.log(error);
+      const badge=cardDiv.querySelector(".card-header>.badge");
+      const runButton=cardDiv.querySelector(".card-footer").firstChild();
+      const pauseButton=runButton.nextSibling();
+      badge.classList.remove(BADGE_BLUE_CLASS);
+      badge.classList.add(BADGE_RED_CLASS);
+      pauseButton.classList.add(BUTTON_DISABLED_CLASS);
+      runButton.classList.remove(BUTTON_DISABLED_CLASS);
     });
 }
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
+  const activeServiceName=localStorage.getItem(KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerId=cardDiv.id;
-  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
+  const containerName=cardDiv.id;
+  const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
   const url = baseURL + requestURI;
   const options = {
     method: "GET",
@@ -258,13 +257,14 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const cardDiv=document.createElement("div");
   cardDiv.classList.add(CARD_CLASS,CARD_SIZE_CLASS,CARD_MARGIN_CLASS);
   cardDiv.style=CARD_STYLE;
-  cardDiv.id=containerInfo.containerName;
+  cardDiv.id=containerInfo[CONTAINER_KEY_NAME];
 
   //cardHeader div만들기 : state + env
   const cardHeaderDiv=document.createElement("div");
   cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
   const badgeSpan=document.createElement("span");
   badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,BADGE_SIZE);
+  badgeSpan.innerText=" ";
   const frameworkIconI=document.createElement("i");
   frameworkIconI.classList.add(FRAMEWORK_PADDING_CLASS,FRAMEWORK_SIZE_CLASS,TEXT_RIGHT_CLASS);
   cardHeaderDiv.appendChild(badgeSpan);
@@ -274,7 +274,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const cardBodyDiv=document.createElement("div");
   cardBodyDiv.classList.add(CARD_BODY_CLASS,TEXT_CENTER_CLASS);
   const containerNameH4=document.createElement("h4");
-  containerNameH4.innerText=containerInfo.containerName;
+  containerNameH4.innerText=containerInfo[CONTAINER_KEY_NAME]
   cardBodyDiv.appendChild(containerNameH4);
 
   //cardFooter div만들기 : button
@@ -292,7 +292,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   containerPauseI.classList.add(TIMS_ICONS_CLASS,ICON_PAUSE_CLASS);
   containerPauseButton.appendChild(containerPauseI);
 
-  if(containerInfo.status){
+  if(containerInfo[CONTAINER_KEY_STATE]==="run"){
     badgeSpan.classList.add(BADGE_BLUE_CLASS);
     containerRunButton.classList.add(BUTTON_DISABLED_CLASS);
   }else{
@@ -319,21 +319,33 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   return cardDiv;
 }
 
-async function loadData(userEmail){ //데이터 구성하기 위해서 백앤드에 데이터 요청하고 화면구성하는 작업
-  const serviceList=await getServiceList(userEmail);
+async function loadData(userEmail){
+  console.log("loadData Func Start...");
+  const serviceList=[];
+
+  const userData=await getUserData(userEmail);
+  userData.forEach((service) => {
+    serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
+  });
   printNavWithServiceList(serviceList);
+  const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
+  for (let i=0;i<(navElements.length)-1;i++){
+    navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData));
+  }
 
-  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active").id;
-  const containerList=await getContainerList(userEmail,activeServiceName);
-  printContainerList(containerList);
+  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id;
+  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+  //console.log(activeContainerList);
+  printContainerList(activeContainerList);
 
-  const serviceNameH3=document.querySelector("h3#serviceName");
-  serviceNameH3.innerText=activeServiceName;
 }
 
 function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
-  console.log("startHtml call");
+  console.log("startHtml Func Start...");
 
+
+  //login한 user email session에 저장
   const userEmailP=document.querySelector("p#userEmail");
   const userEmail=userEmailP.innerText;
   localStorage.setItem(KEY_USER_EMAIL,userEmail);
@@ -342,7 +354,8 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 
   const newContainerBtn = document.querySelector("#deployButton");
   newContainerBtn.addEventListener("click", function () {
-    location.href = "deploy.html";
+    console.log("배포하기 버튼 클릭");
+    window.location.href = "deploy.html";
   });
 
   const serviceManagingButton=document.querySelector("#serviceManagingButton");
@@ -354,3 +367,55 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 }
 
 $(document).ready(() => $().ready(startHtml));
+
+
+/*
+async function getServiceList(){
+  console.log("getServiceList Func Starts...");
+  //사용자 id를 가지고 서비스 목록을 가져온다
+  //error처리는 함수 호출 부에서 then / catch로 처리
+  const requestURI = `/services`;
+  const url = baseURL + requestURI;
+  const options = {
+    method: "GET",
+  };
+  try{
+    let response = await fetch(url, options);
+    if (response.ok){
+      console.log("getServiceList : response : ",response);
+      const serviceListJSON=await response.json();
+      console.log("getServiceList : response.json() : ",serviceListJSON);
+      const serviceList=JSON.parse(serviceListJSON)["services"];
+      console.log("getSEerviceList : serviceList : ",serviceList);
+      return serviceList;
+    } else { //재요청 
+      console.log(response.status);
+      //getServiceList(userId);
+    }
+  } catch(error) {
+    console.log(`register func에서 에러 발생 : \n${error}`);
+  }
+}
+async function getContainerList(userEmail, serviceName) {
+  const requestURI = `/users/${userEmail}/services/${serviceName}/containers`;
+  const url = baseURL + requestURI;
+  const options = {
+    method: "GET",
+  };
+  try{
+    const response=await fetch(url,options);
+    if(response.ok){
+      const json=await response.json();
+      //json 가공해서 arr로 만들기
+      const containerList=JSON.parse(json)["containers"];
+      return containerList;
+    }
+    else{
+      //다시 요청보내기
+      console.log(response.status);
+    }
+  } catch(error) {
+    console.log(error);
+  }
+}
+*/
