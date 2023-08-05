@@ -1,26 +1,30 @@
 {
-  "jungeuno76@gmail.com": [
-    {
-      "Service Name": "배포테스트",
-      "State": "run",
-      "envx": ["1", "3", "7", "11"]
-    },
-    {
-      "Service Name": "배포테스트",
-      "State": "run",
-      "envx": ["1", "3", "7", "11"]
-    }
-  ],
-  "jungeuno76@skuniv.ac.kr": [
-    {
-      "Service Name": "배포테스트",
-      "State": "run",
-      "envx": ["1", "3", "6", "7", "11"]
-    },
-    {
-      "Service Name": "테스트",
-      "State": "run",
-      "envx": ["1", "6", "11", "15"]
-    }
-  ]
+    "jungeuno76@gmail.com": [
+        {
+            "Back": "test_Back",
+            "DB": "test_DB",
+            "Envx": [
+                "3",
+                "7",
+                "11",
+                "15"
+            ],
+            "Front": "test_Front",
+            "Service Name": "test",
+            "State": "run"
+        }
+    ],
+    "teamnonstop00@gmail.com": [
+        {
+            "Back": null,
+            "DB": null,
+            "Envx": [
+                "0",
+                "4"
+            ],
+            "Front": "test_Front",
+            "Service Name": "test",
+            "State": "run"
+        }
+    ]
 }

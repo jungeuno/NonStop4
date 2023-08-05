@@ -83,7 +83,7 @@ def login():
 
 # 로그아웃
 # logout 버튼 클릭 시, 실행되도록 프론트와 연동해야 함.    !!!!!!!!!!!!!!!!!!!!!!!!
-@app.route('/logout')
+@app.route('/logout', methods=['POST', 'GET'])
 def logout():
     # Clear the user's session to log them out
     session.clear()
@@ -95,9 +95,10 @@ def logout():
 # deploy.html 에서 배포하기 버튼 클릭 시, append 되어야 함. -> deployList() 함수 실행돼야 함.
 # json.dump 파일 프론트로 렌더링 되는지 확인 -> 상태 값은 모니터링 때, 받아올 수 있음 / 개발 환경은 프론트 체크 박스에서 받아와야 함. 
 
-# /users/${userEmail}/services 경로에 대한 엔드포인트 함수
+# /services 경로에 대한 엔드포인트 함수
 @app.route('/services', methods=['POST', 'GET'])
 def handle_user_services():
+    user_email=oauth2.email
     if request.method == 'POST':
         if 'uploadFile_name' in request.files:
             file = request.files['uploadFile_name']  # 업로드되는 파일 받기
@@ -107,66 +108,95 @@ def handle_user_services():
 
         program_name = request.form['service_name']  # 사용자가 배포하는 프로그램명 받기
         envx = request.form.getlist('envx')          # 선택된 개발 환경 리스트 받기
+        user_email = oauth2.email
 
         # 폼 데이터 및 파일 정보를 확인하는 코드 (테스트용)
-        print('User :', oauth2.email)
+        print('User :', user_email)
         print('Service Name:', program_name)
         print('Uploaded File Name:', file_name)
         print('file: ', file)
         print('envx:', envx)
 
-        # # JSON 형식으로 응답 데이터 생성
-        # response_data = {
-        #     'service_name': program_name,
-        #     'uploadFile_name': file_name,
-        #     'envx': envx
-        # }
-        # print(response_data)
 
-        # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 객체 생성
+        env = [0]*16
+        front = None
+        back = None
+        db = None
+        # 프론트/백/DB 나누는 기준 -> 서비스명 + 컨테이너명(=서비스명_Front/서비스면_Back/서비스명_DB) 설정해주기
+        for ex in envx:
+            ex = int(ex)
+            if ex in [0, 1, 2, 3, 4, 5, 6]:
+                env[ex] = 1
+                front = program_name+'_Front'
+            elif ex in [7, 8, 9]:
+                env[ex] = 1
+                db = program_name+'_DB'
+            elif ex in [10, 11, 12, 13, 14, 15]:
+                env[ex] = 1
+                back = program_name+'_Back'
+
+        # 체크한 개발 환경 기반으로 env_txt 파일 생성
+        # env_txt = ''
+        # for e in env:
+        #     env_txt += str(e)
+        # with open('env.txt', 'w') as f:
+        #     f.write(env_txt)
+
+        # file_upload() & gitPush() 폴더 저장 및 깃푸시
+        # file_upload(user_email, program_name, file)
+
+        # # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 객체 생성
         if oauth2.email in user_data:
             user_data[oauth2.email].append({
                 'Service Name': program_name,
+                'Front' : front,
+                'Back' : back,
+                'DB' : db,
                 'State': 'run',
-                'envx': envx
+                'Envx': envx
             })
         else:
             user_data[oauth2.email] = [{
                 'Service Name': program_name,
+                'Front' : front,
+                'Back' : back,
+                'DB' : db,
                 'State': 'run',
-                'envx': envx
+                'Envx': envx
             }]
 
-         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+        # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
         # 응답으로 JSON 형식의 데이터 반환
-        print(json.dumps({oauth2.email: user_data[oauth2.email]}))
+        print(json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
 
         # 응답으로 JSON 형식의 데이터 반환
-        return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}))
-
+        return render_template('containerList.html', userData=json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
+    elif request.method == 'GET':
+        # state 수정해주어야 함.
+        return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
     return 'Fail'
 
 
 # 파일 업로드 & Git Push 자동화
 # 해당 폴더에서 미리 userSource 폴더 안에서 [1. git init] [2. git remote add origin <깃허브주소링크>] 셋팅해주어야 함.
-# 프론트에서 개발 환경 변수 받아와서 env.txt 파일 생성    !!!!!!!!!!!!!!!!!!!!!!!!!!!
+# 폴더 경로 -> userSource/{user_email}/{program_name}/{unzip_files}
 @app.route('/upload', methods=['GET', 'POST'])
 # 엔드포인트가 필요한가? -> 프론트와 연동 방법 고민 필요함 !!!!!!!!!!!!!!!!!!!!!!!!!!!
-def file_upload():
+def file_upload(user_email, program_name, file):
     if request.method == 'POST':
         file = request.files['file']                # 업로드되는 파일 받기
-        useremail = oauth2.email                    # useremail
-        programname = request.form['program_name']  # 사용자가 작성하는 프로그램명 받기
-        filename = file.filename
+        user_email = oauth2.email                    # useremail
+        program_name = request.form['program_name']  # 사용자가 작성하는 프로그램명 받기
+        file_name = file.filename
 
-        folder_name = f"{useremail}"                # 폴더명 (사용자 이름)
-        program_name = f"{programname}"             # 폴더명 (프로그램 명)
-        file_name = f"{filename}"                   # 파일명 (파일 명)
+        # folder_name = f"{user_email}"                # 폴더명 (사용자 이름)
+        # program_name = f"{program_name}"             # 폴더명 (프로그램 명)
+        # file_name = f"{file_name}"                   # 파일명 (파일 명)
 
-        folder_path = os.path.join(BASE_DIR, 'userSource', folder_name)
+        folder_path = os.path.join(BASE_DIR, 'userSource', user_email, '/', program_name)
         os.makedirs(folder_path, exist_ok=True)
 
         # 저장할 파일의 경로 설정
@@ -181,7 +211,7 @@ def file_upload():
             os.remove(file_path)  # .zip 파일 삭제
 
         # GitHub에 업로드
-        upload_to_github(os.path.join(BASE_DIR, 'userSource'))
+        #upload_to_github(os.path.join(BASE_DIR, 'userSource'))
 
         return render_template('containerList.html')
     else:
