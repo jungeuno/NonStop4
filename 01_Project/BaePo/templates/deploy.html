@@ -105,7 +105,9 @@
               <form        
                 method="POST"
                 id="deployForm" 
-                enctype="multipart/form-data">
+                enctype="multipart/form-data"
+                action="/services"
+              >
               <div class="card-body">
                   <div class="form-row">
                     <div class="form-group col-12">
@@ -129,21 +131,33 @@
 
                   <div class="form-row">
                     <div class="form-group col-12">
-                      <label for="devEnv">
-                        <h5 class="mt-4 my-2">개발환경</h5>
-                        <small id="devEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
+                      <label for="frontEnv">
+                        <h5 class="mt-4 my-2">프론트 개발환경</h5>
+                        <small id="frontEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
                       </label>
-                      <select id="devEnv" class="form-control" multiple="multiple" name="envx" required>
+                      <select id="frontEnv" class="form-control" multiple="multiple" required>
                         <option  value="0">apache</option>
                         <option  value="1">nginx</option>
                         <option  value="2">bootstrap</option>
                         <option  value="3">vue</option>
                         <option  value="4">react</option>
-                        <option  value="5">django</option>
-                        <option  value="6">springboot</option>
+                      </select>
+                      <label for="dbEnv">
+                        <h5 class="mt-4 my-2">데이터베이스 개발환경</h5>
+                        <small id="dbEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
+                      </label>
+                      <select id="dbEnv" class="form-control" multiple="multiple" required>
                         <option  value="7">mysql</option>
                         <option  value="8">mssql</option>
                         <option  value="9">mariadb</option>
+                      </select>
+                      <label for="backEnv">
+                        <h5 class="mt-4 my-2">백엔드 개발환경</h5>
+                        <small id="backEnvHelp" class="form-text text-muted">1개 이상의 개발 환경을 선택해주세요</small>
+                      </label>
+                      <select id="backEnv" class="form-control" multiple="multiple" required>
+                        <option  value="5">django</option>
+                        <option  value="6">springboot</option>
                         <option  value="10">kotlin</option>
                         <option  value="11">python</option>
                         <option  value="12">c#</option>

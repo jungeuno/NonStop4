@@ -4,6 +4,7 @@ if (userEmail === null) {
   userEmail = "teamnonstop00@gmail.com";
 }
 
+/*
 async function handleFormSubmit(event) {
   event.preventDefault();
   const formElement = document.querySelector("form#deployForm");
@@ -32,12 +33,31 @@ async function handleFormSubmit(event) {
     console.log("에러 발생:", error);
   }
 }
+*/
 
 $(document).ready(function () {
   $().ready(function () {
-    $("form").on("submit", handleFormSubmit);
+    //$("form").on("submit", handleFormSubmit);
 
-    $("#devEnv").bsMultiSelect({
+    $("#frontEnv").bsMultiSelect({
+      useCssPatch: true,
+      cssPatch: {
+        choices: {
+          columnCount: "4",
+        },
+      },
+    }); //multi select plugin
+
+    $("#dbEnv").bsMultiSelect({
+      useCssPatch: true,
+      cssPatch: {
+        choices: {
+          columnCount: "4",
+        },
+      },
+    }); //multi select plugin
+
+    $("#backEnv").bsMultiSelect({
       useCssPatch: true,
       cssPatch: {
         choices: {
