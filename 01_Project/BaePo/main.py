@@ -62,7 +62,6 @@ def deploy_page():
     if oauth2.has_credentials():
         return render_template('deploy.html', useremail=oauth2.email)
 
-# Note that app.route should be the outermost decorator.
 # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 @oauth2.required
@@ -94,7 +93,6 @@ def logout():
 # 사용자 이름 해당하면 배포명 (리스트) json dump 반환
 # deploy.html 에서 배포하기 버튼 클릭 시, append 되어야 함. -> deployList() 함수 실행돼야 함.
 # json.dump 파일 프론트로 렌더링 되는지 확인 -> 상태 값은 모니터링 때, 받아올 수 있음 / 개발 환경은 프론트 체크 박스에서 받아와야 함. 
-
 # /services 경로에 대한 엔드포인트 함수
 @app.route('/services', methods=['POST', 'GET'])
 def handle_user_services():
@@ -107,37 +105,49 @@ def handle_user_services():
             file_name = None
 
         program_name = request.form['service_name']  # 사용자가 배포하는 프로그램명 받기
-        envx = request.form.getlist('envx')          # 선택된 개발 환경 리스트 받기
-        user_email = oauth2.email
+        front_env = request.form.getlist('frontEnv')          # 선택된 개발 환경 리스트 받기
+        back_env = request.form.getlist('dbEnv')          # 선택된 개발 환경 리스트 받기
+        db_env = request.form.getlist('backEnv')          # 선택된 개발 환경 리스트 받기
 
-        # 폼 데이터 및 파일 정보를 확인하는 코드 (테스트용)
-        print('User :', user_email)
-        print('Service Name:', program_name)
-        print('Uploaded File Name:', file_name)
-        print('file: ', file)
-        print('envx:', envx)
-
-
-        env = [0]*16
-        front = None
-        back = None
-        db = None
+        containers = []
+        envx = [0]*16
+        front = {}
+        back = {}
+        db = {}
         # 프론트/백/DB 나누는 기준 -> 서비스명 + 컨테이너명(=서비스명_Front/서비스면_Back/서비스명_DB) 설정해주기
-        for ex in envx:
-            ex = int(ex)
-            if ex in [0, 1, 2, 3, 4, 5, 6]:
-                env[ex] = 1
-                front = program_name+'_Front'
-            elif ex in [7, 8, 9]:
-                env[ex] = 1
-                db = program_name+'_DB'
-            elif ex in [10, 11, 12, 13, 14, 15]:
-                env[ex] = 1
-                back = program_name+'_Back'
+        if front_env is not None:
+                front['name'] = program_name+'_Front'
+                front['state'] = 'run'
+        if db_env is not None:
+                db['name'] = program_name+'_db'
+                db['state'] = 'run'
+        if back_env is not None:
+                back['name'] = program_name+'_back'
+                back['state'] = 'run'
+
+        for f in front_env:
+            f = int(f)
+            if f in [0, 1, 2, 3, 4, 5, 6]:
+                envx[f] = 1
+        for d in db_env:
+            d = int(d)    
+            if d in [7, 8, 9]:
+                envx[d] = 1
+        for b in back_env:
+            b = int(b)        
+            if b in [10, 11, 12, 13, 14, 15]:
+                envx[b] = 1
+
+        front['env'] = front_env
+        back['env'] = back_env
+        db['env'] = db_env
+        containers.append(front)
+        containers.append(back)
+        containers.append(db)
 
         # 체크한 개발 환경 기반으로 env_txt 파일 생성
         # env_txt = ''
-        # for e in env:
+        # for e in envx:
         #     env_txt += str(e)
         # with open('env.txt', 'w') as f:
         #     f.write(env_txt)
@@ -149,20 +159,12 @@ def handle_user_services():
         if oauth2.email in user_data:
             user_data[oauth2.email].append({
                 'Service Name': program_name,
-                'Front' : front,
-                'Back' : back,
-                'DB' : db,
-                'State': 'run',
-                'Envx': envx
+                'Containers' : containers
             })
         else:
             user_data[oauth2.email] = [{
                 'Service Name': program_name,
-                'Front' : front,
-                'Back' : back,
-                'DB' : db,
-                'State': 'run',
-                'Envx': envx
+                'Containers' : containers
             }]
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)

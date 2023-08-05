@@ -1,30 +1,66 @@
 {
-    "jungeuno76@gmail.com": [
+  "jungeuno76@gmail.com": [
+    {
+      "Containers": [
         {
-            "Back": "test_Back",
-            "DB": "test_DB",
-            "Envx": [
-                "3",
-                "7",
-                "11",
-                "15"
-            ],
-            "Front": "test_Front",
-            "Service Name": "test",
-            "State": "run"
-        }
-    ],
-    "teamnonstop00@gmail.com": [
+          "env": ["0"],
+          "name": "배포_Front",
+          "state": "run"
+        },
         {
-            "Back": null,
-            "DB": null,
-            "Envx": [
-                "0",
-                "4"
-            ],
-            "Front": "test_Front",
-            "Service Name": "test",
-            "State": "run"
+          "env": ["7"],
+          "name": "배포_back",
+          "state": "run"
+        },
+        {
+          "env": ["13", "15"],
+          "name": "배포_db",
+          "state": "run"
         }
-    ]
+      ],
+      "Service Name": "배포"
+    }
+  ],
+  "teamnonstop00@gmail.com": [
+    {
+      "Containers": [
+        {
+          "env": ["0"],
+          "name": "test_Front",
+          "state": "run"
+        },
+        {
+          "env": ["7"],
+          "name": "test_Front",
+          "state": "run"
+        },
+        {
+          "env": ["5", "11"],
+          "name": "test_Front",
+          "state": "run"
+        }
+      ],
+      "Service Name": "test"
+    },
+    {
+      "Containers": [
+        {
+          "env": ["0"],
+          "name": "test_Front",
+          "state": "run"
+        },
+        {
+          "env": ["7"],
+          "name": "test_back",
+          "state": "run"
+        },
+        {
+          "env": ["5", "11"],
+          "name": "test_db",
+          "state": "run"
+        }
+      ],
+      "Service Name": "test"
+    }
+  ]
 }
