@@ -98,19 +98,23 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">당근마켓</h3>
+                <!--<h3 class="card-title">당근마켓</h3>-->
               </div>
-
+              <form 
+                id="editDeployForm"
+                method="UPDATE"
+                enctype="multipart/form-data"
+                action="/services"
+              >
               <div class="card-body">
                 <div class="row">
                   <div class="col-12">
-                    <div class="form-group">
-                      <h4 class="my-0">배포 파일 변경하기</h5>
+                      <div class="form-group">
+                        <h4 class="my-0">배포 파일 변경하기</h5>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <form id="editDeployForm">
                   <div class="form-row">
                       <div class="form-group">
                         <h5 class="mt-4 my-2">컨테이너 배포 파일 업로드</h5>
@@ -121,6 +125,45 @@
                         </label>
                         <input type="file" id="inputUploadFile">
                       </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-12">
+                      <label for="frontEnv">
+                        <h5 class="mt-4 my-2">프론트엔드 개발환경</h5>
+                        <small id="frontEnvHelp" class="form-text text-muted">기존에 선택한 프론트엔드 개발 환경입니다</small>
+                      </label>
+                      <select id="frontEnv" class="form-control" multiple="multiple" required disabled>
+                        <option  value="0">apache</option>
+                        <option  value="1">nginx</option>
+                        <option  value="2">bootstrap</option>
+                        <option  value="3">vue</option>
+                        <option  value="4">react</option>
+                      </select>
+                      <label for="dbEnv">
+                        <h5 class="mt-4 my-2">데이터베이스 개발환경</h5>
+                        <small id="dbEnvHelp" class="form-text text-muted">기존에 선택한 데이터베이스 개발 환경입니다</small>
+                      </label>
+                      <select id="dbEnv" class="form-control" multiple="multiple" required disabled>
+                        <option  value="7">mysql</option>
+                        <option  value="8">mssql</option>
+                        <option  value="9">mariadb</option>
+                      </select>
+                      <label for="backEnv">
+                        <h5 class="mt-4 my-2">백엔드 개발환경</h5>
+                        <small id="backEnvHelp" class="form-text text-muted">기존에 선택한 백엔드 개발 환경입니다</small>
+                      </label>
+                      <select id="backEnv" class="form-control" multiple="multiple" required disabled>
+                        <option  value="5">django</option>
+                        <option  value="6">springboot</option>
+                        <option  value="10">kotlin</option>
+                        <option  value="11">python</option>
+                        <option  value="12">c#</option>
+                        <option  value="13">go</option>
+                        <option  value="14">rust</option>
+                        <option  value="15">ruby</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div class="form-row">
@@ -148,16 +191,16 @@
                       </select>
                     </div>
                   </div>
-                </form>
               </div>
+              </form>
 
               <div class="card-footer">
                 <div class="row">
                   <div class="col-10 text-left">
-                    <button id="updateButton" type="button" class="btn btn-fill btn-primary">수정&업데이트</button>
+                    <button id="updateButton" type="button" class="btn btn-fill btn-primary service-edit-buttons" value="UPDATE">수정&업데이트</button>
                   </div>
                   <div class="col-2 pr-md-4 text-right">
-                    <button id="deleteButton" type="button" class="btn btn-fill btn-primary">
+                    <button id="deleteButton" type="button" class="btn btn-fill btn-primary service-edit-buttons" value="DELETE">
                       <i class="tim-icons icon-trash-simple "></i>
                     </button>
                   </div>
