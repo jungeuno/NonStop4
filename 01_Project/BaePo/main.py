@@ -4,6 +4,7 @@ import subprocess
 import os
 import zipfile
 import json
+import paramiko # pip install paramiko
 
 app = Flask(__name__)
 
@@ -23,7 +24,7 @@ user_data = {}
 if os.path.exists(data_file_path):
     with open(data_file_path, 'r', encoding='utf-8') as fp:
         user_data = json.load(fp)
-
+######################################################################################################################################
 # route 설정 & 페이지 렌더링
 @app.route('/')
 def login_page():
@@ -61,7 +62,7 @@ def containerDash_page():
 def deploy_page():
     if oauth2.has_credentials():
         return render_template('deploy.html', useremail=oauth2.email)
-
+######################################################################################################################################
 # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 @oauth2.required
@@ -87,7 +88,19 @@ def logout():
     # Clear the user's session to log them out
     session.clear()
     return render_template('login.html')
+######################################################################################################################################
+# 컨테이너 제어 작업 (stop/restart/delete) / pip install paramiko
+@app.route('/controls', methods=['POST', 'GET'])
+def control_containers():
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('150.136.87.94', port='22', username='opc', key_filename='./master-06-26.key')
 
+    stdin, stdout, stderr = ssh.exec_command('kubectl get deployment -n test')
+    print(''.join(stdout.readlines()))
+
+    ssh.close()
+######################################################################################################################################
 # 사용자별 배포 목록
 # 사용자 이름과 배포명 추가 -> json 파일로 저장
 # 사용자 이름 해당하면 배포명 (리스트) json dump 반환
@@ -98,23 +111,19 @@ def logout():
 def handle_user_services():
     user_email=oauth2.email
     if request.method == 'POST':
-        if 'uploadFile_name' in request.files:
-            file = request.files['uploadFile_name']  # 업로드되는 파일 받기
-            file_name = file.filename
-        else:
-            file_name = None
+        file = request.files['uploadFile_name']          # 업로드되는 파일 받기
+        program_name = request.form['service_name']      # 사용자가 배포하는 프로그램명 받기
+        front_env = request.form.getlist('frontEnv')     # 선택된 개발 환경 리스트 받기
+        back_env = request.form.getlist('dbEnv')         # 선택된 개발 환경 리스트 받기
+        db_env = request.form.getlist('backEnv')         # 선택된 개발 환경 리스트 받기
 
-        program_name = request.form['service_name']  # 사용자가 배포하는 프로그램명 받기
-        front_env = request.form.getlist('frontEnv')          # 선택된 개발 환경 리스트 받기
-        back_env = request.form.getlist('dbEnv')          # 선택된 개발 환경 리스트 받기
-        db_env = request.form.getlist('backEnv')          # 선택된 개발 환경 리스트 받기
-
+        # json 데이터 초기화
         containers = []
         envx = [0]*16
         front = {}
         back = {}
         db = {}
-        # 프론트/백/DB 나누는 기준 -> 서비스명 + 컨테이너명(=서비스명_Front/서비스면_Back/서비스명_DB) 설정해주기
+        # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(=서비스명_Front/서비스면_Back/서비스명_DB) 설정
         if front_env is not None:
                 front['name'] = program_name+'_Front'
                 front['state'] = 'run'
@@ -124,10 +133,10 @@ def handle_user_services():
         if back_env is not None:
                 back['name'] = program_name+'_back'
                 back['state'] = 'run'
-
+        # json 파일에 env (개발환경) 설정
         for f in front_env:
             f = int(f)
-            if f in [0, 1, 2, 3, 4, 5, 6]:
+            if f in [0, 1, 2, 3, 4]:
                 envx[f] = 1
         for d in db_env:
             d = int(d)    
@@ -135,9 +144,9 @@ def handle_user_services():
                 envx[d] = 1
         for b in back_env:
             b = int(b)        
-            if b in [10, 11, 12, 13, 14, 15]:
+            if b in [5, 6, 10, 11, 12, 13, 14, 15]:
                 envx[b] = 1
-
+        # json 파일의 containers 객체 설정
         front['env'] = front_env
         back['env'] = back_env
         db['env'] = db_env
@@ -146,14 +155,26 @@ def handle_user_services():
         containers.append(db)
 
         # 체크한 개발 환경 기반으로 env_txt 파일 생성
-        # env_txt = ''
-        # for e in envx:
-        #     env_txt += str(e)
-        # with open('env.txt', 'w') as f:
-        #     f.write(env_txt)
+        env_txt = ''
+        for e in envx:
+            env_txt += str(e)
+        with open('env.txt', 'w') as f:
+            f.write(env_txt)
 
-        # file_upload() & gitPush() 폴더 저장 및 깃푸시
-        # file_upload(user_email, program_name, file)
+        # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
+        # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        # os.makedirs(folder_path, exist_ok=True)
+        # # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
+        # file_path = os.path.join(folder_path, program_name+'.zip')
+        # file.save(file_path)
+        # # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
+        # if file_path.endswith('.zip'):
+        #     unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
+        #     with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        #         zip_ref.extractall(unzip_folder_path)
+        #     os.remove(file_path)  # .zip 파일 삭제
+        # GitHub에 업로드
+        # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
 
         # # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 객체 생성
         if oauth2.email in user_data:
@@ -171,7 +192,7 @@ def handle_user_services():
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
-        # 응답으로 JSON 형식의 데이터 반환
+        # 응답으로 JSON 형식의 데이터 반환(출력 Test)
         print(json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
 
         # 응답으로 JSON 형식의 데이터 반환
@@ -180,45 +201,11 @@ def handle_user_services():
         # state 수정해주어야 함.
         return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
     return 'Fail'
-
-
+######################################################################################################################################
 # 파일 업로드 & Git Push 자동화
 # 해당 폴더에서 미리 userSource 폴더 안에서 [1. git init] [2. git remote add origin <깃허브주소링크>] 셋팅해주어야 함.
 # 폴더 경로 -> userSource/{user_email}/{program_name}/{unzip_files}
-@app.route('/upload', methods=['GET', 'POST'])
-# 엔드포인트가 필요한가? -> 프론트와 연동 방법 고민 필요함 !!!!!!!!!!!!!!!!!!!!!!!!!!!
-def file_upload(user_email, program_name, file):
-    if request.method == 'POST':
-        file = request.files['file']                # 업로드되는 파일 받기
-        user_email = oauth2.email                    # useremail
-        program_name = request.form['program_name']  # 사용자가 작성하는 프로그램명 받기
-        file_name = file.filename
-
-        # folder_name = f"{user_email}"                # 폴더명 (사용자 이름)
-        # program_name = f"{program_name}"             # 폴더명 (프로그램 명)
-        # file_name = f"{file_name}"                   # 파일명 (파일 명)
-
-        folder_path = os.path.join(BASE_DIR, 'userSource', user_email, '/', program_name)
-        os.makedirs(folder_path, exist_ok=True)
-
-        # 저장할 파일의 경로 설정
-        file_path = os.path.join(folder_path, file_name)
-        file.save(file_path)
-
-        # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행 // 파일 경로 논의 필요    !!!!!!!!!!!!!!!!!!
-        if file_path.endswith('.zip'):
-            unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(unzip_folder_path)
-            os.remove(file_path)  # .zip 파일 삭제
-
-        # GitHub에 업로드
-        #upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-
-        return render_template('containerList.html')
-    else:
-        return render_template('upload.html')
-
+# teamnonstop github 엑세스 토큰 - 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
 def upload_to_github(local_path):
     try:
         # Git 초기화
@@ -237,8 +224,7 @@ def upload_to_github(local_path):
     except subprocess.CalledProcessError as e:
         print(f"Error occurred during Git commands: {e}")
         # 예외 처리
-
-# teamnonstop github 엑세스 토큰 - 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
+######################################################################################################################################
 
 if __name__ == '__main__':
     app.run(port="8080", debug=True)
