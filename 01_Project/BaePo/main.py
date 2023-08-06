@@ -90,16 +90,16 @@ def logout():
     return render_template('login.html')
 ######################################################################################################################################
 # 컨테이너 제어 작업 (stop/restart/delete) / pip install paramiko
-@app.route('/controls', methods=['POST', 'GET'])
-def control_containers():
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('150.136.87.94', port='22', username='opc', key_filename='./master-06-26.key')
+# @app.route('/controls', methods=['POST', 'GET'])
+# def control_containers():
+#     ssh = paramiko.SSHClient()
+#     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+#     ssh.connect('150.136.87.94', port='22', username='opc', key_filename='C:\Users\OWNER\my-key\master-06-26.key')
 
-    stdin, stdout, stderr = ssh.exec_command('kubectl get deployment -n test')
-    print(''.join(stdout.readlines()))
+#     stdin, stdout, stderr = ssh.exec_command('kubectl get deployment -n test')
+#     print(''.join(stdout.readlines()))
 
-    ssh.close()
+#     ssh.close()
 ######################################################################################################################################
 # 사용자별 배포 목록
 # 사용자 이름과 배포명 추가 -> json 파일로 저장
@@ -109,7 +109,7 @@ def control_containers():
 # /services 경로에 대한 엔드포인트 함수
 @app.route('/services', methods=['POST', 'GET'])
 def handle_user_services():
-    user_email=oauth2.email
+    user_email = oauth2.email
     if request.method == 'POST':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
         program_name = request.form['service_name']      # 사용자가 배포하는 프로그램명 받기
@@ -123,7 +123,7 @@ def handle_user_services():
         front = {}
         back = {}
         db = {}
-        # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(=서비스명_Front/서비스면_Back/서비스명_DB) 설정
+        # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(서비스명_Front/서비스면_Back/서비스명_DB) 설정
         if front_env is not None:
                 front['name'] = program_name+'_Front'
                 front['state'] = 'run'
@@ -134,18 +134,17 @@ def handle_user_services():
                 back['name'] = program_name+'_back'
                 back['state'] = 'run'
         # json 파일에 env (개발환경) 설정
-        for f in front_env:
-            f = int(f)
-            if f in [0, 1, 2, 3, 4]:
-                envx[f] = 1
-        for d in db_env:
-            d = int(d)    
-            if d in [7, 8, 9]:
-                envx[d] = 1
-        for b in back_env:
-            b = int(b)        
-            if b in [5, 6, 10, 11, 12, 13, 14, 15]:
-                envx[b] = 1
+        for fe in front_env:
+            fe = int(fe)
+            envx[fe] = 1
+        for de in db_env:
+            de = int(de)    
+            envx[de] = 1
+        for be in back_env:
+            be = int(be)        
+            envx[be] = 1
+        print('envx', envx)
+
         # json 파일의 containers 객체 설정
         front['env'] = front_env
         back['env'] = back_env
@@ -154,25 +153,36 @@ def handle_user_services():
         containers.append(back)
         containers.append(db)
 
-        # 체크한 개발 환경 기반으로 env_txt 파일 생성
-        env_txt = ''
-        for e in envx:
-            env_txt += str(e)
-        with open('env.txt', 'w') as f:
-            f.write(env_txt)
+        # # 체크한 개발 환경 기반으로 env_txt 파일 생성
+        # env_txt = ''
+        # for e in envx:
+        #     env_txt += str(e)
+        # with open('env.txt', 'w') as f:
+        #     f.write(env_txt)
 
         # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
-        # os.makedirs(folder_path, exist_ok=True)
-        # # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
-        # file_path = os.path.join(folder_path, program_name+'.zip')
-        # file.save(file_path)
-        # # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
-        # if file_path.endswith('.zip'):
-        #     unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-        #     with zipfile.ZipFile(file_path, 'r') as zip_ref:
-        #         zip_ref.extractall(unzip_folder_path)
-        #     os.remove(file_path)  # .zip 파일 삭제
+        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        os.makedirs(folder_path, exist_ok=True)
+        
+        # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
+        file_path = os.path.join(folder_path, program_name+'.zip')
+        file.save(file_path)
+        
+        # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
+        if file_path.endswith('.zip'):
+            unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                zip_ref.extractall(unzip_folder_path)
+            # 체크한 개발 환경 기반으로 env_txt 파일 생성
+            env_txt = ''
+            for e in envx:
+                env_txt += str(e)
+            # 체크한 개발 환경 기반으로 env_txt 파일 저장
+            env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
+            with open(env_txt_file_path, 'w') as f:
+                f.write(env_txt)
+            os.remove(file_path)  # .zip 파일 삭제
+        
         # GitHub에 업로드
         # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
 
@@ -193,13 +203,13 @@ def handle_user_services():
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
         # 응답으로 JSON 형식의 데이터 반환(출력 Test)
-        print(json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
+        print(json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
 
         # 응답으로 JSON 형식의 데이터 반환
-        return render_template('containerList.html', userData=json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
+        return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
     elif request.method == 'GET':
         # state 수정해주어야 함.
-        return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
+        return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
     return 'Fail'
 ######################################################################################################################################
 # 파일 업로드 & Git Push 자동화
