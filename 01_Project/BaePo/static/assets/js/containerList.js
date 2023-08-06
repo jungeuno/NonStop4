@@ -121,12 +121,18 @@ async function getUserData(userEmail){
   }
 }
 
+/*
 function cleanCardGroup(){
   const cardBodyRow=document.querySelector("#containerListCard .row");
   const prevCardGroup=document.querySelector("#containerListCard .row .card-group");
   const newCardGroup=document.createElement("div");
   newCardGroup.classList.add(CARD_GROUP_CLASS,CARD_GROUP_SIZE_CLASS);
   cardBodyRow.replaceChild(newCardGroup,prevCardGroup);
+}*/
+
+function cleanCardGroup(){
+  const parentNode=document.querySelector("#containerListCard .row .card-group");
+  parentNode.replaceChildren();
 }
 
 async function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
@@ -396,3 +402,5 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 }
 
 $(document).ready(() => $().ready(startHtml));
+
+
