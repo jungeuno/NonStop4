@@ -1,7 +1,24 @@
-const baseURL=window.location.origin;
-const KEY_USER_EMAIL="user-email";
-const KEY_SERVICE_NAME="service-name";
-const SERVICE_EDIT_BUTTONS_CLASS="service-edit-buttons";
+import { getUserData,makeNavElement,printNavWithServiceList } from "./module/navbar.js";
+import { USER_DATA_KEY_SERVICE_NAME,
+    LOCAL_STORAGE_KEY_USER_EMAIL,LOCAL_STORAGE_KEY_SERVICE_NAME} from "./module/constant.js";
+
+const baseURL = window.location.origin;
+const userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+
+const SERVICE_EDIT_BUTTONS_CLASS="service-edit-buttons"; //edit, delete에 같은 이벤트 핸들러 걸어주기 위해서 custom class부여함
+
+async function loadData(){
+  const serviceList=[];
+
+  const userData=await getUserData(userEmail);
+  userData.forEach((service) => {
+    serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
+  });
+  printNavWithServiceList(serviceList);
+
+}
+
 const formElemnt=document.querySelector("form#editDeployForm");
 
 async function handleServiceEditButtonClick(event){  
@@ -28,8 +45,9 @@ async function handleServiceEditButtonClick(event){
 
 $(document).ready(function() {
     $().ready(function() {
-        const userEmail=localStorage.getItem(KEY_USER_EMAIL);
-        const serviceName=localStorage.getItem(KEY_SERVICE_NAME);
+        const cardTitle=document.querySelector("div.content").querySelector("h3.service-name");
+        cardTitle.innerText=serviceName;
+        loadData();
 
         const serviceEditButtons=document.querySelectorAll(`.${SERVICE_EDIT_BUTTONS_CLASS}`);
         serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener(handleServiceEditButtonClick));

@@ -1,43 +1,23 @@
+import { getUserData,makeNavElement,printNavWithServiceList } from "./module/navbar.js";
+import { USER_DATA_KEY_SERVICE_NAME, LOCAL_STORAGE_KEY_USER_EMAIL} from "./module/constant.js";
+
 const baseURL = window.location.origin;
-let userEmail = localStorage.getItem("user-email");
-if (userEmail === null) {
-  userEmail = "teamnonstop00@gmail.com";
+let userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+
+async function loadData(){
+  const serviceList=[];
+
+  const userData=await getUserData(userEmail);
+  userData.forEach((service) => {
+    serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
+  });
+  printNavWithServiceList(serviceList);
+
 }
-
-/*
-async function handleFormSubmit(event) {
-  event.preventDefault();
-  const formElement = document.querySelector("form#deployForm");
-  const formData = new FormData(formElement);
-
-  //   폼 데이터를 확인하는 코드
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ": " + pair[1]);
-  }
-
-  const requestURI = `/services`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "POST",
-    body: formData,
-  };
-  try {
-    const response = await fetch(url, options);
-    // 서버로부터의 응답 처리 로직
-    // console.log("서버 응답:", response);
-    if (response.ok) {
-      window.location.href = "/containerList.html";
-      console.log("서버 응답:", response);
-    }
-  } catch (error) {
-    console.log("에러 발생:", error);
-  }
-}
-*/
 
 $(document).ready(function () {
   $().ready(function () {
-    //$("form").on("submit", handleFormSubmit);
+    loadData();
 
     $("#frontEnv").bsMultiSelect({
       useCssPatch: true,
