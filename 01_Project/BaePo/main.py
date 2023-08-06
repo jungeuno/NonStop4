@@ -5,6 +5,7 @@ import os
 import zipfile
 import json
 import paramiko # pip install paramiko
+import datetime as dt
 
 app = Flask(__name__)
 
@@ -16,6 +17,10 @@ app.config['SECRET_KEY'] = 'AIzaSyCHUx1bpNdKFMJ_3lvwaCbw15PabF1JNpw'
 app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_FILE'] = 'client_secret_9542596386-2kkmu7fkdv00p6pomousdniphu0job4i.apps.googleusercontent.com.json'
 
 oauth2 = UserOAuth2(app)
+
+# 가입 날짜 기록 변수 - today_date
+now = dt.datetime.now()
+today_date = now.date()
 
 # JSON 파일 경로
 data_file_path = 'data.json'
@@ -89,18 +94,6 @@ def logout():
     session.clear()
     return render_template('login.html')
 ######################################################################################################################################
-# 컨테이너 제어 작업 (stop/restart/delete) / pip install paramiko
-# @app.route('/controls', methods=['POST', 'GET'])
-# def control_containers():
-#     ssh = paramiko.SSHClient()
-#     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#     ssh.connect('150.136.87.94', port='22', username='opc', key_filename='C:\Users\OWNER\my-key\master-06-26.key')
-
-#     stdin, stdout, stderr = ssh.exec_command('kubectl get deployment -n test')
-#     print(''.join(stdout.readlines()))
-
-#     ssh.close()
-######################################################################################################################################
 # 사용자별 배포 목록
 # 사용자 이름과 배포명 추가 -> json 파일로 저장
 # 사용자 이름 해당하면 배포명 (리스트) json dump 반환
@@ -109,7 +102,7 @@ def logout():
 # /services 경로에 대한 엔드포인트 함수
 @app.route('/services', methods=['POST', 'GET'])
 def handle_user_services():
-    user_email = oauth2.email
+    user_email = oauth2.email                            # 현재 로그인된 사용자 이메일
     if request.method == 'POST':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
         program_name = request.form['service_name']      # 사용자가 배포하는 프로그램명 받기
@@ -128,10 +121,10 @@ def handle_user_services():
                 front['name'] = program_name+'_Front'
                 front['state'] = 'run'
         if db_env is not None:
-                db['name'] = program_name+'_db'
+                db['name'] = program_name+'_Db'
                 db['state'] = 'run'
         if back_env is not None:
-                back['name'] = program_name+'_back'
+                back['name'] = program_name+'_Back'
                 back['state'] = 'run'
         # json 파일에 env (개발환경) 설정
         for fe in front_env:
@@ -153,57 +146,56 @@ def handle_user_services():
         containers.append(back)
         containers.append(db)
 
-        # # 체크한 개발 환경 기반으로 env_txt 파일 생성
-        # env_txt = ''
-        # for e in envx:
-        #     env_txt += str(e)
-        # with open('env.txt', 'w') as f:
-        #     f.write(env_txt)
+        # # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
+        # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        # os.makedirs(folder_path, exist_ok=True)
+        
+        # # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
+        # file_path = os.path.join(folder_path, program_name+'.zip')
+        # file.save(file_path)
+        
+        # # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
+        # if file_path.endswith('.zip'):
+        #     unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
+        #     with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        #         zip_ref.extractall(unzip_folder_path)
+        #     # 체크한 개발 환경 기반으로 env_txt 파일 생성
+        #     env_txt = ''
+        #     for e in envx:
+        #         env_txt += str(e)
+        #     # 체크한 개발 환경 기반으로 env_txt 파일 저장
+        #     env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
+        #     with open(env_txt_file_path, 'w') as f:
+        #         f.write(env_txt)
+        #     # username.txt 파일 생성 및 저장
+        #     username_txt = user_email+':'+program_name
+        #     username_txt_file_path = os.path.join(unzip_folder_path, 'username.txt')
+        #     with open(username_txt_file_path, 'w', encoding='utf-8') as f:
+        #         f.write(username_txt)
+        #     os.remove(file_path)  # .zip 파일 삭제
+                    
+        #     # GitHub에 업로드
+        #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
+        # else:
+        #     return '.zip 파일을 업로드 해주세요.'
 
-        # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
-        os.makedirs(folder_path, exist_ok=True)
-        
-        # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
-        file_path = os.path.join(folder_path, program_name+'.zip')
-        file.save(file_path)
-        
-        # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
-        if file_path.endswith('.zip'):
-            unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(unzip_folder_path)
-            # 체크한 개발 환경 기반으로 env_txt 파일 생성
-            env_txt = ''
-            for e in envx:
-                env_txt += str(e)
-            # 체크한 개발 환경 기반으로 env_txt 파일 저장
-            env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
-            with open(env_txt_file_path, 'w') as f:
-                f.write(env_txt)
-            os.remove(file_path)  # .zip 파일 삭제
-        
-        # GitHub에 업로드
-        # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-
-        # # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 객체 생성
+        # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 JSON 객체 생성
         if oauth2.email in user_data:
             user_data[oauth2.email].append({
                 'Service Name': program_name,
-                'Containers' : containers
+                'Containers' : containers,
+                'Registeration Date' : str(today_date)
             })
         else:
             user_data[oauth2.email] = [{
                 'Service Name': program_name,
-                'Containers' : containers
+                'Containers' : containers,
+                'Registeration Date' : str(today_date)
             }]
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
-
-        # 응답으로 JSON 형식의 데이터 반환(출력 Test)
-        print(json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
 
         # 응답으로 JSON 형식의 데이터 반환
         return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
@@ -211,6 +203,74 @@ def handle_user_services():
         # state 수정해주어야 함.
         return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
     return 'Fail'
+######################################################################################################################################
+# 컨테이너 status 확인 (Running/Stop/Error?) / pip install paramiko
+# def container_status():
+#     ssh = paramiko.SSHClient()
+#     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+#     ssh.connect('150.136.87.94', port='22', username='opc', key_filename='./master-06-26.key')
+
+#     stdin, stdout, stderr = ssh.exec_command('kubectl get pod -n test') # kubectl get deployment -n {$useremail}
+#     output_lines = stdout.readlines()  # Capture the output in a variable
+
+#     # Debug: print the output to check if it's as expected
+#     print("=== Output ===")
+#     print("".join(output_lines))
+#     print("==============")
+
+#     deployment_info = {}  # 딕셔너리로 저장할 변수
+
+#     # 첫 번째 줄은 헤더이므로 무시하고, 두 번째 줄부터 파싱 시작
+#     for line in output_lines[1:]:
+#         line = line.strip()  # 줄바꿈 문자 제거
+#         if not line:
+#             continue  # 빈 줄은 무시
+
+#         # 줄을 공백으로 분리하여 name과 status 정보 추출
+#         columns = line.split()
+#         name = columns[0]
+#         status = columns[2]
+
+#         # 딕셔너리에 name을 키로, status를 값으로 저장
+#         deployment_info[name] = status
+
+#     ssh.close()
+
+#     return deployment_info  # 딕셔너리 반환
+
+# result_dict = control_containers()
+# print(result_dict)
+
+######################################################################################################################################
+# 컨테이너 제어 작업 (stop/restart/delete) / pip install paramiko
+# @app.route('/controls', methods=['POST', 'GET'])
+# def control_containers():
+#     ssh = paramiko.SSHClient()
+#     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+#     ssh.connect('150.136.87.94', port='22', username='opc', key_filename='C:\Users\OWNER\my-key\master-06-26.key')
+
+#     stdin, stdout, stderr = ssh.exec_command('kubectl get pod -n test')
+#     print(''.join(stdout.readlines()))
+
+#     ssh.close()
+
+# stop 버튼
+# kubectl scale deployment front-deployment --replicas=0 -n <$Username>
+# kubectl scale deployment back-deployment --replicas=0 -n <$Username>
+# kubectl scale deployment db-deployment --replicas=0 -n <$Username>
+# restart 버튼
+# kubectl scale deployment front-deployment --replicas=2 -n <$Username>
+# kubectl scale deployment back-deployment --replicas=2 -n <$Username>
+# kubectl scale deployment db-deployment --replicas=2 -n <$Username>
+# delete 버튼
+# kubectl delete deployment front-deployment -n <$Username>
+# kubectl delete service front-service -n <$Username>
+# kubectl delete deployment back-deployment -n <$Username>
+# kubectl delete service back-service -n <$Username>
+# kubectl delete deployment db-deployment -n <$Username>
+# kubectl delete service db-service -n <$Username>
+# kubectl delete pv <$Username>-pv -n <$Username>
+# kubectl delete pvc <$Username>-pvc -n <$Username>
 ######################################################################################################################################
 # 파일 업로드 & Git Push 자동화
 # 해당 폴더에서 미리 userSource 폴더 안에서 [1. git init] [2. git remote add origin <깃허브주소링크>] 셋팅해주어야 함.

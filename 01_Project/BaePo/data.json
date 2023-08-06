@@ -1,66 +1,67 @@
 {
-  "jungeuno76@gmail.com": [
-    {
-      "Containers": [
-        {
-          "env": ["0"],
-          "name": "배포_Front",
-          "state": "run"
-        },
-        {
-          "env": ["7"],
-          "name": "배포_back",
-          "state": "run"
-        },
-        {
-          "env": ["13", "15"],
-          "name": "배포_db",
-          "state": "run"
-        }
-      ],
-      "Service Name": "배포"
-    }
-  ],
   "teamnonstop00@gmail.com": [
     {
       "Containers": [
         {
-          "env": ["0"],
-          "name": "test_Front",
+          "env": ["3"],
+          "name": "배포_Front",
           "state": "run"
         },
         {
-          "env": ["7"],
-          "name": "test_Front",
+          "env": ["8"],
+          "name": "배포_Back",
           "state": "run"
         },
         {
-          "env": ["5", "11"],
-          "name": "test_Front",
+          "env": ["12", "13"],
+          "name": "배포_Db",
           "state": "run"
         }
       ],
-      "Service Name": "test"
+      "Registeration Date": "2023-08-07",
+      "Service Name": "배포"
     },
     {
       "Containers": [
         {
-          "env": ["0"],
-          "name": "test_Front",
+          "env": ["1", "3"],
+          "name": "배포테스트_Front",
           "state": "run"
         },
         {
-          "env": ["7"],
-          "name": "test_back",
+          "env": ["8"],
+          "name": "배포테스트_Back",
           "state": "run"
         },
         {
-          "env": ["5", "11"],
-          "name": "test_db",
+          "env": ["14", "15"],
+          "name": "배포테스트_Db",
           "state": "run"
         }
       ],
-      "Service Name": "test"
+      "Registeration Date": "2023-08-07",
+      "Service Name": "배포테스트"
+    },
+    {
+      "Containers": [
+        {
+          "env": ["1", "3"],
+          "name": "배포테스트_Front",
+          "state": "run"
+        },
+        {
+          "env": ["8"],
+          "name": "배포테스트_Back",
+          "state": "run"
+        },
+        {
+          "env": ["14", "15"],
+          "name": "배포테스트_Db",
+          "state": "run"
+        }
+      ],
+      "Registeration Date": "2023-08-07",
+      "Service Name": "배포테스트"
     }
   ]
 }
