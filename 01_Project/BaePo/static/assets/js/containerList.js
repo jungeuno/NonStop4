@@ -111,7 +111,9 @@ async function getUserData(userEmail){
   };
   try{
     const response=await fetch(url,options);
+    console.log(response);
     const userData=await response.json();
+    console.log(userData[userEmail]);
     return userData[userEmail];
 
   } catch(error){
@@ -324,6 +326,8 @@ async function loadData(userEmail){
   const serviceList=[];
 
   const userData=await getUserData(userEmail);
+  console.log("getUserData Func End...");
+  console.log(userData)
   userData.forEach((service) => {
     serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
   });
@@ -343,12 +347,17 @@ async function loadData(userEmail){
 
 function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
   console.log("startHtml Func Start...");
+  //window.location.hrdef=baseURL+"/containerList.html";
 
 
   //login한 user email session에 저장
-  const userEmailP=document.querySelector("p#userEmail");
-  const userEmail=userEmailP.innerText;
+  let userEmail=localStorage.getItem(KEY_USER_EMAIL);
+  if(!userEmail){ //비어있으면 : 로그인 페이지로 접근한 경우
+    userEmail=document.querySelector("p#userEmail").innerText;
+  }
+  console.log(userEmail);
   localStorage.setItem(KEY_USER_EMAIL,userEmail);
+  console.log(localStorage.getItem(KEY_USER_EMAIL));
 
   loadData(userEmail);
 
