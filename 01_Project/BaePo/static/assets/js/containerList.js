@@ -91,6 +91,8 @@ const MONITORING_BUTTON_CLASS="monitoring-btn";
 const MANAGING_BUTTON_CLASS="managing-btn";
 const ICON_MONITORING_CLASS="icon-tv-2";
 const ICON_MANAGING_CLASS="icon-settings-gear-63";
+const CARD_TITLE_CLASS="card-title";
+const D_INLINE_CLASS="d-inline";
 //for localStorage key
 const KEY_USER_EMAIL="user-email";
 const KEY_SERVICE_NAME="service-name";
@@ -111,9 +113,7 @@ async function getUserData(userEmail){
   };
   try{
     const response=await fetch(url,options);
-    console.log(response);
     const userData=await response.json();
-    console.log(userData[userEmail]);
     return userData[userEmail];
 
   } catch(error){
@@ -130,8 +130,6 @@ function cleanCardGroup(){
 }
 
 async function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
-  console.log(event);
-  console.log(userData);
   //active붙어있는 애한테서 active class 제거하기
   const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
   previousActiveLi.classList.remove(ACTIVE_CLASS);
@@ -321,13 +319,36 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   return cardDiv;
 }
 
+function makeCardTitleHeader(serviceName){
+  const cardHeaderDiv=document.createElement("div");
+  cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
+  const cardTitleH3=document.createElement("h3");
+  cardTitleH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS);
+  cardTitleH3.id=serviceName;
+  cardTitleH3.innerText=serviceName;
+  const serviceManagingButton=document.createElement("button");
+  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS);
+  serviceManagingButton.id="serviceManagingButton";
+  const serviceMangingButtonIcon=document.createElement("i");
+  serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_MANAGING_CLASS);
+  serviceManagingButton.appendChild(serviceMangingButtonIcon);
+  cardHeaderDiv.appendChild(cardTitleH3);
+  cardHeaderDiv.appendChild(serviceManagingButton);
+  return cardHeaderDiv;
+}
+
+function printCardTitle(serviceName){
+  const targetParent=document.querySelector("div.content>div.row>div.col-md-12>div.card");
+  const childElement=makeCardTitleHeader(serviceName);
+  targetParent.prepend(childElement);
+}
+
 async function loadData(userEmail){
   console.log("loadData Func Start...");
   const serviceList=[];
 
   const userData=await getUserData(userEmail);
   console.log("getUserData Func End...");
-  console.log(userData)
   userData.forEach((service) => {
     serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
   });
@@ -338,6 +359,13 @@ async function loadData(userEmail){
   }
 
   const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id;
+
+  printCardTitle(activeServiceName);
+  const serviceManagingButton=document.querySelector("#serviceManagingButton");
+  serviceManagingButton.addEventListener("click",()=>{
+    location.href="editDeploy.html"
+  });
+
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
   //console.log(activeContainerList);
@@ -347,8 +375,6 @@ async function loadData(userEmail){
 
 function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
   console.log("startHtml Func Start...");
-  //window.location.hrdef=baseURL+"/containerList.html";
-
 
   //login한 user email session에 저장
   let userEmail=localStorage.getItem(KEY_USER_EMAIL);
@@ -367,64 +393,6 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
     window.location.href = "deploy.html";
   });
 
-  const serviceManagingButton=document.querySelector("#serviceManagingButton");
-  serviceManagingButton.addEventListener("click",()=>{
-    location.href="editDeploy.html"
-  });
-
-
 }
 
 $(document).ready(() => $().ready(startHtml));
-
-
-/*
-async function getServiceList(){
-  console.log("getServiceList Func Starts...");
-  //사용자 id를 가지고 서비스 목록을 가져온다
-  //error처리는 함수 호출 부에서 then / catch로 처리
-  const requestURI = `/services`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "GET",
-  };
-  try{
-    let response = await fetch(url, options);
-    if (response.ok){
-      console.log("getServiceList : response : ",response);
-      const serviceListJSON=await response.json();
-      console.log("getServiceList : response.json() : ",serviceListJSON);
-      const serviceList=JSON.parse(serviceListJSON)["services"];
-      console.log("getSEerviceList : serviceList : ",serviceList);
-      return serviceList;
-    } else { //재요청 
-      console.log(response.status);
-      //getServiceList(userId);
-    }
-  } catch(error) {
-    console.log(`register func에서 에러 발생 : \n${error}`);
-  }
-}
-async function getContainerList(userEmail, serviceName) {
-  const requestURI = `/users/${userEmail}/services/${serviceName}/containers`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "GET",
-  };
-  try{
-    const response=await fetch(url,options);
-    if(response.ok){
-      const json=await response.json();
-      //json 가공해서 arr로 만들기
-      const containerList=JSON.parse(json)["containers"];
-      return containerList;
-    }
-    else{
-      //다시 요청보내기
-      console.log(response.status);
-    }
-  } catch(error) {
-    console.log(error);
-  }
-}
-*/
