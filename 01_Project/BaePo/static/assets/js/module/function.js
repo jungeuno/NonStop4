@@ -3,6 +3,12 @@ import { BASE_URL,
     USER_DATA_KEY_SERVICE_NAME } from "./constant.js";
 
 const baseURL=window.location.origin;
+
+function cleanNodeByQuerySelector(querySelectorString){
+  const parentNode=document.querySelector("#containerListCard .row .card-group");
+  parentNode.replaceChildren();
+}
+
 async function getUserData(userEmail){
     console.log("getUserData Func Start...");
     const requestURI = "/services";
@@ -20,7 +26,7 @@ async function getUserData(userEmail){
     }
 }
 
-function makeNavElement(serviceName){
+function makeNavElement(serviceName,clickEventHandler){
     const li=document.createElement("li");
     li.id=serviceName;
     const a=document.createElement("a");
@@ -37,15 +43,21 @@ function makeNavElement(serviceName){
 
 function printNavWithServiceList(serviceList) {
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
+    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
-        if(i===0){
-        li.classList.add("active");
-        localStorage.setItem(USER_DATA_KEY_SERVICE_NAME,li.id);
+        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
+            li.classList.add("active");
+            localStorage.setItem(USER_DATA_KEY_SERVICE_NAME,li.id);
         }
         navUl.appendChild(li);
     }
     navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
 }
 
-export {getUserData,makeNavElement,printNavWithServiceList};
+export {
+  getUserData,
+  makeNavElement,
+  printNavWithServiceList,
+  cleanNodeByQuerySelector,
+};

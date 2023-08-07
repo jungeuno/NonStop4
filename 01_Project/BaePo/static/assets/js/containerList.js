@@ -1,145 +1,74 @@
-/* containerList.html의 동작 흐름
-1. 페이지 불러오기 전에 서버에서 유저 id로 서비스 리스트 요청
-    - request : GET /users/{user-id}/services
-    - response : 특정 유저의 서비스 목록
-      {
-          "services" : [
-            "App1",
-            "App2",
-            "App3"
-          ]
-      }
-2. 위의 응답을 가지고 사이드 바 구성
-    - 첫번째 서비스에 active상태 걸어주기
-3. 사이드 바의 서비스 목록에서 active 서비스명을 가지고 서버에 컨테이너 리스트 요청
-    - request : GET users/{user-id}/services/{service-id}/containers
-    - response : 특정 서비스의 컨테이너 목록
-        container-name, container-state, container-envs, container-id
-        {
-          "containers" : [
-            {
-              "contaienr-name" : "App1Backend",
-              "container-state" "run",
-              "container-envx" : [ "python", "flask" ]
-            },
-            {
-              "contaienr-name" : "App1Frontend",
-              "container-state" "run",
-              "container-envx" : [ "bootstrap", "react" ]
-            },
-          ]
-        }
-4. 위의 응답을 가지고, 메인 화면 구성
-    - container-name 박아주기
-    - container-id 박아주기
-    - conatainer-state에 따라서 색깔 구성 (run : green, stop : red)
-    - run이면 run-button 비활성화, stop이면 stop버튼 비활성화
-    - container-envs에 따라서 아이콘 넣어주기  ex) springboot, python, 등,,,
-5. 기타 작업
-    - 서비스 추가 버튼 
-        -> 사용자로부터 새 서비스명 입력
-        -> '생성하기'버튼 누르면
-        -> '새 서비스명', '사용자id' 서버로 보내기
-        -> 서버에서 데이터베이스에 추가하기
-    - container monitoring button 
-        -> button이 클릭된 container의 id를 추출
-        -> containerDash.html로 이동 : container-id 담아서
-    - container managing button 
-        -> button이 클릭된 container의 id를 추출
-        -> editDeploy.html로 이동 : container-id 담아서
-    - container plus button 
-        -> user-id, service-id 추출
-        -> deploy.html로 이동 : user-id, service-id 담아서 
-*/
-window.TrackJS &&
-  TrackJS.install({
-    token: "ee6fab19c5a04ac1a32a645abde4613a",
-    application: "black-dashboard-free",
-  });
+import {
+  TIMS_ICONS_CLASS,
+  ICON_CHART_PIE_36_CLASS,
+  ICON_TRIANGLE_RIGHT_17_CLASS,
+  ICON_BUTTON_PAUSE_CLASS,
+  ICON_TV_2_CLASS,
+  ICON_SETTING_GEAR_63_CLASS,
+  CARD_CLASS,
+  CARD_BODY_CLASS,
+  CARD_HEADER_CLASS,
+  CARD_GROUP_CLASS,
+  CARD_FOOTER_CLASS,
+  CARD_TITLE_CLASS,
+  ROW_CLASS,COL_1_CLASS,COL_4_CLASS,COL_10_CLASS,COL_12_CLASS,MR_3_CLASS,PR_0_CLASS,
+  BADGE_CLASS,BADGE_PILL_CLASS,BADGE_INFO_CLASS,BADGE_DANGER_CLASS,
+  BTN_CLASS,
+  BTN_PRIMARY_CLASS,
+  BTN_LINK_CLASS,
+  DISABLED_CLASS,
+  FONT_WEIGHT_BOLD_CLASS,
+  ACTIVE_CLASS,
+  D_INLINE_CLASS,
+  TEXT_CENTER_CLASS,
+  TEXT_RIGHT_CLASS,
+  LOCAL_STORAGE_KEY_USER_EMAIL,
+  LOCAL_STORAGE_KEY_SERVICE_NAME,
+  USER_DATA_KEY_SERVICE_NAME,
+  USER_DATA_KEY_CREATING_DATE,
+  USER_DATA_KEY_CONTAINERS,
+  CONTAINER_KEY_NAME,
+  CONTAINER_KEY_ENV,
+  CONTAINER_KEY_STATE,
+  PINK_BORDER_STYLE,
+  MONITORING_BUTTON_CLASS,
+  MANAGING_BUTTON_CLASS,
+  BASE_URL,
+} from "./module/constant.js";
 
-//class names for nav element 
-const TIMS_ICONS_CLASS="tim-icons";
-const ICON_CHART_PIE_CLASS="icon-chart-pie-36";
-const FONT_WEIGHT_BOLD_CLASS="font-weight-bold";
-const ACTIVE_CLASS="active";
-//class names for container element
-const CARD_GROUP_CLASS="card-group";
-const CARD_GROUP_SIZE_CLASS="col-12";
-const CARD_CLASS="card";
-const CARD_SIZE_CLASS="col-4";
-const CARD_MARGIN_CLASS="mr-3";
-const CARD_STYLE="border:1px solid #e44cc4";
-const CARD_HEADER_CLASS="card-header";
-const BADGE_CLASS="badge";
-const BADGE_PILL_CLASS="badge-pill";
-const BADGE_BLUE_CLASS="badge-info";
-const BADGE_RED_CLASS="badge-danger";
-const BADGE_SIZE="col-1";
-const FRAMEWORK_SIZE_CLASS="col-10";
-const FRAMEWORK_PADDING_CLASS="pr-0";
-const CARD_BODY_CLASS="card-body";
-const TEXT_CENTER_CLASS="text-center";
-const TEXT_RIGHT_CLASS="text-right";
-const CARD_FOOTER_CLASS="card-footer";
-const BUTTON_CLASS="btn";
-const BUTTON_PRIMARY_CLASS="btn-primary";
-const BUTTON_LINK_CLASS="btn-link";
-const BUTTON_DISABLED_CLASS="disabled";
-const ICON_TRIANGLE_CLASS="icon-triangle-right-17";
-const ICON_PAUSE_CLASS="icon-button-pause";
-const MONITORING_BUTTON_CLASS="monitoring-btn";
-const MANAGING_BUTTON_CLASS="managing-btn";
-const ICON_MONITORING_CLASS="icon-tv-2";
-const ICON_MANAGING_CLASS="icon-settings-gear-63";
-const CARD_TITLE_CLASS="card-title";
-const D_INLINE_CLASS="d-inline";
-//for localStorage key
-const KEY_USER_EMAIL="user-email";
-const KEY_SERVICE_NAME="service-name";
-const USER_DATA_KEY_SERVICE_NAME="Service Name";
-const USER_DATA_KEY_CONTAINERS="Containers";
-const CONTAINER_KEY_NAME="name";
-const CONTAINER_KEY_ENV="env";
-const CONTAINER_KEY_STATE="state";
-
-const baseURL=window.location.origin;
+import { 
+  cleanNodeByQuerySelector,
+} from "./module/function.js";
 
 async function getUserData(userEmail){
   console.log("getUserData Func Start...");
   const requestURI = "/services";
-  const url = baseURL + requestURI;
+  const url = BASE_URL + requestURI;
   const options = {
     method: "GET",
   };
   try{
+    console.log("before fetch");
     const response=await fetch(url,options);
+    console.log("after fetch printing response...");
+    console.log(response);
+    console.log("before parsing");
     const userData=await response.json();
+    console.log("after parsing printing userData...");
+    console.log(userData);
     return userData[userEmail];
 
   } catch(error){
     console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
   }
 }
 
-/*
-function cleanCardGroup(){
-  const cardBodyRow=document.querySelector("#containerListCard .row");
-  const prevCardGroup=document.querySelector("#containerListCard .row .card-group");
-  const newCardGroup=document.createElement("div");
-  newCardGroup.classList.add(CARD_GROUP_CLASS,CARD_GROUP_SIZE_CLASS);
-  cardBodyRow.replaceChild(newCardGroup,prevCardGroup);
-}*/
-
-function cleanCardGroup(){
-  const parentNode=document.querySelector("#containerListCard .row .card-group");
-  parentNode.replaceChildren();
-}
-
-async function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
+function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
   //active붙어있는 애한테서 active class 제거하기
   const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
   previousActiveLi.classList.remove(ACTIVE_CLASS);
-  localStorage.removeItem(KEY_SERVICE_NAME);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
 
   //2. click된 li tag에 active class 붙이기 event.target : p tage
   const a=event.target.parentNode;
@@ -148,11 +77,15 @@ async function handleNavElementClick(event,userData){ //nav에서 특정 앱을 
   
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
   const newActiveServiceName=li.id;
-  localStorage.setItem(KEY_SERVICE_NAME,newActiveServiceName);
+  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
 
-  cleanCardGroup();
+  //4. cardGroup 비우기
+  const cardGroupQuerySelectorString="#containerListCard .row .card-group";
+  cleanNodeByQuerySelector(cardGroupQuerySelectorString);
+
+  //5. 클릭된 서비스의 컨테이너 내용으로 채워넣기
   printContainerList(activeContainerList);
 }
 
@@ -161,7 +94,7 @@ function makeNavElement(serviceName){
   li.id=serviceName;
   const a=document.createElement("a");
   const i=document.createElement("i");
-  i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_CLASS);
+  i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_36_CLASS);
   const p=document.createElement("p");
   p.classList.add(FONT_WEIGHT_BOLD_CLASS);
   p.innerText=serviceName;
@@ -171,17 +104,19 @@ function makeNavElement(serviceName){
   return li;
 }
 
+
 function printNavWithServiceList(serviceList) {
-  const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
-  for (let i = 0; i < serviceList.length; i++) {
-    let li=makeNavElement(serviceList[i]);
-    if(i===0){
-      li.classList.add("active");
-      localStorage.setItem(KEY_SERVICE_NAME,li.id);
+    const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
+    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
+    for (let i = 0; i < serviceList.length; i++) {
+        let li=makeNavElement(serviceList[i]);
+        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
+            li.classList.add("active");
+            localStorage.setItem(USER_DATA_KEY_SERVICE_NAME,li.id);
+        }
+        navUl.appendChild(li);
     }
-    navUl.appendChild(li);
-  }
-  navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
+    navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
 }
 
 function printContainerList(containerList){
@@ -196,7 +131,7 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
   const cardDiv=event.target.parentNode.parentNode;
   const containerId=cardDiv.id;
   const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
-  const url = baseURL + requestURI;
+  const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
     body : "run",
@@ -206,51 +141,38 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
       const badge=cardDiv.querySelector(".card-header>.badge");
       const runButton=cardDiv.querySelector(".card-footer").firstChild();
       const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_RED_CLASS);
-      badge.classList.add(BADGE_BLUE_CLASS);
-      runButton.classList.add(BUTTON_DISABLED_CLASS);
-      pauseButton.classList.remove(BUTTON_DISABLED_CLASS);
-    });
-}
-
-function handleContainerPauseButtonClick(event){ //container state run -> stop으로 변경
-  const activeServiceName=localStorage.getItem(KEY_SERVICE_NAME);
-  const cardDiv=event.target.parentNode.parentNode;
-  const containerName=cardDiv.id;
-  const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
-  const url = baseURL + requestURI;
-  const options = {
-    method: "POST",
-    body: "pause",
-  };
-  fetch(url,options)
+      badge.classList.remove(BADGE_DANGER_CLASS);
+      badge.classList.add(BADGE_INFO_CLASS);
+      runButton.classList.add(DISABLED_CLASS);
+      pauseButton.classList.remove(DISABLED_CLASS);
+    })
     .then(()=>{
       const badge=cardDiv.querySelector(".card-header>.badge");
       const runButton=cardDiv.querySelector(".card-footer").firstChild();
       const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_BLUE_CLASS);
-      badge.classList.add(BADGE_RED_CLASS);
-      pauseButton.classList.add(BUTTON_DISABLED_CLASS);
-      runButton.classList.remove(BUTTON_DISABLED_CLASS);
+      badge.classList.remove(BADGE_INFO_CLASS);
+      badge.classList.add(BADGE_DANGER_CLASS);
+      pauseButton.classList.add(DISABLED_CLASS);
+      runButton.classList.remove(DISABLED_CLASS);
     })
     .catch((error)=>{
       console.log(error);
       const badge=cardDiv.querySelector(".card-header>.badge");
       const runButton=cardDiv.querySelector(".card-footer").firstChild();
       const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_BLUE_CLASS);
-      badge.classList.add(BADGE_RED_CLASS);
-      pauseButton.classList.add(BUTTON_DISABLED_CLASS);
-      runButton.classList.remove(BUTTON_DISABLED_CLASS);
+      badge.classList.remove(BADGE_INFO_CLASS);
+      badge.classList.add(BADGE_DANGER_CLASS);
+      pauseButton.classList.add(DISABLED_CLASS);
+      runButton.classList.remove(DISABLED_CLASS);
     });
 }
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
-  const activeServiceName=localStorage.getItem(KEY_SERVICE_NAME);
+  const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
   const containerName=cardDiv.id;
   const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
-  const url = baseURL + requestURI;
+  const url = BASE_URL + requestURI;
   const options = {
     method: "GET",
   };
@@ -261,18 +183,18 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
 function makeContainerElement(containerInfo){ //container data받아서 html에 표시해줄 요소 생성
   //card 틀 div만들기
   const cardDiv=document.createElement("div");
-  cardDiv.classList.add(CARD_CLASS,CARD_SIZE_CLASS,CARD_MARGIN_CLASS);
-  cardDiv.style=CARD_STYLE;
+  cardDiv.classList.add(CARD_CLASS,COL_4_CLASS,MR_3_CLASS);
+  cardDiv.style=PINK_BORDER_STYLE;
   cardDiv.id=containerInfo[CONTAINER_KEY_NAME];
 
   //cardHeader div만들기 : state + env
   const cardHeaderDiv=document.createElement("div");
   cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
   const badgeSpan=document.createElement("span");
-  badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,BADGE_SIZE);
+  badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,COL_1_CLASS);
   badgeSpan.innerText=" ";
   const frameworkIconI=document.createElement("i");
-  frameworkIconI.classList.add(FRAMEWORK_PADDING_CLASS,FRAMEWORK_SIZE_CLASS,TEXT_RIGHT_CLASS);
+  frameworkIconI.classList.add(PR_0_CLASS,COL_10_CLASS,TEXT_RIGHT_CLASS);
   cardHeaderDiv.appendChild(badgeSpan);
   cardHeaderDiv.appendChild(frameworkIconI);
 
@@ -286,32 +208,31 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   //cardFooter div만들기 : button
   const cardFooterDiv=document.createElement("div");
   cardFooterDiv.classList.add(CARD_FOOTER_CLASS,TEXT_CENTER_CLASS);
-  const containerRunButton=document.createElement("button");
-  containerRunButton.classList.add(BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS);
-  const containerRunI=document.createElement("i");
-  containerRunI.classList.add(TIMS_ICONS_CLASS,ICON_TRIANGLE_CLASS);
-  containerRunButton.appendChild(containerRunI);
 
-  const containerPauseButton=document.createElement("button");
-  containerPauseButton.classList.add(BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS);
-  const containerPauseI=document.createElement("i");
-  containerPauseI.classList.add(TIMS_ICONS_CLASS,ICON_PAUSE_CLASS);
-  containerPauseButton.appendChild(containerPauseI);
+  const sampleButton=document.createElement("button");
+  sampleButton.classList.add(BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
+  const sampleI=document.createElement("i");
+  sampleI.classList.add(TIMS_ICONS_CLASS);
+  sampleButton.appendChild(sampleI);
+
+  const containerRunButton=sampleButton.cloneNode();
+  containerRunButton.querySelector("i").classList.add(ICON_TRIANGLE_RIGHT_17_CLASS);
+
+  const containerPauseButton=sampleButton.cloneNode();
+  containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
   if(containerInfo[CONTAINER_KEY_STATE]==="run"){
-    badgeSpan.classList.add(BADGE_BLUE_CLASS);
-    containerRunButton.classList.add(BUTTON_DISABLED_CLASS);
+    badgeSpan.classList.add(BADGE_INFO_CLASS);
+    containerRunButton.classList.add(DISABLED_CLASS);
   }else{
-    badgeSpan.classList.add(BADGE_RED_CLASS);
-    containerPauseButton.classList.add(BUTTON_DISABLED_CLASS);
+    badgeSpan.classList.add(BADGE_DANGER_CLASS);
+    containerPauseButton.classList.add(DISABLED_CLASS);
   }
 
-  const containerMonitoringButton=document.createElement("button");
-  containerMonitoringButton.classList.add(BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS,MONITORING_BUTTON_CLASS);
+  const containerMonitoringButton=sampleButton.cloneNode();
+  containerMonitoringButton.classList.add(MONITORING_BUTTON_CLASS);
   containerMonitoringButton.addEventListener("click",handleContainerMonitoringButtonClick)
-  const containerMonitoringI=document.createElement("i");
-  containerMonitoringI.classList.add(TIMS_ICONS_CLASS,ICON_MONITORING_CLASS);
-  containerMonitoringButton.appendChild(containerMonitoringI);
+  containerMonitoringButton.querySelector("i").classList.add(ICON_MONITORING_CLASS);
 
   cardFooterDiv.appendChild(containerRunButton);
   cardFooterDiv.appendChild(containerPauseButton);
@@ -333,10 +254,10 @@ function makeCardTitleHeader(serviceName){
   cardTitleH3.id=serviceName;
   cardTitleH3.innerText=serviceName;
   const serviceManagingButton=document.createElement("button");
-  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BUTTON_CLASS,BUTTON_PRIMARY_CLASS,BUTTON_LINK_CLASS);
+  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
-  serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_MANAGING_CLASS);
+  serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_TV_2_CLASS);
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
   cardHeaderDiv.appendChild(cardTitleH3);
   cardHeaderDiv.appendChild(serviceManagingButton);
@@ -353,18 +274,19 @@ async function loadData(userEmail){
   console.log("loadData Func Start...");
   const serviceList=[];
 
-  const userData=await getUserData(userEmail);
+  const userData=await getUserData(userEmail); //서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
   console.log("getUserData Func End...");
-  userData.forEach((service) => {
+  userData.forEach((service) => { //serviceList에 현재 로그인된 유저의 서비스 리스트를 추가함
     serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
   });
-  printNavWithServiceList(serviceList);
+  printNavWithServiceList(serviceList); //서비스 리스트 이용해서 navbar 내용 넣기
   const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
   for (let i=0;i<(navElements.length)-1;i++){
-    navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData));
+    navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData)); //navbar 요소에 핸들러 추가
   }
 
-  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id;
+  //const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //navbar 요소 만들면서 active지정해준 아이가져오기
+  const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) //navbar 요소 만들면서 active지정해준 아이가져오기
 
   printCardTitle(activeServiceName);
   const serviceManagingButton=document.querySelector("#serviceManagingButton");
@@ -383,13 +305,13 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
   console.log("startHtml Func Start...");
 
   //login한 user email session에 저장
-  let userEmail=localStorage.getItem(KEY_USER_EMAIL);
+  let userEmail=localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
   if(!userEmail){ //비어있으면 : 로그인 페이지로 접근한 경우
     userEmail=document.querySelector("p#userEmail").innerText;
   }
-  console.log(userEmail);
-  localStorage.setItem(KEY_USER_EMAIL,userEmail);
-  console.log(localStorage.getItem(KEY_USER_EMAIL));
+  //console.log(userEmail);
+  localStorage.setItem(LOCAL_STORAGE_KEY_USER_EMAIL,userEmail);
+  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL));
 
   loadData(userEmail);
 
@@ -403,4 +325,8 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 
 $(document).ready(() => $().ready(startHtml));
 
-
+window.TrackJS &&
+  TrackJS.install({
+    token: "ee6fab19c5a04ac1a32a645abde4613a",
+    application: "black-dashboard-free",
+  });

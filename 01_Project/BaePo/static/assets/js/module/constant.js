@@ -43,7 +43,7 @@ export const LOCAL_STORAGE_KEY_SERVICE_NAME="service-name";
 
 //서버에서 받아오는 userData객체의 키값
 export const USER_DATA_KEY_SERVICE_NAME="Service Name";
-export const USER_DATA_KEY_REGISTERATION_DATE="Registeration Date";
+export const USER_DATA_KEY_CREATING_DATE="Creating Date";
 export const USER_DATA_KEY_CONTAINERS="Containers";
 export const CONTAINER_KEY_NAME="name";
 export const CONTAINER_KEY_ENV="env";
