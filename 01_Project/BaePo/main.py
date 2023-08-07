@@ -20,7 +20,7 @@ oauth2 = UserOAuth2(app)
 
 # 현재 날짜/시간 기록 변수 - today_date
 now = dt.datetime.now()
-today_date = now.strftime('%Y-%m-%d | %H:%M:%S')
+today_date = now.strftime('%Y-%m-%d  |  %H:%M:%S')
 
 # JSON 파일 경로
 data_file_path = 'data.json'
@@ -50,11 +50,6 @@ def main_page():
 @app.route('/register.html')
 def register_page():
     return render_template('register.html')
-    
-@app.route('/mypage.html')
-def my_page():
-    if oauth2.has_credentials():
-        return render_template('mypage.html', useremail=oauth2.email)
 
 @app.route('/containerList.html')
 def containerList_page():
@@ -75,18 +70,24 @@ def containerDash_page():
 def deploy_page():
     if oauth2.has_credentials():
         return render_template('deploy.html', useremail=oauth2.email)
+    
+@app.route('/mypage.html')
+def my_page():
+    if oauth2.has_credentials():
+        user_email = oauth2.email  # 사용자 이메일
+        user_date = user_list.get(user_email)  # 사용자 데이터 가져오기
+
+        if user_data is None:
+            return "User not found"
+        return render_template('mypage.html', useremail=user_email, userDate=user_date[0]["Registeration Date"])
 ######################################################################################################################################
 # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 @oauth2.required
 def login():
-    # http is authorized with the user's credentials and can be used
-    # to make http calls.
     oauth = oauth2.http()
-    # # Or, you can access the credentials directly
     credentials = oauth2.credentials
     # 로그인 계정의 이메일과 사용자 id를 받아옴
-
     # user_list에 사용자 이메일이 없다면 JSON 파일에 가입 일자 등록 
     if oauth2.email not in user_list:
         registerationDate = today_date
@@ -101,7 +102,6 @@ def login():
 # logout 버튼 클릭 시, 실행되도록 프론트와 연동해야 함.    !!!!!!!!!!!!!!!!!!!!!!!!
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
-    # Clear the user's session to log them out
     session.clear()
     return render_template('login.html')
 ######################################################################################################################################
