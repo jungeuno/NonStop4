@@ -1,42 +1,71 @@
-import {
-  TIMS_ICONS_CLASS,
-  ICON_CHART_PIE_36_CLASS,
-  ICON_TRIANGLE_RIGHT_17_CLASS,
-  ICON_BUTTON_PAUSE_CLASS,
-  ICON_TV_2_CLASS,
-  ICON_SETTING_GEAR_63_CLASS,
-  CARD_CLASS,
-  CARD_BODY_CLASS,
-  CARD_HEADER_CLASS,
-  CARD_GROUP_CLASS,
-  CARD_FOOTER_CLASS,
-  CARD_TITLE_CLASS,
-  ROW_CLASS,COL_1_CLASS,COL_4_CLASS,COL_10_CLASS,COL_12_CLASS,MR_3_CLASS,PR_0_CLASS,
-  BADGE_CLASS,BADGE_PILL_CLASS,BADGE_INFO_CLASS,BADGE_DANGER_CLASS,
-  BTN_CLASS,
-  BTN_PRIMARY_CLASS,
-  BTN_LINK_CLASS,
-  DISABLED_CLASS,
-  FONT_WEIGHT_BOLD_CLASS,
-  ACTIVE_CLASS,
-  D_INLINE_CLASS,
-  TEXT_CENTER_CLASS,
-  TEXT_RIGHT_CLASS,
-  LOCAL_STORAGE_KEY_USER_EMAIL,
-  LOCAL_STORAGE_KEY_SERVICE_NAME,
-  USER_DATA_KEY_SERVICE_NAME,
-  USER_DATA_KEY_CONTAINERS,
-  CONTAINER_KEY_NAME,
-  CONTAINER_KEY_STATE,
-  PINK_BORDER_STYLE,
-  MONITORING_BUTTON_CLASS,
-  BASE_URL,
-  LOCAL_STORAGE_KEY_CONTAINER_NAME,
-} from "./module/constant.js";
+/* Constant ==========================================================*/ 
+//bootstrap className
+const TIMS_ICONS_CLASS="tim-icons";
+const ICON_CHART_PIE_36_CLASS="icon-chart-pie-36";
+const ICON_TRIANGLE_RIGHT_17_CLASS="icon-triangle-right-17";
+const ICON_BUTTON_PAUSE_CLASS="icon-button-pause";
+const ICON_TV_2_CLASS="icon-tv-2";
+const ICON_SETTING_GEAR_63_CLASS="icon-settings-gear-63";
 
-import { 
-  cleanNodeByQuerySelector,
-} from "./module/function.js";
+const CARD_CLASS="card";
+const CARD_BODY_CLASS="card-body";
+const CARD_HEADER_CLASS="card-header";
+const CARD_GROUP_CLASS="card-group";
+const CARD_FOOTER_CLASS="card-footer";
+const CARD_TITLE_CLASS="card-title";
+
+const ROW_CLASS="row";
+const COL_1_CLASS="col-1";
+const COL_4_CLASS="col-4";
+const COL_10_CLASS="col-10";
+const COL_12_CLASS="col-12";
+const MR_3_CLASS="mr-3";
+const PR_0_CLASS="pr-0";
+
+const BADGE_CLASS="badge";
+const BADGE_PILL_CLASS="badge-pill";
+const BADGE_INFO_CLASS="badge-info";
+const BADGE_DANGER_CLASS="badge-danger";
+
+const BTN_CLASS="btn";
+const BTN_PRIMARY_CLASS="btn-primary";
+const BTN_LINK_CLASS="btn-link";
+
+const DISABLED_CLASS="disabled";
+const FONT_WEIGHT_BOLD_CLASS="font-weight-bold";
+const ACTIVE_CLASS="active";
+const D_INLINE_CLASS="d-inline";
+const TEXT_CENTER_CLASS="text-center";
+const TEXT_RIGHT_CLASS="text-right";
+
+//for localStorage key
+const LOCAL_STORAGE_KEY_USER_EMAIL="user-email";
+const LOCAL_STORAGE_KEY_SERVICE_NAME="service-name";
+const LOCAL_STORAGE_KEY_CONTAINER_NAME="container-name";
+
+//서버에서 받아오는 userData객체의 키값
+const USER_DATA_KEY_SERVICE_NAME="Service Name";
+const USER_DATA_KEY_CREATING_DATE="Creating Date";
+const USER_DATA_KEY_CONTAINERS="Containers";
+const CONTAINER_KEY_NAME="name";
+const CONTAINER_KEY_ENV="env";
+const CONTAINER_KEY_STATE="state";
+
+//custom style for containerCardElement
+const PINK_BORDER_STYLE="border:1px solid #e44cc4";
+
+//custom class name 
+const MONITORING_BUTTON_CLASS="monitoring-btn";
+const MANAGING_BUTTON_CLASS="managing-btn";
+
+//baseURL used in fetch api
+const BASE_URL=window.location.origin;
+
+/* main function ==========================================================*/ 
+function cleanNodeByQuerySelector(querySelectorString){
+  const parentNode=document.querySelector(querySelectorString);
+  parentNode.replaceChildren();
+}
 
 async function getUserData(userEmail){
   console.log("getUserData Func Start...");
@@ -143,6 +172,8 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
 }
 
 $(document).ready(() => $().ready(startHtml));
+
+/* function ==========================================================*/ 
 
 function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
   //active붙어있는 애한테서 active class 제거하기
