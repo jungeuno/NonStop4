@@ -25,15 +25,13 @@ import {
   LOCAL_STORAGE_KEY_USER_EMAIL,
   LOCAL_STORAGE_KEY_SERVICE_NAME,
   USER_DATA_KEY_SERVICE_NAME,
-  USER_DATA_KEY_CREATING_DATE,
   USER_DATA_KEY_CONTAINERS,
   CONTAINER_KEY_NAME,
-  CONTAINER_KEY_ENV,
   CONTAINER_KEY_STATE,
   PINK_BORDER_STYLE,
   MONITORING_BUTTON_CLASS,
-  MANAGING_BUTTON_CLASS,
   BASE_URL,
+  LOCAL_STORAGE_KEY_CONTAINER_NAME,
 } from "./module/constant.js";
 
 import { 
@@ -63,6 +61,88 @@ async function getUserData(userEmail){
     console.log(error);
   }
 }
+
+
+async function loadData(userEmail){
+  console.log("loadData Func Start...");
+  const serviceList=[];
+
+  //1. 서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
+  const userData=await getUserData(userEmail); 
+  console.log(userData);
+  console.log("getUserData Func End...");
+
+  //2. serviceList에 현재 로그인된 유저의 서비스 리스트를 추가함
+  userData.forEach((service) => { 
+    serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
+  });
+  console.log("making service lists...");
+  console.log(serviceList);
+
+  //3. 서비스 리스트 이용해서 navbar 내용 넣기
+  printNavWithServiceList(serviceList); 
+  console.log("after completing navbar");
+  console.log(document.querySelectorAll(".sidebar>.sidebar-wrapper .nav"));
+  console.log("Adding navbar eventhandler");
+  
+  //4. 3에서 만든 navbar의 요소들에 이벤트 핸들러 추가
+  const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
+  for (let i=0;i<(navElements.length)-1;i++){
+    navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData)); 
+  }
+
+  console.log("printing active nav id");
+  //5. navbar 요소 만들면서 active로 지정해준 현재 보고 있는 서비스 명 가져오기
+  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) 
+  console.log(activeServiceName);
+
+  //6. card Title 만들기 : 이름 + 수정하기 버튼 + 핸들러 추가
+  printCardTitle(activeServiceName);
+  console.log("after printing card title");
+
+  console.log("adding eventhandler to serviceManagingButton");
+  const serviceManagingButton=document.querySelector("#serviceManagingButton");
+  serviceManagingButton.addEventListener("click",()=>{
+    console.log("service managing button clicke");
+    window.location.href="editDeploy.html"
+  });
+
+  //7. 현재 보고 있는 서비스의 컨테이너 리스트를 꺼내서 화면 구성하기
+  console.log("lets find active container object");
+  console.log("printing userData");
+  console.log(userData);
+  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+  console.log(activeContainerObj);
+  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+  console.log(activeContainerList);
+  //console.log(activeContainerList);
+  printContainerList(activeContainerList);
+
+}
+
+function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
+  console.log("startHtml Func Start...");
+
+  //login한 user email session에 저장
+  let userEmail=localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+  if(!userEmail){ //비어있으면 : 로그인 페이지로 접근한 경우
+    userEmail=document.querySelector("p#userEmail").innerText;
+  }
+  //console.log(userEmail);
+  localStorage.setItem(LOCAL_STORAGE_KEY_USER_EMAIL,userEmail);
+  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL));
+
+  loadData(userEmail);
+
+  const newContainerBtn = document.querySelector("#deployButton");
+  newContainerBtn.addEventListener("click", function () {
+    console.log("배포하기 버튼 클릭");
+    window.location.href = "deploy.html";
+  });
+
+}
+
+$(document).ready(() => $().ready(startHtml));
 
 function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
   //active붙어있는 애한테서 active class 제거하기
@@ -190,13 +270,17 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
   const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
-  const containerName=cardDiv.id;
+  const clickedContainerName=cardDiv.id;
+  localStorage.setItem(LOCAL_STORAGE_KEY_CONTAINER_NAME,clickedContainerName)
+  window.location.href="containerDash.html";
+  /*
   const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "GET",
   };
   fetch(url,options);
+  */
 }
 
 
@@ -295,79 +379,6 @@ function printCardTitle(serviceName){
   const childElement=makeCardTitleHeader(serviceName);
   targetParent.prepend(childElement);
 }
-
-async function loadData(userEmail){
-  console.log("loadData Func Start...");
-  const serviceList=[];
-
-  const userData=await getUserData(userEmail); //서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
-  console.log(userData);
-  console.log("getUserData Func End...");
-  userData.forEach((service) => { //serviceList에 현재 로그인된 유저의 서비스 리스트를 추가함
-    serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
-  });
-  console.log("making service lists...");
-  console.log(serviceList);
-  printNavWithServiceList(serviceList); //서비스 리스트 이용해서 navbar 내용 넣기
-  console.log("after completing navbar");
-  console.log(document.querySelectorAll(".sidebar>.sidebar-wrapper .nav"));
-  console.log("Adding navbar eventhandler");
-  const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
-  for (let i=0;i<(navElements.length)-1;i++){
-    navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData)); //navbar 요소에 핸들러 추가
-  }
-
-  console.log("printing active nav id");
-  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //navbar 요소 만들면서 active지정해준 아이가져오기
-  //const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) //navbar 요소 만들면서 active지정해준 아이가져오기
-  console.log(activeServiceName);
-
-  
-  printCardTitle(activeServiceName);
-  console.log("after printing card title");
-
-  console.log("adding eventhandler to serviceManagingButton");
-  const serviceManagingButton=document.querySelector("#serviceManagingButton");
-  serviceManagingButton.addEventListener("click",()=>{
-    console.log("service managing button clicke");
-    location.href="editDeploy.html"
-  });
-
-  console.log("lets find active container object");
-  console.log("printing userData");
-  console.log(userData);
-  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
-  console.log(activeContainerObj);
-  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
-  console.log(activeContainerList);
-  //console.log(activeContainerList);
-  printContainerList(activeContainerList);
-
-}
-
-function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하는 작업
-  console.log("startHtml Func Start...");
-
-  //login한 user email session에 저장
-  let userEmail=localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-  if(!userEmail){ //비어있으면 : 로그인 페이지로 접근한 경우
-    userEmail=document.querySelector("p#userEmail").innerText;
-  }
-  //console.log(userEmail);
-  localStorage.setItem(LOCAL_STORAGE_KEY_USER_EMAIL,userEmail);
-  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL));
-
-  loadData(userEmail);
-
-  const newContainerBtn = document.querySelector("#deployButton");
-  newContainerBtn.addEventListener("click", function () {
-    console.log("배포하기 버튼 클릭");
-    window.location.href = "deploy.html";
-  });
-
-}
-
-$(document).ready(() => $().ready(startHtml));
 
 window.TrackJS &&
   TrackJS.install({

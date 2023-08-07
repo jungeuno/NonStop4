@@ -40,6 +40,7 @@ export const TEXT_RIGHT_CLASS="text-right";
 //for localStorage key
 export const LOCAL_STORAGE_KEY_USER_EMAIL="user-email";
 export const LOCAL_STORAGE_KEY_SERVICE_NAME="service-name";
+export const LOCAL_STORAGE_KEY_CONTAINER_NAME="container-name";
 
 //서버에서 받아오는 userData객체의 키값
 export const USER_DATA_KEY_SERVICE_NAME="Service Name";
