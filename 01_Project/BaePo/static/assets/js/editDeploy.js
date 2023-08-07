@@ -1,4 +1,4 @@
-import { getUserData,makeNavElement,printNavWithServiceList } from "./module/navbar.js";
+import { getUserData,makeNavElement,printNavWithServiceList } from "./module/function.js";
 import { USER_DATA_KEY_SERVICE_NAME,
     LOCAL_STORAGE_KEY_USER_EMAIL,LOCAL_STORAGE_KEY_SERVICE_NAME} from "./module/constant.js";
 
