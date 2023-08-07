@@ -125,13 +125,16 @@ $(document).ready(function() {
 async function handleServiceEditButtonClick(event){  
     console.log("handleServiceEditButton Clicked!!!");
     //button의 value : {UPDATE / DELETE} 에 따라서 서비스를 업데이트하거나 삭제하는 요청을 보냄
+    const editDeployForm=document.querySelector("#editDeployForm");
+    const formData=new FormData(editDeployForm);
     const requestURI=`/services/${serviceName}`
-    const url=baseURL+requestURI;
-    const method=event.target.value;
+    const url=BASE_URL+requestURI;
+    const httpMethod=event.target.value;
     const options={
-        method:{method}
-    }
-    console.log(`handleServiceEditButtonClick : ${options}`);
+        method:httpMethod,
+        body:formData
+    };
+    console.log(`handleServiceEditButtonClick : ${options.method}`);
     try{
         const response=await fetch(url,options);
         if(response.ok){
