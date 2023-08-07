@@ -81,15 +81,20 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
 
-  //4. cardGroup 비우기
-  const cardGroupQuerySelectorString="#containerListCard .row .card-group";
-  cleanNodeByQuerySelector(cardGroupQuerySelectorString);
+  //4. card 비우기
+  const cardQuerySelectorString="div.content>div.row>div.col-md-12>div#card";
+  cleanNodeByQuerySelector(cardQuerySelectorString);
 
-  //5. 클릭된 서비스의 컨테이너 내용으로 채워넣기
+
+  //5. card header 넣기
+  printCardTitle(newActiveServiceName);
+
+  //6. card group 클릭된 서비스 관련 내용으로 넣기
   printContainerList(activeContainerList);
 }
 
 function makeNavElement(serviceName){
+  console.log("makeNavElement Func Starts...");
   const li=document.createElement("li");
   li.id=serviceName;
   const a=document.createElement("a");
@@ -106,6 +111,7 @@ function makeNavElement(serviceName){
 
 
 function printNavWithServiceList(serviceList) {
+  console.log("printNavWithServicelist Func Starts...");
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
     let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
     for (let i = 0; i < serviceList.length; i++) {
@@ -120,11 +126,25 @@ function printNavWithServiceList(serviceList) {
 }
 
 function printContainerList(containerList){
-  const cardGroupDiv=document.querySelector("div#containerListCard>.row>.card-group");
+  console.log("printContainerList Func Starts...");
+  const card=document.querySelector("div.content>div.row>div.col-md-12>div#card");
+
+  const cardBodyDiv=document.createElement("div");
+  cardBodyDiv.classList.add(CARD_BODY_CLASS);
+  cardBodyDiv.id="containerListCard";
+  const rowDiv=document.createElement("div");
+  rowDiv.classList.add(ROW_CLASS);
+  const cardGroupDiv=document.createElement("div");
+  cardGroupDiv.classList.add(CARD_GROUP_CLASS,COL_12_CLASS);
+
+  card.appendChild(cardBodyDiv);
   for (let i = 0; i < containerList.length; i++) {
     let container=makeContainerElement(containerList[i]);
     cardGroupDiv.appendChild(container);
   }
+  rowDiv.appendChild(cardGroupDiv);
+  cardBodyDiv.appendChild(rowDiv);
+  card.appendChild(cardBodyDiv);
 }
 
 function handleContainerRunButtonClick(event){ //container state stop -> run변경
@@ -181,6 +201,7 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
 
 
 function makeContainerElement(containerInfo){ //container data받아서 html에 표시해줄 요소 생성
+  console.log("makeContainerElement Func start...");
   //card 틀 div만들기
   const cardDiv=document.createElement("div");
   cardDiv.classList.add(CARD_CLASS,COL_4_CLASS,MR_3_CLASS);
@@ -214,11 +235,15 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const sampleI=document.createElement("i");
   sampleI.classList.add(TIMS_ICONS_CLASS);
   sampleButton.appendChild(sampleI);
+  console.log("printing sample node");
+  console.log(sampleButton);
 
-  const containerRunButton=sampleButton.cloneNode();
+  const containerRunButton=sampleButton.cloneNode(true);
+  console.log("printing containerRunButton");
+  console.log(containerRunButton);
   containerRunButton.querySelector("i").classList.add(ICON_TRIANGLE_RIGHT_17_CLASS);
 
-  const containerPauseButton=sampleButton.cloneNode();
+  const containerPauseButton=sampleButton.cloneNode(true);
   containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
   if(containerInfo[CONTAINER_KEY_STATE]==="run"){
@@ -229,10 +254,10 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
     containerPauseButton.classList.add(DISABLED_CLASS);
   }
 
-  const containerMonitoringButton=sampleButton.cloneNode();
+  const containerMonitoringButton=sampleButton.cloneNode(true);
   containerMonitoringButton.classList.add(MONITORING_BUTTON_CLASS);
   containerMonitoringButton.addEventListener("click",handleContainerMonitoringButtonClick)
-  containerMonitoringButton.querySelector("i").classList.add(ICON_MONITORING_CLASS);
+  containerMonitoringButton.querySelector("i").classList.add(ICON_TV_2_CLASS);
 
   cardFooterDiv.appendChild(containerRunButton);
   cardFooterDiv.appendChild(containerPauseButton);
@@ -257,7 +282,7 @@ function makeCardTitleHeader(serviceName){
   serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
-  serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_TV_2_CLASS);
+  serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
   cardHeaderDiv.appendChild(cardTitleH3);
   cardHeaderDiv.appendChild(serviceManagingButton);
@@ -265,6 +290,7 @@ function makeCardTitleHeader(serviceName){
 }
 
 function printCardTitle(serviceName){
+  console.log("printCardTitle Func Starts...");
   const targetParent=document.querySelector("div.content>div.row>div.col-md-12>div.card");
   const childElement=makeCardTitleHeader(serviceName);
   targetParent.prepend(childElement);
@@ -275,27 +301,45 @@ async function loadData(userEmail){
   const serviceList=[];
 
   const userData=await getUserData(userEmail); //서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
+  console.log(userData);
   console.log("getUserData Func End...");
   userData.forEach((service) => { //serviceList에 현재 로그인된 유저의 서비스 리스트를 추가함
     serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
   });
+  console.log("making service lists...");
+  console.log(serviceList);
   printNavWithServiceList(serviceList); //서비스 리스트 이용해서 navbar 내용 넣기
+  console.log("after completing navbar");
+  console.log(document.querySelectorAll(".sidebar>.sidebar-wrapper .nav"));
+  console.log("Adding navbar eventhandler");
   const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
   for (let i=0;i<(navElements.length)-1;i++){
     navElements[i].addEventListener("click",(event)=>handleNavElementClick(event,userData)); //navbar 요소에 핸들러 추가
   }
 
-  //const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //navbar 요소 만들면서 active지정해준 아이가져오기
-  const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) //navbar 요소 만들면서 active지정해준 아이가져오기
+  console.log("printing active nav id");
+  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //navbar 요소 만들면서 active지정해준 아이가져오기
+  //const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) //navbar 요소 만들면서 active지정해준 아이가져오기
+  console.log(activeServiceName);
 
+  
   printCardTitle(activeServiceName);
+  console.log("after printing card title");
+
+  console.log("adding eventhandler to serviceManagingButton");
   const serviceManagingButton=document.querySelector("#serviceManagingButton");
   serviceManagingButton.addEventListener("click",()=>{
+    console.log("service managing button clicke");
     location.href="editDeploy.html"
   });
 
+  console.log("lets find active container object");
+  console.log("printing userData");
+  console.log(userData);
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+  console.log(activeContainerObj);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+  console.log(activeContainerList);
   //console.log(activeContainerList);
   printContainerList(activeContainerList);
 

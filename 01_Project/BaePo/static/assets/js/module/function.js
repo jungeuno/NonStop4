@@ -5,7 +5,7 @@ import { BASE_URL,
 const baseURL=window.location.origin;
 
 function cleanNodeByQuerySelector(querySelectorString){
-  const parentNode=document.querySelector("#containerListCard .row .card-group");
+  const parentNode=document.querySelector(querySelectorString);
   parentNode.replaceChildren();
 }
 
