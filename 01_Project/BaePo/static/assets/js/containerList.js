@@ -62,35 +62,6 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 const BASE_URL=window.location.origin;
 
 /* main function ==========================================================*/ 
-function cleanNodeByQuerySelector(querySelectorString){
-  const parentNode=document.querySelector(querySelectorString);
-  parentNode.replaceChildren();
-}
-
-async function getUserData(userEmail){
-  console.log("getUserData Func Start...");
-  const requestURI = "/services";
-  const url = BASE_URL + requestURI;
-  const options = {
-    method: "GET",
-  };
-  try{
-    console.log("before fetch");
-    const response=await fetch(url,options);
-    console.log("after fetch printing response...");
-    console.log(response);
-    console.log("before parsing");
-    const userData=await response.json();
-    console.log("after parsing printing userData...");
-    console.log(userData);
-    return userData[userEmail];
-
-  } catch(error){
-    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
-    console.log(error);
-  }
-}
-
 
 async function loadData(userEmail){
   console.log("loadData Func Start...");
@@ -131,9 +102,10 @@ async function loadData(userEmail){
 
   console.log("adding eventhandler to serviceManagingButton");
   const serviceManagingButton=document.querySelector("#serviceManagingButton");
+  console.log(serviceManagingButton);
   serviceManagingButton.addEventListener("click",()=>{
-    console.log("service managing button clicke");
-    window.location.href="editDeploy.html"
+    console.log("service managing button clicked");
+    window.location.href="editDeploy.html";
   });
 
   //7. 현재 보고 있는 서비스의 컨테이너 리스트를 꺼내서 화면 구성하기
@@ -175,6 +147,35 @@ $(document).ready(() => $().ready(startHtml));
 
 /* function ==========================================================*/ 
 
+function cleanNodeByQuerySelector(querySelectorString){
+  const parentNode=document.querySelector(querySelectorString);
+  parentNode.replaceChildren();
+}
+
+async function getUserData(userEmail){
+  console.log("getUserData Func Start...");
+  const requestURI = "/services";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "GET",
+  };
+  try{
+    console.log("before fetch");
+    const response=await fetch(url,options);
+    console.log("after fetch printing response...");
+    console.log(response);
+    console.log("before parsing");
+    const userData=await response.json();
+    console.log("after parsing printing userData...");
+    console.log(userData);
+    return userData[userEmail];
+
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
+  }
+}
+
 function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
   //active붙어있는 애한테서 active class 제거하기
   const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
@@ -189,6 +190,7 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
   const newActiveServiceName=li.id;
   localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
+  console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
 
@@ -299,7 +301,6 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
 }
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
-  const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const cardDiv=event.target.parentNode.parentNode;
   const clickedContainerName=cardDiv.id;
   localStorage.setItem(LOCAL_STORAGE_KEY_CONTAINER_NAME,clickedContainerName)
@@ -398,6 +399,7 @@ function makeCardTitleHeader(serviceName){
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
   serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
+  serviceManagingButton.addEventListener("click",()=>window.location.href="editDeploy.html");
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
   cardHeaderDiv.appendChild(cardTitleH3);
   cardHeaderDiv.appendChild(serviceManagingButton);

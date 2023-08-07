@@ -134,14 +134,6 @@ $(document).ready(function () {
       },
     }); //multi select plugin
 
-    $("#pubCountry").bsMultiSelect({
-      useCssPatch: true,
-      cssPatch: {
-        choices: {
-          columnCount: "2",
-        },
-      },
-    }); //multi select plugin
   });
 });
 

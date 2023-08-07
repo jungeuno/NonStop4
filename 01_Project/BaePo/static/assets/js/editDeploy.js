@@ -88,7 +88,8 @@ $(document).ready(function() {
         loadData();
 
         const serviceEditButtons=document.querySelectorAll(`.${SERVICE_EDIT_BUTTONS_CLASS}`);
-        serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener(handleServiceEditButtonClick));
+        console.log(serviceEditButtons);
+        serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener("click",handleServiceEditButtonClick));
 
         $('#frontEnv').bsMultiSelect({
             useCssPatch:true,
@@ -116,21 +117,13 @@ $(document).ready(function() {
                 }
             },
         }); //multi select plugin
-
-        $('#pubCountry').bsMultiSelect({
-            useCssPatch:true,
-            cssPatch:{
-                choices:{
-                    columnCount:'2'
-                }
-            },
-        }); //multi select plugin
     });
 });
 
 /* function ==========================================================*/ 
 
 async function handleServiceEditButtonClick(event){  
+    console.log("handleServiceEditButton Clicked!!!");
     //button의 value : {UPDATE / DELETE} 에 따라서 서비스를 업데이트하거나 삭제하는 요청을 보냄
     const requestURI=`/services/${serviceName}`
     const url=baseURL+requestURI;
