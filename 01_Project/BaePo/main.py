@@ -52,6 +52,11 @@ def my_page():
 def containerList_page():
     if oauth2.has_credentials():
         return render_template('containerList.html', useremail=oauth2.email)
+    
+@app.route('/editDeploy.html')
+def editDeploy_page():
+    if oauth2.has_credentials():
+        return render_template('editDeploy.html', useremail=oauth2.email)
 
 @app.route('/containerDash.html')
 def containerDash_page():
@@ -203,7 +208,7 @@ def containerDeploy_page():
 ######################################################################################################################################
 # @app.route('/editDeploy.html')
 @app.route('/services/<string:service_name>')
-def editDeploy_page(service_name):
+def containerEditDeploy_page(service_name):
     user_email = oauth2.email                            # 현재 로그인된 사용자 이메일
     if request.method == 'POST':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
