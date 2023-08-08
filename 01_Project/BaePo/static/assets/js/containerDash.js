@@ -97,7 +97,7 @@ async function loadData(){
 function startHtml(){
   loadData();
 
-  const userEmailP=document.querySelector("#userEmail").innerText=userEmail
+  document.querySelector("#userEmail").innerText=userEmail;
 
   const logoutButton=document.querySelector("#logoutButton");
   logoutButton.addEventListener("click",logout);
