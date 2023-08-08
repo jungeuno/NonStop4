@@ -63,6 +63,7 @@ const BASE_URL=window.location.origin;
 
 const userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
 const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+console.log(serviceName);
 
 const SERVICE_EDIT_BUTTONS_CLASS="service-edit-buttons"; //edit, delete에 같은 이벤트 핸들러 걸어주기 위해서 custom class부여함
 
@@ -182,7 +183,7 @@ function makeNavElement(serviceName,clickEventHandler){
 
 function printNavWithServiceList(serviceList) {
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
-    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
+    let savedServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
         if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
