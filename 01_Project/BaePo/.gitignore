@@ -1,6 +1,10 @@
+#custom value
 .DS_Store
 node_modules
 /dist
+*.json
+*.key
+
 
 # local env files
 .env.local
@@ -22,3 +26,4 @@ yarn-error.log*
 
 # test directory
 02_Materials/01_Temp_Projects/Baepo/src/main/webapp/test
+02_Materials/01_Temp_Projects/Baepo/*
