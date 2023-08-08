@@ -62,9 +62,9 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
 
-/*====================================================================================================================*/ 
+/*=========================================================================================================================*/ 
 /* main function ==========================================================================================================*/ 
-/*====================================================================================================================*/ 
+/*=========================================================================================================================*/ 
 
 async function loadData(userEmail){
   console.log("(loadData)loadData Func Start...");
@@ -95,7 +95,8 @@ async function loadData(userEmail){
 
   //5. navbar 요소 만들면서 active로 지정해준 현재 보고 있는 서비스 명 가져오기
   console.log("(loadData)printing active nav id");
-  const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; //const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) 
+  //const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; 
+  const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) 
   console.log(activeServiceName);
 
   //6. card Title 만들기 : 이름 + 수정하기 버튼 + 핸들러 추가
@@ -106,6 +107,7 @@ async function loadData(userEmail){
   console.log("(loadData)lets find active container object");
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+  console.log("(loadData)active container object");
   console.log(activeContainerList);
   printContainerList(activeContainerList);
   console.log("(loadData)printing container list is compelete");
@@ -146,6 +148,8 @@ $(document).ready(() => $().ready(startHtml));
 async function logout(){
   console.log("logtout Func Starts...");
   localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
   const requestURI = "/logout";
   const url = BASE_URL + requestURI;
   const options = {
@@ -153,16 +157,21 @@ async function logout(){
   };
   try{
     const response=await fetch(url,options);
-    console.log(response);
+    if(response.ok) window.location="/"
   } catch(error){
     console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
     console.log(error);
   }
 }
+
+/*====================================================================================================================*/ 
+
 function cleanNodeByQuerySelector(querySelectorString){
   const parentNode=document.querySelector(querySelectorString);
   parentNode.replaceChildren();
 }
+
+/*====================================================================================================================*/ 
 
 async function getUserData(userEmail){
   console.log("getUserData Func Start...");
@@ -187,6 +196,8 @@ async function getUserData(userEmail){
     console.log(error);
   }
 }
+
+/*====================================================================================================================*/ 
 
 function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
   //active붙어있는 애한테서 active class 제거하기
@@ -218,6 +229,8 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
   printContainerList(activeContainerList);
 }
 
+/*====================================================================================================================*/ 
+
 function makeNavElement(serviceName){
   console.log("makeNavElement Func Starts...");
   const li=document.createElement("li");
@@ -234,6 +247,7 @@ function makeNavElement(serviceName){
   return li;
 }
 
+/*====================================================================================================================*/ 
 
 function printNavWithServiceList(serviceList) {
   console.log("printNavWithServicelist Func Starts...");
@@ -249,6 +263,8 @@ function printNavWithServiceList(serviceList) {
     }
     navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
 }
+
+/*====================================================================================================================*/ 
 
 function printContainerList(containerList){
   console.log("printContainerList Func Starts...");
@@ -271,6 +287,8 @@ function printContainerList(containerList){
   cardBodyDiv.appendChild(rowDiv);
   card.appendChild(cardBodyDiv);
 }
+
+/*====================================================================================================================*/ 
 
 function handleContainerRunButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
@@ -312,6 +330,8 @@ function handleContainerRunButtonClick(event){ //container state stop -> run변�
     });
 }
 
+/*====================================================================================================================*/ 
+
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
   const cardDiv=event.target.parentNode.parentNode;
   const clickedContainerName=cardDiv.id;
@@ -327,6 +347,7 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
   */
 }
 
+/*====================================================================================================================*/ 
 
 function makeContainerElement(containerInfo){ //container data받아서 html에 표시해줄 요소 생성
   console.log("makeContainerElement Func start...");
@@ -335,6 +356,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   cardDiv.classList.add(CARD_CLASS,COL_4_CLASS,MR_3_CLASS);
   cardDiv.style=PINK_BORDER_STYLE;
   cardDiv.id=containerInfo[CONTAINER_KEY_NAME];
+  console.log(containerInfo[CONTAINER_KEY_NAME]);
 
   //cardHeader div만들기 : state + env
   const cardHeaderDiv=document.createElement("div");
@@ -398,6 +420,8 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
 
   return cardDiv;
 }
+
+/*====================================================================================================================*/ 
 
 function makeCardTitleHeader(serviceName){
   const cardHeaderDiv=document.createElement("div");
