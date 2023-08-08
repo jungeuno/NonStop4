@@ -7,6 +7,7 @@ const ICON_TRIANGLE_RIGHT_17_CLASS="icon-triangle-right-17";
 const ICON_BUTTON_PAUSE_CLASS="icon-button-pause";
 const ICON_TV_2_CLASS="icon-tv-2";
 const ICON_SETTING_GEAR_63_CLASS="icon-settings-gear-63";
+const ICON_REFRESH_02_CLASS="icon-refresh-02";
 
 const CARD_CLASS="card";
 const CARD_BODY_CLASS="card-body";
@@ -31,6 +32,8 @@ const BADGE_DANGER_CLASS="badge-danger";
 const BTN_CLASS="btn";
 const BTN_PRIMARY_CLASS="btn-primary";
 const BTN_LINK_CLASS="btn-link";
+const BTN_INFO_CLASS="btn-info";
+const BTN_SUCCESS_CLASS="btn-success";
 
 const DISABLED_CLASS="disabled";
 const FONT_WEIGHT_BOLD_CLASS="font-weight-bold";
@@ -360,10 +363,13 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const badgeSpan=document.createElement("span");
   badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,COL_1_CLASS);
   badgeSpan.innerText=" ";
-  const frameworkIconI=document.createElement("i");
-  frameworkIconI.classList.add(PR_0_CLASS,COL_10_CLASS,TEXT_RIGHT_CLASS);
+  const refreshButton=document.createElement("button");
+  refreshButton.classList.add(BTN_CLASS,COL_10_CLASS,TEXT_RIGHT_CLASS,PR_0_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
+  const refreshI=document.createElement("i");
+  refreshI.classList.add(TIMS_ICONS_CLASS,ICON_REFRESH_02_CLASS);
+  refreshButton.appendChild(refreshI);
   cardHeaderDiv.appendChild(badgeSpan);
-  cardHeaderDiv.appendChild(frameworkIconI);
+  cardHeaderDiv.appendChild(refreshButton);
 
   //cardBody div 만들기 : name
   const cardBodyDiv=document.createElement("div");

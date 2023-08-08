@@ -90,6 +90,27 @@ async function loadData(){
     navElements[i].addEventListener("click",handleNavElementClick); 
   }
 
+  //4. 현재 active 컨테이너에서 환경 값 LIST생성하기
+  const serviceInfoObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===serviceName);
+  const containerList=serviceInfoObj[USER_DATA_KEY_CONTAINERS];
+  let envList=[];
+  containerList.forEach((con)=>{
+    envList=envList.concat(con[CONTAINER_KEY_ENV]);
+  });
+  
+
+  //5. html에 환경 값 넣어주기
+  /*
+  for (let value of envList){
+    const targetOption=document.querySelector(`option[value="${value}"]`);
+    targetOption.setAttribute("selected",""); //동작 안함 왜,,?
+    console.log(targetOption);
+  }
+  */
+  for (let value of envList){
+    $(`option[value="${value}"]`).attr("selected","true");
+  }
+
 }
 
 $(document).ready(function() {
@@ -99,7 +120,6 @@ $(document).ready(function() {
         loadData();
 
         const serviceEditButtons=document.querySelectorAll(`.${SERVICE_EDIT_BUTTONS_CLASS}`);
-        console.log(serviceEditButtons);
         serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener("click",handleServiceEditButtonClick));
 
         const logoutButton=document.querySelector("#logoutButton");
