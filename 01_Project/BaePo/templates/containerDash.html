@@ -49,6 +49,7 @@
 
   <body class="">
     <div class="wrapper">
+
       <div class="sidebar">
         <div class="sidebar-wrapper">
           <div class="logo">
@@ -57,6 +58,7 @@
             </a>
           </div>
           <ul class="nav">
+            <!--
             <li class="active">
               <a href="./containerDash.html">
                 <i class="tim-icons icon-chart-pie-36"></i>
@@ -68,17 +70,19 @@
                 <i class="tim-icons icon-chart-pie-36"></i>
                 <p class="font-weight-bold">토스</p>
               </a>
-            </li>
+            </li>-->
             <li>
-              <a href="javascript:;" id="newServiceBtn">
+              <a href="javascript:;" id="deployButton">
                 <i class="tim-icons icon-simple-add"></i>
-                <p class="font-weight-bold">서비스 추가</p>
+                <p class="font-weight-bold">새 서비스 배포하기</p>
               </a>
             </li>
           </ul>
         </div>
       </div>
+  
       <div class="main-panel">
+    
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
           <div class="container-fluid">
@@ -90,18 +94,9 @@
                   <span class="navbar-toggler-bar bar3"></span>
                 </button>
               </div>
-              <a class="navbar-brand" id="mylogo" href="./containerList.html"
-                >BaePo</a
-              >
+              <a class="navbar-brand" id="mylogo" href="./containerList.html">BaePo</a>
             </div>
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target="#navigation"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-bar navbar-kebab"></span>
               <span class="navbar-toggler-bar navbar-kebab"></span>
               <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -109,36 +104,18 @@
             <div class="collapse navbar-collapse" id="navigation">
               <ul class="navbar-nav ml-auto">
                 <li class="dropdown nav-item">
-                  <a
-                    href="#"
-                    class="dropdown-toggle nav-link"
-                    data-toggle="dropdown"
-                  >
+                  <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                    <p  id="userEmail"></p>
                     <div class="photo">
-                      <img
-                        src="../static/assets/img/user.png"
-                        alt="Profile Photo"
-                      />
+                      <img src="../static/assets/img/user.png" alt="Profile Photo">
                     </div>
                     <b class="caret d-none d-lg-block d-xl-block"></b>
                   </a>
                   <ul class="dropdown-menu dropdown-navbar">
-                    <li class="nav-link">
-                      <a href="./mypage.html" class="nav-item dropdown-item"
-                        >Profile</a
-                      >
-                    </li>
-                    <li class="nav-link">
-                      <a href="#" class="nav-item dropdown-item">Guide</a>
-                    </li>
+                    <li class="nav-link"><a href="./mypage.html" class="nav-item dropdown-item">Profile</a></li>
+                    <li class="nav-link"><a href="#" class="nav-item dropdown-item">Guide</a></li>
                     <li class="dropdown-divider"></li>
-                    <li class="nav-link">
-                      <a
-                        href="javascript:void(0)"
-                        class="nav-item dropdown-item"
-                        >Log out</a
-                      >
-                    </li>
+                    <li class="nav-link"><a href="javascript:void(0)" id="logoutButton" class="nav-item dropdown-item">Log out</a></li>
                   </ul>
                 </li>
                 <li class="separator d-lg-none"></li>
@@ -351,16 +328,6 @@
     <script src="../static/assets/js/core/popper.min.js"></script>
     <script src="../static/assets/js/core/bootstrap.min.js"></script>
     <script src="../static/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <!--  Google Maps Plugin    -->
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-    <!-- Chart JS -->
-    <script src="../static/assets/js/plugins/chartjs.min.js"></script>
-    <!--  Notifications Plugin    -->
-    <script src="../static/assets/js/plugins/bootstrap-notify.js"></script>
-    <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="../static/assets/js/black-dashboard/black-dashboard.min.js?v=1.0.0"></script>
-    <!-- Black Dashboard DEMO methods, don't include it in your project! -->
     <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
     <!--외부 js파일 사용-->
     <script src="../static/assets/js/containerDash.js"></script>

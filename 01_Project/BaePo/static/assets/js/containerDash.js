@@ -61,58 +61,13 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
 
-/* main function ==========================================================*/ 
+/*=========================================================================================================================*/ 
+/* main function ==========================================================================================================*/ 
+/*=========================================================================================================================*/ 
+let userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+let serviceName = localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+let containerName = localStorage.getItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
 
-function cleanNodeByQuerySelector(querySelectorString){
-  const parentNode=document.querySelector(querySelectorString);
-  parentNode.replaceChildren();
-}
-
-async function getUserData(userEmail){
-    console.log("getUserData Func Start...");
-    const requestURI = "/services";
-    const url = BASE_URL + requestURI;
-    const options = {
-      method: "GET",
-    };
-    try{
-      const response=await fetch(url,options);
-      const userData=await response.json();
-      return userData[userEmail];
-  
-    } catch(error){
-      console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
-    }
-}
-
-function makeNavElement(serviceName,clickEventHandler){
-    const li=document.createElement("li");
-    li.id=serviceName;
-    const a=document.createElement("a");
-    const i=document.createElement("i");
-    i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_36_CLASS);
-    const p=document.createElement("p");
-    p.classList.add(FONT_WEIGHT_BOLD_CLASS);
-    p.innerText=serviceName;
-    a.appendChild(i);
-    a.appendChild(p);
-    li.appendChild(a);
-    return li;
-}
-
-function printNavWithServiceList(serviceList) {
-    const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
-    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
-    for (let i = 0; i < serviceList.length; i++) {
-        let li=makeNavElement(serviceList[i]);
-        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
-            li.classList.add("active");
-            localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
-        }
-        navUl.appendChild(li);
-    }
-    navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
-}
 
 window.TrackJS &&
 TrackJS.install({
@@ -140,6 +95,12 @@ async function loadData(){
 }
 
 function startHtml(){
+  loadData();
+
+  const userEmailP=document.querySelector("#userEmail").innerText=userEmail
+
+  const logoutButton=document.querySelector("#logoutButton");
+  logoutButton.addEventListener("click",logout);
 
 }
 
@@ -147,4 +108,105 @@ $(document).ready(function () {
     $().ready(startHtml());
 });
 
-/* function ==========================================================*/ 
+/*===========================================================================================================================*/ 
+/* specific function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+function printNavWithServiceList(serviceList) { //editDeploy, deploy,containerDash만 동일 containerList.js의 동일함수랑 작동 방식 다름
+    const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
+    let savedServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+    for (let i = 0; i < serviceList.length; i++) {
+        let li=makeNavElement(serviceList[i]);
+        if(savedServiceName===li.id){ //이부분이 containerList.js의 동일한 이름의 함수랑 다른 부분
+            li.classList.add("active");
+            localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
+        }
+        navUl.appendChild(li);
+    }
+    navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
+}
+
+
+/*===========================================================================================================================*/ 
+/* common function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+async function logout(){
+  console.log("logtout Func Starts...");
+  localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
+  const requestURI = "/logout";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+  };
+  try{
+    const response=await fetch(url,options);
+    if(response.ok) window.location="/"
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
+  }
+}
+
+/*====================================================================================================================*/ 
+
+function cleanNodeByQuerySelector(querySelectorString){
+  const parentNode=document.querySelector(querySelectorString);
+  parentNode.replaceChildren();
+}
+
+async function getUserData(userEmail){
+    console.log("getUserData Func Start...");
+    const requestURI = "/services";
+    const url = BASE_URL + requestURI;
+    const options = {
+      method: "GET",
+    };
+    try{
+      const response=await fetch(url,options);
+      const userData=await response.json();
+      return userData[userEmail];
+  
+    } catch(error){
+      console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    }
+}
+
+/*====================================================================================================================*/ 
+
+function makeNavElement(serviceName,clickEventHandler){
+    const li=document.createElement("li");
+    li.id=serviceName;
+    const a=document.createElement("a");
+    const i=document.createElement("i");
+    i.classList.add(TIMS_ICONS_CLASS,ICON_CHART_PIE_36_CLASS);
+    const p=document.createElement("p");
+    p.classList.add(FONT_WEIGHT_BOLD_CLASS);
+    p.innerText=serviceName;
+    a.appendChild(i);
+    a.appendChild(p);
+    li.appendChild(a);
+    return li;
+}
+
+/*====================================================================================================================*/ 
+
+function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
+  //active붙어있는 애한테서 active class 제거하기
+  const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
+  previousActiveLi.classList.remove(ACTIVE_CLASS);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+
+  //2. click된 li tag에 active class 붙이기 event.target : p tage
+  const a=event.target.parentNode;
+  const li=a.parentNode;
+  li.classList.add(ACTIVE_CLASS);
+  
+  //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
+  const newActiveServiceName=li.id;
+  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
+  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
+
+}
