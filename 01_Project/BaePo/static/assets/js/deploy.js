@@ -61,28 +61,11 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
 
-/* main function ==========================================================*/ 
+/*=========================================================================================================================*/ 
+/* main function ==========================================================================================================*/ 
+/*=========================================================================================================================*/ 
 
 let userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-
-function handleNavElementClick(event){ //nav에서 특정 앱을 클릭하면 하는 작업
-  //1. 기존에 active붙어있는 요소에서 active class 제거하기 & session에서 제거
-  const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
-  previousActiveLi.classList.remove(ACTIVE_CLASS);
-  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-
-  //2. click된 li tag에 active class 붙이기 & session에 클릭된 서비스이름저장
-  const a=event.target.parentNode;
-  const li=a.parentNode;
-  li.classList.add(ACTIVE_CLASS);
-
-  const newActiveServiceName=li.id;
-  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
-
-  //4. containerList.html로 이동하기
-  window.location.href="containerList.html";
-}
-
 
 async function loadData(){
   const serviceList=[];
@@ -105,7 +88,12 @@ async function loadData(){
 
 $(document).ready(function () {
   $().ready(function () {
+    document.querySelector("#userEmail").innerText=userEmail;
+
     loadData();
+
+    const logoutButton=document.querySelector("#logoutButton");
+    logoutButton.addEventListener("click",logout);
 
     $("#frontEnv").bsMultiSelect({
       useCssPatch: true,
@@ -137,7 +125,41 @@ $(document).ready(function () {
   });
 });
 
-/* function ==========================================================*/ 
+/*===========================================================================================================================*/ 
+/* specific function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+/*===========================================================================================================================*/ 
+/* common function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+async function logout(){
+  //console.log("logtout Func Starts...");
+  localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  localStorage.removeItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
+  const requestURI = "/logout";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+  };
+  try{
+    const response=await fetch(url,options);
+    if(response.ok) window.location="/"
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
+  }
+}
+
+/*====================================================================================================================*/ 
+
+function cleanNodeByQuerySelector(querySelectorString){
+  const parentNode=document.querySelector(querySelectorString);
+  parentNode.replaceChildren();
+}
+
+/*====================================================================================================================*/ 
 
 async function getUserData(userEmail){
     console.log("getUserData Func Start...");
@@ -156,6 +178,8 @@ async function getUserData(userEmail){
     }
 }
 
+/*====================================================================================================================*/ 
+
 function makeNavElement(serviceName,clickEventHandler){
     const li=document.createElement("li");
     li.id=serviceName;
@@ -171,12 +195,34 @@ function makeNavElement(serviceName,clickEventHandler){
     return li;
 }
 
-function printNavWithServiceList(serviceList) {
+/*====================================================================================================================*/ 
+
+function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
+  //active붙어있는 애한테서 active class 제거하기
+  const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
+  previousActiveLi.classList.remove(ACTIVE_CLASS);
+
+  //2. click된 li active로 만들기
+  const a=event.target.parentNode;
+  const li=a.parentNode;
+  li.classList.add(ACTIVE_CLASS);
+  
+  //3. click된 li의 서비스 이름 추출해서 세션에 저장 
+  const newActiveServiceName=li.id;
+  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
+
+  //4. containerList.html로 이동
+  window.location.href="containerList.html";
+}
+
+/*====================================================================================================================*/ 
+
+function printNavWithServiceList(serviceList) { //editDeploy, deploy,containerDash만 동일 containerList.js의 동일함수랑 작동 방식 다름
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
-    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
+    let savedServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
-        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
+        if(savedServiceName===li.id){ //이부분이 containerList.js의 동일한 이름의 함수랑 다른 부분
             li.classList.add("active");
             localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
         }

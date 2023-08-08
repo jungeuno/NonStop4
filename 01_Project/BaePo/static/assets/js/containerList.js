@@ -67,8 +67,7 @@ const BASE_URL=window.location.origin;
 /*=========================================================================================================================*/ 
 
 async function loadData(userEmail){
-  console.log("(loadData)loadData Func Start...");
-  const serviceList=[];
+  console.log("(loadData)loadData Func Start...");  const serviceList=[];
 
   //1. 서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
   const userData=await getUserData(userEmail); 
@@ -126,6 +125,8 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
   localStorage.setItem(LOCAL_STORAGE_KEY_USER_EMAIL,userEmail);
   //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL));
 
+  console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
+
   loadData(userEmail);
 
   const newContainerBtn = document.querySelector("#deployButton");
@@ -146,10 +147,7 @@ $(document).ready(() => $().ready(startHtml));
 /*====================================================================================================================*/ 
 
 async function logout(){
-  console.log("logtout Func Starts...");
-  localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-  localStorage.removeItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
+  localStorage.clear();
   const requestURI = "/logout";
   const url = BASE_URL + requestURI;
   const options = {
@@ -174,21 +172,14 @@ function cleanNodeByQuerySelector(querySelectorString){
 /*====================================================================================================================*/ 
 
 async function getUserData(userEmail){
-  console.log("getUserData Func Start...");
   const requestURI = "/services";
   const url = BASE_URL + requestURI;
   const options = {
     method: "GET",
   };
   try{
-    console.log("before fetch");
     const response=await fetch(url,options);
-    console.log("after fetch printing response...");
-    console.log(response);
-    console.log("before parsing");
     const userData=await response.json();
-    console.log("after parsing printing userData...");
-    console.log(userData);
     return userData[userEmail];
 
   } catch(error){
@@ -213,7 +204,7 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
   //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
   const newActiveServiceName=li.id;
   localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
-  console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
+  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
   const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
 
@@ -232,7 +223,7 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
 /*====================================================================================================================*/ 
 
 function makeNavElement(serviceName){
-  console.log("makeNavElement Func Starts...");
+  //console.log("makeNavElement Func Starts...");
   const li=document.createElement("li");
   li.id=serviceName;
   const a=document.createElement("a");
@@ -252,22 +243,27 @@ function makeNavElement(serviceName){
 function printNavWithServiceList(serviceList) {
   console.log("printNavWithServicelist Func Starts...");
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
-    let savedServiceName=localStorage.getItem(USER_DATA_KEY_SERVICE_NAME);
+    let savedServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+    let activeLiIndex=0;
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
-        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
-            li.classList.add("active");
-            localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
-        }
+        if(savedServiceName===li.id) activeLiIndex=i;
         navUl.appendChild(li);
     }
     navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
+
+    if(!activeLiIndex) activeLiIndex=1;
+    const activeLi=navUl.querySelector(`li:nth-child(${activeLiIndex})`);
+    console.log(activeLi);
+    activeLi.classList.add(ACTIVE_CLASS);
+    localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,activeLi.id);
+
 }
 
 /*====================================================================================================================*/ 
 
 function printContainerList(containerList){
-  console.log("printContainerList Func Starts...");
+  //console.log("printContainerList Func Starts...");
   const card=document.querySelector("div.content>div.row>div.col-md-12>div#card");
 
   const cardBodyDiv=document.createElement("div");
@@ -350,13 +346,13 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
 /*====================================================================================================================*/ 
 
 function makeContainerElement(containerInfo){ //container data받아서 html에 표시해줄 요소 생성
-  console.log("makeContainerElement Func start...");
+  //console.log("makeContainerElement Func start...");
   //card 틀 div만들기
   const cardDiv=document.createElement("div");
   cardDiv.classList.add(CARD_CLASS,COL_4_CLASS,MR_3_CLASS);
   cardDiv.style=PINK_BORDER_STYLE;
   cardDiv.id=containerInfo[CONTAINER_KEY_NAME];
-  console.log(containerInfo[CONTAINER_KEY_NAME]);
+  //console.log(containerInfo[CONTAINER_KEY_NAME]);
 
   //cardHeader div만들기 : state + env
   const cardHeaderDiv=document.createElement("div");
@@ -385,12 +381,8 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const sampleI=document.createElement("i");
   sampleI.classList.add(TIMS_ICONS_CLASS);
   sampleButton.appendChild(sampleI);
-  console.log("printing sample node");
-  console.log(sampleButton);
 
   const containerRunButton=sampleButton.cloneNode(true);
-  console.log("printing containerRunButton");
-  console.log(containerRunButton);
   containerRunButton.querySelector("i").classList.add(ICON_TRIANGLE_RIGHT_17_CLASS);
 
   const containerPauseButton=sampleButton.cloneNode(true);
