@@ -61,6 +61,7 @@ const PINK_BORDER_STYLE="border:1px solid #e44cc4";
 //custom class name 
 const MONITORING_BUTTON_CLASS="monitoring-btn";
 const MANAGING_BUTTON_CLASS="managing-btn";
+const STATE_BADGE_CLASS="state-badge";
 
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
@@ -182,8 +183,12 @@ async function getUserData(userEmail){
   };
   try{
     const response=await fetch(url,options);
-    const userData=await response.json();
-    return userData[userEmail];
+    if(response.ok){
+      const userData=await response.json();
+      return userData[userEmail];
+    } else{
+      console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
+    }
 
   } catch(error){
     console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
@@ -289,46 +294,81 @@ function printContainerList(containerList){
 
 /*====================================================================================================================*/ 
 
-function handleContainerRunButtonClick(event){ //container state stop -> run변경
+async function handleContainerRunButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
-  const containerId=cardDiv.id;
-  const requestURI = `/users/${userId}/services/${serviceId}/containers/${containerId}`;
+  const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  const requestURI = `/services/${serviceName}/container`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
     body : "run",
   };
-  fetch(url,options)
-    .then(()=>{
-      const badge=cardDiv.querySelector(".card-header>.badge");
+  try{
+    const response=fetch(url,options);
+    if(response.ok){
       const runButton=cardDiv.querySelector(".card-footer").firstChild();
       const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_DANGER_CLASS);
-      badge.classList.add(BADGE_INFO_CLASS);
       runButton.classList.add(DISABLED_CLASS);
       pauseButton.classList.remove(DISABLED_CLASS);
-    })
-    .then(()=>{
-      const badge=cardDiv.querySelector(".card-header>.badge");
-      const runButton=cardDiv.querySelector(".card-footer").firstChild();
-      const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_INFO_CLASS);
-      badge.classList.add(BADGE_DANGER_CLASS);
-      pauseButton.classList.add(DISABLED_CLASS);
-      runButton.classList.remove(DISABLED_CLASS);
-    })
-    .catch((error)=>{
-      console.log(error);
-      const badge=cardDiv.querySelector(".card-header>.badge");
-      const runButton=cardDiv.querySelector(".card-footer").firstChild();
-      const pauseButton=runButton.nextSibling();
-      badge.classList.remove(BADGE_INFO_CLASS);
-      badge.classList.add(BADGE_DANGER_CLASS);
-      pauseButton.classList.add(DISABLED_CLASS);
-      runButton.classList.remove(DISABLED_CLASS);
-    });
+    } else {
+      console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
+    }
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+  }
 }
 
+/*====================================================================================================================*/ 
+
+async function handleContainerStopButtonClick(event){ //container state stop -> run변경
+  const cardDiv=event.target.parentNode.parentNode;
+  const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  const requestURI = `/services/${serviceName}/container`;
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+    body : "stop",
+  };
+  try{
+    const response=fetch(url,options);
+    if(response.ok){
+      const runButton=cardDiv.querySelector(".card-footer").firstChild();
+      const pauseButton=runButton.nextSibling();
+      pauseButton.classList.add(DISABLED_CLASS);
+      runButton.classList.remove(DISABLED_CLASS);
+    } else {
+      console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
+    }
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+  }
+}
+
+/*====================================================================================================================*/ 
+
+async function handleContainerRefreshButtonClick(event){ //container state stop -> run변경
+  const cardDiv=event.target.parentNode.parentNode;
+  const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+  const requestURI = `/services/${serviceName}/container/state`;
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "GET",
+  };
+  try{
+    const response=fetch(url,options);
+    if(response.ok){
+      const state=await response.json();
+      const stateBadge=cardDiv.querySelector("div.card-header span.state-bagde");
+      stateBadge.classList.toggle(BADGE_INFO_CLASS,state==="run");
+      stateBadge.classList.toggle(BADGE_DANGER_CLASS,state!=="run");
+
+    } else {
+      console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
+    }
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+  }
+}
 /*====================================================================================================================*/ 
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
@@ -336,14 +376,6 @@ function handleContainerMonitoringButtonClick(event){ //containerDash.html로 �
   const clickedContainerName=cardDiv.id;
   localStorage.setItem(LOCAL_STORAGE_KEY_CONTAINER_NAME,clickedContainerName)
   window.location.href="containerDash.html";
-  /*
-  const requestURI = `/services/${activeServiceName}/containers/${containerName}`;
-  const url = BASE_URL + requestURI;
-  const options = {
-    method: "GET",
-  };
-  fetch(url,options);
-  */
 }
 
 /*====================================================================================================================*/ 
