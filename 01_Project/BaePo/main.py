@@ -1,5 +1,5 @@
 from oauth2client.contrib.flask_util import UserOAuth2
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, make_response
 import subprocess
 import os
 import zipfile
@@ -47,10 +47,6 @@ def login_page():
 def main_page():
     return render_template('main.html')
 
-@app.route('/register.html')
-def register_page():
-    return render_template('register.html')
-
 @app.route('/containerList.html')
 def containerList_page():
     if oauth2.has_credentials():
@@ -59,12 +55,12 @@ def containerList_page():
 @app.route('/editDeploy.html')
 def editDeploy_page():
     if oauth2.has_credentials():
-        return render_template('editDeploy.html', useremail=oauth2.email)
+        return render_template('editDeploy.html')
 
 @app.route('/containerDash.html')
 def containerDash_page():
     if oauth2.has_credentials():
-        return render_template('containerDash.html', useremail=oauth2.email)
+        return render_template('containerDash.html')
 
 @app.route('/deploy.html')
 def deploy_page():
@@ -89,11 +85,10 @@ def login():
     return render_template('containerList.html', useremail=oauth2.email)
 ######################################################################################################################################
 # 로그아웃
-# logout 버튼 클릭 시, 실행되도록 프론트와 연동해야 함.    !!!!!!!!!!!!!!!!!!!!!!!!
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
     session.clear()
-    return render_template('login.html')
+    return ('', 204)
 ######################################################################################################################################
 # 마이페이지
 @app.route('/mypage.html')
@@ -134,7 +129,7 @@ def containerDeploy_page():
         dbStatus = []
         # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(서비스명_Front/서비스면_Back/서비스명_DB) 설정
         # 'state' 컨테이너 status 값 파싱 & JSON 파일에 저장
-        result_dict = control_containers(user_email+':'+program_name)
+        result_dict = getContainerStatus(user_email+':'+program_name)
         for dict_name in result_dict:
             if 'frontend-deployment' in dict_name:
                 frontStatus.append(result_dict[dict_name])
@@ -190,33 +185,33 @@ def containerDeploy_page():
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
-        # # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
-        # os.makedirs(folder_path, exist_ok=True)
+        # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
+        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        os.makedirs(folder_path, exist_ok=True)
         
-        # # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
-        # file_path = os.path.join(folder_path, program_name+'.zip')
-        # file.save(file_path)
+        # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
+        file_path = os.path.join(folder_path, program_name+'.zip')
+        file.save(file_path)
         
-        # # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
-        # if file_path.endswith('.zip'):
-        #     unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-        #     with zipfile.ZipFile(file_path, 'r') as zip_ref:
-        #         zip_ref.extractall(unzip_folder_path)
-        #     # 체크한 개발 환경 기반으로 env_txt 파일 생성
-        #     env_txt = ''
-        #     for e in envx:
-        #         env_txt += str(e)
-        #     # 체크한 개발 환경 기반으로 env_txt 파일 저장
-        #     env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
-        #     with open(env_txt_file_path, 'w') as f:
-        #         f.write(env_txt)
-        #     # username.txt 파일 생성 및 저장
-        #     username_txt = user_email+':'+program_name
-        #     username_txt_file_path = os.path.join(unzip_folder_path, 'username.txt')
-        #     with open(username_txt_file_path, 'w', encoding='utf-8') as f:
-        #         f.write(username_txt)
-        #     os.remove(file_path)  # .zip 파일 삭제
+        # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
+        if file_path.endswith('.zip'):
+            unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                zip_ref.extractall(unzip_folder_path)
+            # 체크한 개발 환경 기반으로 env_txt 파일 생성
+            env_txt = ''
+            for e in envx:
+                env_txt += str(e)
+            # 체크한 개발 환경 기반으로 env_txt 파일 저장
+            env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
+            with open(env_txt_file_path, 'w') as f:
+                f.write(env_txt)
+            # username.txt 파일 생성 및 저장
+            username_txt = user_email+':'+program_name
+            username_txt_file_path = os.path.join(unzip_folder_path, 'username.txt')
+            with open(username_txt_file_path, 'w', encoding='utf-8') as f:
+                f.write(username_txt)
+            os.remove(file_path)  # .zip 파일 삭제
                     
         # #     # GitHub에 업로드
         # #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
@@ -224,13 +219,11 @@ def containerDeploy_page():
         # #     return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
-        return render_template('containerList.html', userData=json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
+        return render_template('containerList.html')
     elif request.method == 'GET':
         # state 수정해주어야 함.
         return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
     return 'Fail'
-    # if oauth2.has_credentials():
-    #     return render_template('editDeploy.html', useremail=oauth2.email)
 ######################################################################################################################################
 # @app.route('/editDeploy.html')
 @app.route('/services/<string:service_name>', methods=['POST', 'GET'])
@@ -238,49 +231,55 @@ def containerEditDeploy_page(service_name):
     user_email = oauth2.email                            # 현재 로그인된 사용자 이메일
     if request.method == 'POST':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
-                
-        print(service_name)# 서비스명 값 받아왔는지 확인
         program_name = service_name                      # 사용자가 배포하는 프로그램명 받기
-        print(program_name)
 
-        # 해당 사용자의 컨테이너 리스트 데이터 가져오기
-        getUserData = user_data.get(user_email)
-        # 컨테이너 status 값 파싱 & JSON 파일에 저장
-        result_dict = control_containers(user_email+':'+program_name)
+        # # 해당 사용자의 컨테이너 리스트 데이터 가져오기
+        getUserData = user_data[oauth2.email]
+        # # 컨테이너 status 값 파싱
+        result_dict = getContainerStatus(user_email+':'+program_name)
+        print(result_dict.items())
+        frontStatus = []
+        backStatuse = []
+        dbStatus = []
+        for container_name in result_dict.keys():
+            if 'frontend-deployment' in container_name:
+                frontStatus.append(result_dict[container_name])
+            elif 'backend-deployment' in container_name:
+                backStatuse.append(result_dict[container_name])
+            elif 'db-deployment' in container_name:
+                dbStatus.append(result_dict[container_name])
         for element in getUserData:
-            if element['Service Name'] == program_name:
-                element['Update'] = today_date
-
-                for dict_name in result_dict:
-                    if 'frontend-deployment' in dict_name:
-                        element['Containers'][0] = result_dict[dict_name]
-                    elif 'backend-deployment' in dict_name:
-                        element['Containers'][1] = result_dict[dict_name]
-                    else:
-                        element['Containers'][2] = result_dict[dict_name]
-            else:
-                return '업데이트 실패'
+            if element["Service Name"] == service_name:
+                element["Update"] = today_date
+                
+                for container_name in result_dict:
+                    if 'frontend-deployment' in container_name:
+                        element['Containers'][0]['State'] = frontStatus
+                    elif 'backend-deployment' in container_name:
+                        element['Containers'][1]['State'] = backStatuse
+                    elif 'db-deployment' in container_name:
+                        element['Containers'][2]['State'] = dbStatus
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
-        print(json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False))
+        # print(json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False))
 
-        # # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
-        # os.makedirs(folder_path, exist_ok=True)
+        # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
+        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        os.makedirs(folder_path, exist_ok=True)
         
-        # # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
-        # file_path = os.path.join(folder_path, program_name+'.zip')
-        # file.save(file_path)
+        # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
+        file_path = os.path.join(folder_path, program_name+'.zip')
+        file.save(file_path)
         
-        # # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
-        # if file_path.endswith('.zip'):
-        #     unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
-        #     with zipfile.ZipFile(file_path, 'r') as zip_ref:
-        #         zip_ref.extractall(unzip_folder_path)
-        #     os.remove(file_path)  # .zip 파일 삭제
+        # 만약 업로드한 파일이 .zip 파일이라면 unzip 수행
+        if file_path.endswith('.zip'):
+            unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
+            with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                zip_ref.extractall(unzip_folder_path)
+            os.remove(file_path)  # .zip 파일 삭제
                     
         #     # GitHub에 업로드
         #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
@@ -288,13 +287,13 @@ def containerEditDeploy_page(service_name):
         #     return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
-        return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
+        return make_response('', 204)
     elif request.method == 'GET':
         # state 수정해주어야 함.
         return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
 # 컨테이너 status 확인 (Running/Stop/Pending/error 등) / pip install paramiko
-def control_containers(namespace):
+def getContainerStatus(namespace):
     setUser = 'opc'          
     namespace = 'buttontest' # 환경 변수
 
