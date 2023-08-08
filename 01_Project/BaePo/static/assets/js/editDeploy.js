@@ -61,36 +61,49 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
 
-const userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-console.log(serviceName);
-
 const SERVICE_EDIT_BUTTONS_CLASS="service-edit-buttons"; //edit, delete에 같은 이벤트 핸들러 걸어주기 위해서 custom class부여함
 
-/* main function ==========================================================*/ 
+/*=========================================================================================================================*/ 
+/* main function ==========================================================================================================*/ 
+/*=========================================================================================================================*/ 
+
+const userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
 
 const formElemnt=document.querySelector("form#editDeployForm");
 
 async function loadData(){
   const serviceList=[];
 
+  //1. 서버에서 로그인된 유저의 정보 받아오기
   const userData=await getUserData(userEmail);
+
+  //2. 받아온 정보에서 서비스 이름만 빼서 리스트 만들고, 화면 구성하기
   userData.forEach((service) => {
     serviceList.push(service[USER_DATA_KEY_SERVICE_NAME]);
   });
   printNavWithServiceList(serviceList);
 
+  //3. 2에서 구성한 navbar 요소에 핸들러 추가하기
+  const navElements=document.querySelectorAll(".sidebar>.sidebar-wrapper .nav>li>a");
+  for (let i=0;i<(navElements.length)-1;i++){
+    navElements[i].addEventListener("click",handleNavElementClick); 
+  }
+
 }
 
 $(document).ready(function() {
     $().ready(function() {
-        const cardTitle=document.querySelector("div.content").querySelector("h3.service-name");
-        cardTitle.innerText=serviceName;
+        document.querySelector("#userEmail").innerText=userEmail;
+
         loadData();
 
         const serviceEditButtons=document.querySelectorAll(`.${SERVICE_EDIT_BUTTONS_CLASS}`);
         console.log(serviceEditButtons);
         serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener("click",handleServiceEditButtonClick));
+
+        const logoutButton=document.querySelector("#logoutButton");
+        logoutButton.addEventListener("click",logout);
 
         $('#frontEnv').bsMultiSelect({
             useCssPatch:true,
@@ -121,7 +134,9 @@ $(document).ready(function() {
     });
 });
 
-/* function ==========================================================*/ 
+/*===========================================================================================================================*/ 
+/* specific function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
 
 async function handleServiceEditButtonClick(event){  
     console.log("handleServiceEditButton Clicked!!!");
@@ -135,7 +150,7 @@ async function handleServiceEditButtonClick(event){
         method:httpMethod,
         body:formData
     };
-    console.log(`handleServiceEditButtonClick : ${options.method}`);
+    console.log(url,options);
     try{
         const response=await fetch(url,options);
         if(response.ok){
@@ -148,6 +163,29 @@ async function handleServiceEditButtonClick(event){
         console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
     }
 }
+
+/*===========================================================================================================================*/ 
+/* common function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+async function logout(){
+  //console.log("logtout Func Starts...");
+  localStorage.clear();
+  const requestURI = "/logout";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+  };
+  try{
+    const response=await fetch(url,options);
+    if(response.ok) window.location="/"
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
+  }
+}
+
+/*===========================================================================================================================*/ 
 
 async function getUserData(userEmail){
     console.log("getUserData Func Start...");
@@ -166,7 +204,9 @@ async function getUserData(userEmail){
     }
 }
 
-function makeNavElement(serviceName,clickEventHandler){
+/*===========================================================================================================================*/ 
+
+function makeNavElement(serviceName){
     const li=document.createElement("li");
     li.id=serviceName;
     const a=document.createElement("a");
@@ -181,16 +221,38 @@ function makeNavElement(serviceName,clickEventHandler){
     return li;
 }
 
+/*===========================================================================================================================*/ 
+
 function printNavWithServiceList(serviceList) {
     const navUl=document.querySelector(".sidebar>.sidebar-wrapper .nav");
     let savedServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
-        if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
+        if(savedServiceName===li.id){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
             li.classList.add("active");
             localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
         }
         navUl.appendChild(li);
     }
     navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
+}
+
+/*====================================================================================================================*/ 
+
+function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭하면 하는 작업
+  //active붙어있는 애한테서 active class 제거하기
+  const previousActiveLi=document.querySelector(".sidebar>.sidebar-wrapper ul.nav li.active");
+  previousActiveLi.classList.remove(ACTIVE_CLASS);
+
+  //2. click된 li active로 만들기
+  const a=event.target.parentNode;
+  const li=a.parentNode;
+  li.classList.add(ACTIVE_CLASS);
+  
+  //3. click된 li의 서비스 이름 추출해서 세션에 저장 
+  const newActiveServiceName=li.id;
+  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
+
+  //4. containerList.html로 이동
+  window.location.href="containerList.html";
 }

@@ -135,9 +135,7 @@ $(document).ready(function () {
 
 async function logout(){
   //console.log("logtout Func Starts...");
-  localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-  localStorage.removeItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-  localStorage.removeItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
+  localStorage.clear();
   const requestURI = "/logout";
   const url = BASE_URL + requestURI;
   const options = {
@@ -180,7 +178,7 @@ async function getUserData(userEmail){
 
 /*====================================================================================================================*/ 
 
-function makeNavElement(serviceName,clickEventHandler){
+function makeNavElement(serviceName){
     const li=document.createElement("li");
     li.id=serviceName;
     const a=document.createElement("a");
