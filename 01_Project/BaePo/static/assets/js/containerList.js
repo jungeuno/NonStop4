@@ -320,7 +320,7 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
 
 /*====================================================================================================================*/ 
 
-async function handleContainerStopButtonClick(event){ //container state stop -> run변경
+async function handleContainerPauseButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const requestURI = `/services/${serviceName}/container`;
@@ -397,6 +397,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   badgeSpan.innerText=" ";
   const refreshButton=document.createElement("button");
   refreshButton.classList.add(BTN_CLASS,COL_10_CLASS,TEXT_RIGHT_CLASS,PR_0_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
+  refreshButton.addEventListener("click",handleContainerRefreshButtonClick);
   const refreshI=document.createElement("i");
   refreshI.classList.add(TIMS_ICONS_CLASS,ICON_REFRESH_02_CLASS);
   refreshButton.appendChild(refreshI);
@@ -421,9 +422,11 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   sampleButton.appendChild(sampleI);
 
   const containerRunButton=sampleButton.cloneNode(true);
+  containerRunButton.addEventListener("click",handleContainerRunButtonClick);
   containerRunButton.querySelector("i").classList.add(ICON_TRIANGLE_RIGHT_17_CLASS);
 
   const containerPauseButton=sampleButton.cloneNode(true);
+  containerPauseButton.addEventListener("click",handleContainerPauseButtonClick);
   containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
   if(containerInfo[CONTAINER_KEY_STATE]==="run"){
