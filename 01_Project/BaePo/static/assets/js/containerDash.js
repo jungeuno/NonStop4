@@ -107,7 +107,7 @@ function printNavWithServiceList(serviceList) {
         let li=makeNavElement(serviceList[i]);
         if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
             li.classList.add("active");
-            localStorage.setItem(USER_DATA_KEY_SERVICE_NAME,li.id);
+            localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
         }
         navUl.appendChild(li);
     }
