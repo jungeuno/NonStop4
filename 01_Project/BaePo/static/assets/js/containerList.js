@@ -247,7 +247,7 @@ function printNavWithServiceList(serviceList) {
     let activeLiIndex=0;
     for (let i = 0; i < serviceList.length; i++) {
         let li=makeNavElement(serviceList[i]);
-        if(savedServiceName===li.id) activeLiIndex=i;
+        if(savedServiceName===li.id) activeLiIndex=i+1;
         navUl.appendChild(li);
     }
     navUl.insertAdjacentElement('beforeend',navUl.querySelector("li:first-child"));
