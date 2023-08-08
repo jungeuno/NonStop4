@@ -1,3 +1,4 @@
+
 /* Constant ==========================================================*/ 
 //bootstrap className
 const TIMS_ICONS_CLASS="tim-icons";
@@ -61,7 +62,9 @@ const MANAGING_BUTTON_CLASS="managing-btn";
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
 
-/* main function ==========================================================*/ 
+/*====================================================================================================================*/ 
+/* main function ==========================================================================================================*/ 
+/*====================================================================================================================*/ 
 
 async function loadData(userEmail){
   console.log("(loadData)loadData Func Start...");
@@ -99,13 +102,6 @@ async function loadData(userEmail){
   printCardTitle(activeServiceName);
   console.log("(loadData)printing card title is compelete");
 
-  console.log("(loadData)adding eventhandler to serviceManagingButton");
-  const serviceManagingButton=document.querySelector("#serviceManagingButton");
-  console.log(serviceManagingButton);
-  serviceManagingButton.addEventListener("click",()=>{
-    window.location.href="editDeploy.html";
-  });
-
   //7. 현재 보고 있는 서비스의 컨테이너 리스트를 꺼내서 화면 구성하기
   console.log("(loadData)lets find active container object");
   const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
@@ -135,12 +131,34 @@ function startHtml() { //데이터와 무관하게 이벤트 핸들러 구성하
     window.location.href = "deploy.html";
   });
 
+  const logoutButton=document.querySelector("#logoutButton");
+  logoutButton.addEventListener("click",logout);
+
 }
 
 $(document).ready(() => $().ready(startHtml));
 
-/* function ==========================================================*/ 
 
+/*====================================================================================================================*/ 
+/* function ==========================================================================================================*/ 
+/*====================================================================================================================*/ 
+
+async function logout(){
+  console.log("logtout Func Starts...");
+  localStorage.removeItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+  const requestURI = "/logout";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+  };
+  try{
+    const response=await fetch(url,options);
+    console.log(response);
+  } catch(error){
+    console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    console.log(error);
+  }
+}
 function cleanNodeByQuerySelector(querySelectorString){
   const parentNode=document.querySelector(querySelectorString);
   parentNode.replaceChildren();
@@ -225,7 +243,7 @@ function printNavWithServiceList(serviceList) {
         let li=makeNavElement(serviceList[i]);
         if((savedServiceName===li.id)||(i===0)){ // (다른 페이지에서 사이드바 클릭해서 containerList로 넘어오는 경우) || (로그인으로 넘어오는 경우)
             li.classList.add("active");
-            localStorage.setItem(USER_DATA_KEY_SERVICE_NAME,li.id);
+            localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,li.id);
         }
         navUl.appendChild(li);
     }
@@ -393,7 +411,7 @@ function makeCardTitleHeader(serviceName){
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
   serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
-  serviceManagingButton.addEventListener("click",()=>window.location.href="editDeploy.html");
+  serviceManagingButton.addEventListener("click",()=>window.location.href="editDeploy.html")
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
   cardHeaderDiv.appendChild(cardTitleH3);
   cardHeaderDiv.appendChild(serviceManagingButton);
