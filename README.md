@@ -1,4 +1,4 @@
-![header](https://capsule-render.vercel.app/api?type=waving&color=0:a000a8,100:2a009e&height=280&section=header&text=Nonstop-nl-&fontSize=90&fontColor=ffffff&fontAlign=35&desc=쿠버네티스를%20활용한%20자동%20이중화%20배포%20서비스&descSize=25&descAlign=65)
+![header](https://capsule-render.vercel.app/api?type=waving&color=0:a000a8,100:2a009e&height=280&section=header&text=Nonstop4-nl-&fontSize=90&fontColor=ffffff&fontAlign=35&desc=쿠버네티스를%20활용한%20자동%20이중화%20배포%20서비스&descSize=25&descAlign=65)
 
 ## 프로젝트 소개
 **인프라나 이중화 구성을 모르는 사용자도 무중단 서비스를 제공할 수 있게 도와주는 SaaS 플랫폼**
@@ -43,7 +43,6 @@
 ## 팀
 - 오정은(팀장) :
 - 안희주 : 
-- 이건무 : 
 - 이지우 : 
 - 윤동근 : 
 
