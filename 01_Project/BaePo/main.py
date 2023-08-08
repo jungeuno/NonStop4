@@ -210,10 +210,10 @@ def containerDeploy_page():
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
         # 응답으로 JSON 형식의 데이터 반환
-        return render_template('containerList.html', userData=json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
+        return render_template('containerList.html', userData=json.dumps({user_email: user_data[user_email]}, ensure_ascii=False))
     elif request.method == 'GET':
         # state 수정해주어야 함.
-        return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
+        return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
     return 'Fail'
     # if oauth2.has_credentials():
     #     return render_template('editDeploy.html', useremail=oauth2.email)
