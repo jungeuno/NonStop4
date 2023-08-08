@@ -74,12 +74,13 @@ def deploy_page():
 @app.route('/mypage.html')
 def my_page():
     if oauth2.has_credentials():
-        user_email = oauth2.email  # 사용자 이메일
-        user_date = user_list.get(user_email)  # 사용자 데이터 가져오기
+        user_email = oauth2.email               # 사용자 이메일
+        user_date = user_list.get(user_email)   # 사용자 데이터 가져오기
+        user_registeration = user_date[0]["Registeration Date"]
 
-        if user_data is None:
+        if user_email is None or user_data is None:
             return "User not found"
-        return render_template('mypage.html', useremail=user_email, userDate=user_date[0]["Registeration Date"])
+        return render_template('mypage.html', useremail=user_email, userDate=user_registeration)
 ######################################################################################################################################
 # 로그인
 @app.route('/login', methods=['GET', 'POST'])
@@ -223,10 +224,21 @@ def containerEditDeploy_page(service_name):
     user_email = oauth2.email                            # 현재 로그인된 사용자 이메일
     if request.method == 'POST':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
-        program_name = service_name                      # 사용자가 배포하는 프로그램명 받기
+                
         print(service_name)# 서비스명 값 받아왔는지 확인
+        program_name = service_name                      # 사용자가 배포하는 프로그램명 받기
         print(program_name)
-        
+
+        # 해당 사용자의 컨테이너 리스트 데이터 가져오기
+        getUserData = user_data.get(user_email)
+        print('GetUserData :',getUserData)
+        print('GetUserData[0] :', getUserData[0])
+        for element in getUserData:
+            if element['Service Name'] == program_name:
+                element['Update'] = today_date
+            else:
+                return '배포하려는 서비스와 다릅니다.'
+
         # # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
         # folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
         # os.makedirs(folder_path, exist_ok=True)
@@ -259,18 +271,6 @@ def containerEditDeploy_page(service_name):
         #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
         # else:
         #     return '.zip 파일을 업로드 해주세요.'
-
-        # 사용자 이메일을 기준으로 데이터가 있는지 확인하고 데이터 추가 또는 새로운 사용자 JSON 객체 생성
-        if program_name in user_data[oauth2.email]['Service Name']:
-            for ud in user_data[oauth2.email]:
-                if ud['Service Name'] == program_name:
-                    ud['Service Name'].append({
-                    'Update': today_date})
-                    print(ud['Service Name'])
-                    print(ud['Containers'])
-                    print(ud)
-        else:
-            return '기존의 서비스 명과 동일하지 않습니다.'
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
