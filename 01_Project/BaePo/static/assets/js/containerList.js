@@ -104,19 +104,19 @@ async function loadData(userEmail){
   const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) 
   console.log(activeServiceName);
 
-  //6. 서비스명 가지고 ip뽑아내기
-  const activeServiceIP=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+  //6. 서비스 명으로 userData에서 서비스 객체 꺼내기 -> ip, containerList 꺼내기
+  console.log("(loadData)lets find active service object for ip, and containerList");
+  const activeServiceObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+  console.log("(loadData)active service object");
+  console.log(activeServiceObj);
+  const activeServiceIP=activeServiceObj[USER_DATA_SERVICE_IP];
+  const activeContainerList=activeServiceObj[USER_DATA_KEY_CONTAINERS];
 
   //6. card Title 만들기 : 이름 + 수정하기 버튼 + 핸들러 추가
   printCardTitle(activeServiceName,activeServiceIP);
   console.log("(loadData)printing card title is compelete");
 
   //7. 현재 보고 있는 서비스의 컨테이너 리스트를 꺼내서 화면 구성하기
-  console.log("(loadData)lets find active container object");
-  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
-  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
-  console.log("(loadData)active container object");
-  console.log(activeContainerList);
   printContainerList(activeContainerList);
   console.log("(loadData)printing container list is compelete");
 
@@ -214,23 +214,23 @@ function handleNavElementClick(event,userData){ //nav에서 특정 앱을 클릭
   const li=a.parentNode;
   li.classList.add(ACTIVE_CLASS);
   
-  //3. click된 li의 a tag에서 serviceId꺼내서 요청보내기
+  //3. click된 li의 a tag에서 serviceId꺼내서 필요한 정보들 꺼내기 : 컨테이너 리스트, 서비스 ip
   const newActiveServiceName=li.id;
-  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName);
-  //console.log(localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME));
-  const activeContainerObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName);
-  const activeContainerList=activeContainerObj[USER_DATA_KEY_CONTAINERS];
+  localStorage.setItem(LOCAL_STORAGE_KEY_SERVICE_NAME,newActiveServiceName); //active service name 저장
+
+  const newActiveServiceObj=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===newActiveServiceName); //new active service 객체 꺼내기
+  const newActiveServiceIP=newActiveServiceObj[USER_DATA_SERVICE_IP];
+  const newActiveContainerList=newActiveServiceObj[USER_DATA_KEY_CONTAINERS];
 
   //4. card 비우기
   const cardQuerySelectorString="div.content>div.row>div.col-md-12>div#card";
   cleanNodeByQuerySelector(cardQuerySelectorString);
 
-
   //5. card header 넣기
-  printCardTitle(newActiveServiceName);
+  printCardTitle(newActiveServiceName,newActiveServiceIP);
 
   //6. card group 클릭된 서비스 관련 내용으로 넣기
-  printContainerList(activeContainerList);
+  printContainerList(newActiveContainerList);
 }
 
 /*====================================================================================================================*/ 
