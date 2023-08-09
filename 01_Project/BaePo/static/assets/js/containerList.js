@@ -101,12 +101,14 @@ async function loadData(userEmail){
 
   //5. navbar 요소 만들면서 active로 지정해준 현재 보고 있는 서비스 명 가져오기
   console.log("(loadData)printing active nav id");
-  //const activeServiceName=document.querySelector(".sidebar>.sidebar-wrapper .nav>li.active").id; 
   const activeServiceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME) 
   console.log(activeServiceName);
 
+  //6. 서비스명 가지고 ip뽑아내기
+  const activeServiceIP=userData.find((service)=>service[USER_DATA_KEY_SERVICE_NAME]===activeServiceName);
+
   //6. card Title 만들기 : 이름 + 수정하기 버튼 + 핸들러 추가
-  printCardTitle(activeServiceName);
+  printCardTitle(activeServiceName,activeServiceIP);
   console.log("(loadData)printing card title is compelete");
 
   //7. 현재 보고 있는 서비스의 컨테이너 리스트를 꺼내서 화면 구성하기
@@ -471,12 +473,12 @@ function makeCardTitleHeader(serviceName,serviceIP){
   const serviceNameH3=document.createElement("h3");
   serviceNameH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,COL_4_CLASS,TEXT_LEFT_CLASS);
   serviceNameH3.id=serviceName;
+  serviceNameH3.innerText=serviceName;
   //card title for service ip
   const serviceIPH3=document.createElement("h3");
   serviceIPH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,COL_4_CLASS,TEXT_CENTER_CLASS);
-  serviceIPH3.id=serviceName;
+  serviceIPH3.id=serviceIP;
   serviceIPH3.innerText=serviceIP ? serviceIP : "";
-  serviceNameH3.innerText=serviceName;
   //card title for managing button
   const serviceManagingButton=document.createElement("button");
   serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,COL_3_CLASS,TEXT_RIGHT_CLASS);
@@ -492,10 +494,10 @@ function makeCardTitleHeader(serviceName,serviceIP){
   return cardHeaderDiv;
 }
 
-function printCardTitle(serviceName){
+function printCardTitle(serviceName,serviceIP){
   console.log("printCardTitle Func Starts...");
   const targetParent=document.querySelector("div.content>div.row>div.col-md-12>div.card");
-  const childElement=makeCardTitleHeader(serviceName);
+  const childElement=makeCardTitleHeader(serviceName,serviceIP);
   targetParent.prepend(childElement);
 }
 
