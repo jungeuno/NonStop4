@@ -304,7 +304,7 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
   const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
-  const work="run";
+  const work={"work":"run"}
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
@@ -335,7 +335,7 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
   const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
-  const work="pause";
+  const work={"work":"pause"}
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
