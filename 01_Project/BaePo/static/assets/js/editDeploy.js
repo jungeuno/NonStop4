@@ -119,8 +119,10 @@ $(document).ready(function() {
 
         loadData();
 
-        const serviceEditButtons=document.querySelectorAll(`.${SERVICE_EDIT_BUTTONS_CLASS}`);
-        serviceEditButtons.forEach((serviceEditButton)=>serviceEditButton.addEventListener("click",handleServiceEditButtonClick));
+        const serviceUpdateButton=document.querySelector(`button#updateButton`);
+        const serviceDeleteButton=document.querySelector(`button#deleteButton`);
+        serviceUpdateButton.addEventListener("click",handleServiceUpdateButtonClick);
+        serviceDeleteButton.addEventListener("click",handleServiceDeleteButtonClick);
 
         const logoutButton=document.querySelector("#logoutButton");
         logoutButton.addEventListener("click",logout);
@@ -158,17 +160,38 @@ $(document).ready(function() {
 /* specific function ==========================================================================================================*/ 
 /*===========================================================================================================================*/ 
 
-async function handleServiceEditButtonClick(event){  
-    console.log("handleServiceEditButton Clicked!!!");
-    //button의 value : {UPDATE / DELETE} 에 따라서 서비스를 업데이트하거나 삭제하는 요청을 보냄
+async function handleServiceUpdateButtonClick(event){  
+    console.log("handleServiceUpdateButton Clicked!!!");
     const editDeployForm=document.querySelector("#editDeployForm");
     const formData=new FormData(editDeployForm);
     const requestURI=`/services/${serviceName}`
     const url=BASE_URL+requestURI;
-    const httpMethod=event.target.value;
     const options={
-        method:httpMethod,
+        method:"UPDATE",
         body:formData
+    };
+    console.log(url,options);
+    try{
+        const response=await fetch(url,options);
+        if(response.ok){
+            window.location.href="containerList.html";
+        }
+        else{
+            console.log(`${url}로 ${options.method}요청 서버의 비정상 응답 : [${response.status}] ${response.statusText}`);
+        }
+    } catch(error){
+        console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    }
+}
+
+/*===========================================================================================================================*/ 
+
+async function handleServiceDeleteButtonClick(event){  
+    console.log("handleServiceDeleteButton Clicked!!!");
+    const requestURI=`/services/${serviceName}`
+    const url=BASE_URL+requestURI;
+    const options={
+        method:"DELETE"
     };
     console.log(url,options);
     try{
