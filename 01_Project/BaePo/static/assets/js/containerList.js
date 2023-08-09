@@ -51,6 +51,7 @@ const LOCAL_STORAGE_KEY_CONTAINER_NAME="container-name";
 const USER_DATA_KEY_SERVICE_NAME="Service Name";
 const USER_DATA_KEY_CREATING_DATE="Creating Date";
 const USER_DATA_KEY_CONTAINERS="Containers";
+const USER_DATA_SERVICE_IP="Service IP";
 const CONTAINER_KEY_NAME="name";
 const CONTAINER_KEY_ENV="env";
 const CONTAINER_KEY_STATE="state";
@@ -295,7 +296,7 @@ function printContainerList(containerList){
 /*====================================================================================================================*/ 
 
 async function handleContainerRunButtonClick(event){ //container state stop -> run변경
-  const cardDiv=event.target.parentNode.parentNode;
+  const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
   const work="run";
@@ -323,7 +324,7 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
 /*====================================================================================================================*/ 
 
 async function handleContainerPauseButtonClick(event){ //container state stop -> run변경
-  const cardDiv=event.target.parentNode.parentNode;
+  const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
   const work="pause";
@@ -351,7 +352,7 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
 /*====================================================================================================================*/ 
 
 async function handleContainerRefreshButtonClick(event){ //container state stop -> run변경
-  const cardDiv=event.target.parentNode.parentNode;
+  const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
@@ -461,21 +462,30 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
 
 /*====================================================================================================================*/ 
 
-function makeCardTitleHeader(serviceName){
+function makeCardTitleHeader(serviceName,serviceIP){
   const cardHeaderDiv=document.createElement("div");
-  cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
-  const cardTitleH3=document.createElement("h3");
-  cardTitleH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS);
-  cardTitleH3.id=serviceName;
-  cardTitleH3.innerText=serviceName;
+  cardHeaderDiv.classList.add(CARD_HEADER_CLASS,"row","px-0");
+  //card title for service name
+  const serviceNameH3=document.createElement("h3");
+  serviceNameH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,"col-4","text-left");
+  serviceNameH3.id=serviceName;
+  serviceNameH3.innerText=serviceName;
+  //card title for service name
+  const serviceIPH3=document.createElement("h3");
+  serviceIPH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,"col-4",TEXT_CENTER_CLASS);
+  serviceIPH3.id=serviceName;
+  serviceIPH3.innerText=serviceIP ? serviceIP : "127.0.0.1";
+  //card title for managing button
   const serviceManagingButton=document.createElement("button");
-  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
+  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,"col-4",TEXT_RIGHT_CLASS);
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
   serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
   serviceManagingButton.addEventListener("click",()=>window.location.href="editDeploy.html")
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
-  cardHeaderDiv.appendChild(cardTitleH3);
+
+  cardHeaderDiv.appendChild(serviceNameH3);
+  cardHeaderDiv.appendChild(serviceIPH3);
   cardHeaderDiv.appendChild(serviceManagingButton);
   return cardHeaderDiv;
 }
