@@ -18,6 +18,7 @@ const CARD_TITLE_CLASS="card-title";
 
 const ROW_CLASS="row";
 const COL_1_CLASS="col-1";
+const COL_3_CLASS="col-3";
 const COL_4_CLASS="col-4";
 const COL_10_CLASS="col-10";
 const COL_12_CLASS="col-12";
@@ -41,6 +42,7 @@ const ACTIVE_CLASS="active";
 const D_INLINE_CLASS="d-inline";
 const TEXT_CENTER_CLASS="text-center";
 const TEXT_RIGHT_CLASS="text-right";
+const TEXT_LEFT_CLASS="text-left";
 
 //for localStorage key
 const LOCAL_STORAGE_KEY_USER_EMAIL="user-email";
@@ -464,20 +466,20 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
 
 function makeCardTitleHeader(serviceName,serviceIP){
   const cardHeaderDiv=document.createElement("div");
-  cardHeaderDiv.classList.add(CARD_HEADER_CLASS,"row","px-0");
+  cardHeaderDiv.classList.add(CARD_HEADER_CLASS,ROW_CLASS);
   //card title for service name
   const serviceNameH3=document.createElement("h3");
-  serviceNameH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,"col-4","text-left");
+  serviceNameH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,COL_4_CLASS,TEXT_LEFT_CLASS);
   serviceNameH3.id=serviceName;
-  serviceNameH3.innerText=serviceName;
-  //card title for service name
+  //card title for service ip
   const serviceIPH3=document.createElement("h3");
-  serviceIPH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,"col-4",TEXT_CENTER_CLASS);
+  serviceIPH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,COL_4_CLASS,TEXT_CENTER_CLASS);
   serviceIPH3.id=serviceName;
-  serviceIPH3.innerText=serviceIP ? serviceIP : "127.0.0.1";
+  serviceIPH3.innerText=serviceIP ? serviceIP : "";
+  serviceNameH3.innerText=serviceName;
   //card title for managing button
   const serviceManagingButton=document.createElement("button");
-  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,"col-4",TEXT_RIGHT_CLASS);
+  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,COL_3_CLASS,TEXT_RIGHT_CLASS);
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
   serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
