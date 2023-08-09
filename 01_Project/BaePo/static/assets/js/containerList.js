@@ -298,11 +298,12 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
+  const work="run";
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
-    body : "run",
+    body : JSON.stringify(work),
   };
   try{
     const response=fetch(url,options);
@@ -325,11 +326,12 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
+  const work="pause";
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
-    body : "stop",
+    body : JSON.stringify(work)
   };
   try{
     const response=fetch(url,options);
