@@ -299,7 +299,7 @@ def containerEditDeploy_page(service_name):
 # run / pause / refresh / delete 동작 버튼 
 # kubectl scale deployment <$container-name>-deployment --replicas=<$scale> -n <$namespace>
 # GET /services/{service-name}/container/state
-@app.route('/services/<string:service_name>/container/state/<string::container_service_name>/<string::button>', methods=['POST', 'GET'])
+@app.route('/services/<string:service_name>/container/state/<string:container_service_name>/<string:button>', methods=['POST', 'GET'])
 def returnContainerStatus(service_name, container_service_name, button): #test #test_Front #run
     user_email = oauth2.email
     program_name = service_name
