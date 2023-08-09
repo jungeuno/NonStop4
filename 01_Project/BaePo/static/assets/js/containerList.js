@@ -315,12 +315,10 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
     body : JSON.stringify(work),
   };
   try{
-    const response=fetch(url,options);
+    const response=await fetch(url,options);
     if(response.ok){
-      const runButton=cardDiv.querySelector(".card-footer").firstChild();
-      const pauseButton=runButton.nextSibling();
-      runButton.classList.add(DISABLED_CLASS);
-      pauseButton.classList.remove(DISABLED_CLASS);
+      const containerCardDiv=event.target.parentNode.parentNode.parentNode;
+      containerCardDiv.querySelector("div.card-header button>i").click();
     } else {
       console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
     }
@@ -346,12 +344,10 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
     body : JSON.stringify(work),
   };
   try{
-    const response=fetch(url,options);
+    const response=await fetch(url,options);
     if(response.ok){
-      const runButton=cardDiv.querySelector(".card-footer").firstChild();
-      const pauseButton=runButton.nextSibling();
-      pauseButton.classList.add(DISABLED_CLASS);
-      runButton.classList.remove(DISABLED_CLASS);
+      const containerCardDiv=event.target.parentNode.parentNode.parentNode;
+      containerCardDiv.querySelector("div.card-header button>i").click();
     } else {
       console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
     }
@@ -363,6 +359,7 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
 /*====================================================================================================================*/ 
 
 async function handleContainerRefreshButtonClick(event){ //container state stop -> run변경
+  console.log("refresh butto clicked");
   const cardDiv=event.target.parentNode.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
@@ -372,13 +369,16 @@ async function handleContainerRefreshButtonClick(event){ //container state stop 
     method: "GET",
   };
   try{
-    const response=fetch(url,options);
+    const response=await fetch(url,options);
     if(response.ok){
-      const state=await response.json();
-      const stateBadge=cardDiv.querySelector("div.card-header span.state-bagde");
-      stateBadge.classList.toggle(BADGE_INFO_CLASS,state==="run");
-      stateBadge.classList.toggle(BADGE_DANGER_CLASS,state!=="run");
-
+      const obj=await response.json()
+      let resultState=null;
+      const states=obj[CONTAINER_KEY_STATE];
+      states.forEach((state)=>resultState=state);
+      
+      const stateBadge=cardDiv.querySelector("div.card-header span.state-badge");
+      stateBadge.classList.toggle(BADGE_INFO_CLASS,resultState==="run");
+      stateBadge.classList.toggle(BADGE_DANGER_CLASS,resultState!=="run");
     } else {
       console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
     }
@@ -410,7 +410,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   const cardHeaderDiv=document.createElement("div");
   cardHeaderDiv.classList.add(CARD_HEADER_CLASS);
   const badgeSpan=document.createElement("span");
-  badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,COL_1_CLASS);
+  badgeSpan.classList.add(BADGE_CLASS,BADGE_PILL_CLASS,COL_1_CLASS,STATE_BADGE_CLASS);
   badgeSpan.innerText=" ";
   const refreshButton=document.createElement("button");
   refreshButton.classList.add(BTN_CLASS,COL_10_CLASS,TEXT_RIGHT_CLASS,PR_0_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS);
