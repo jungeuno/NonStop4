@@ -297,7 +297,8 @@ function printContainerList(containerList){
 async function handleContainerRunButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-  const requestURI = `/services/${serviceName}/container`;
+  const containerName=cardDiv.id;
+  const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
@@ -323,7 +324,8 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
 async function handleContainerPauseButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-  const requestURI = `/services/${serviceName}/container`;
+  const containerName=cardDiv.id;
+  const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
@@ -349,7 +351,8 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
 async function handleContainerRefreshButtonClick(event){ //container state stop -> run변경
   const cardDiv=event.target.parentNode.parentNode;
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-  const requestURI = `/services/${serviceName}/container/state`;
+  const containerName=cardDiv.id;
+  const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
     method: "GET",
