@@ -118,6 +118,10 @@ def containerDeploy_page():
         db_env = request.form.getlist('dbEnv')         # 선택된 개발 환경 리스트 받기
         back_env = request.form.getlist('backEnv')         # 선택된 개발 환경 리스트 받기
         
+        user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+        user_name = user_email.replace('@', '').replace('.', '')
+        namespace = user_name+'-'+program_name
+
         # json 데이터 초기화
         containers = []
         envx = [0]*17
@@ -129,8 +133,8 @@ def containerDeploy_page():
         dbStatus = []
         # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(서비스명_Front/서비스면_Back/서비스명_DB) 설정
         # 'state' 컨테이너 status 값 파싱 & JSON 파일에 저장
-        result_dict = getContainerStatus(user_email+':'+program_name)
-        getServiceIP = returnServicetIP(user_email+':'+program_name)
+        result_dict = getContainerStatus(namespace)
+        getServiceIP = returnServicetIP(namespace)
         for dict_name in result_dict:
             if 'frontend-deployment' in dict_name:
                 frontStatus.append(result_dict[dict_name])
@@ -188,8 +192,12 @@ def containerDeploy_page():
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
+        # 소스코드 unzip 하고 저장하기 ------------------------------------------------------------------------------------------------------
+        user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+        user_name = user_email.replace('@', '').replace('.', '')
+
         # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        folder_path = os.path.join(BASE_DIR, 'test_upload', user_name)
         os.makedirs(folder_path, exist_ok=True)
         
         # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
@@ -206,20 +214,19 @@ def containerDeploy_page():
             for e in envx:
                 env_txt += str(e)
             # 체크한 개발 환경 기반으로 env_txt 파일 저장
-            env_txt_file_path = os.path.join(unzip_folder_path, 'env.txt')
+            env_txt_file_path = os.path.join(unzip_folder_path, program_name,'env.txt')
             with open(env_txt_file_path, 'w') as f:
                 f.write(env_txt)
             # username.txt 파일 생성 및 저장
-            username_txt = user_email+':'+program_name
-            username_txt_file_path = os.path.join(unzip_folder_path, 'username.txt')
+            username_txt_file_path = os.path.join(os.path.join(BASE_DIR, 'test_upload'), 'username.txt')
             with open(username_txt_file_path, 'w', encoding='utf-8') as f:
-                f.write(username_txt)
+                f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
                     
-        #     # GitHub에 업로드
-        #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-        # else:
-        #     return '.zip 파일을 업로드 해주세요.'
+            # GitHub에 업로드
+            upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
+        else:
+            return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
         return render_template('containerList.html')
@@ -230,17 +237,21 @@ def containerDeploy_page():
 ######################################################################################################################################
 # 업데이트 & 수정
 # @app.route('/editDeploy.html')
-@app.route('/services/<string:service_name>', methods=['POST', 'GET'])
+@app.route('/services/<string:service_name>', methods=['UPDATE'])
 def containerEditDeploy_page(service_name):
     user_email = oauth2.email                            # 현재 로그인된 사용자 이메일
-    if request.method == 'POST':
+    if request.method == 'UPDATE':
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
         program_name = service_name                      # 사용자가 배포하는 프로그램명 받기
+
+        user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+        user_name = user_email.replace('@', '').replace('.', '')
+        namespace = user_name+'-'+program_name
 
         # 해당 사용자의 컨테이너 리스트 데이터 가져오기
         getUserData = user_data[oauth2.email]
         # 컨테이너 status 값 파싱
-        result_dict = getContainerStatus(user_email+':'+program_name)
+        result_dict = getContainerStatus(namespace)
         print(result_dict.items())
         frontStatus = []
         backStatuse = []
@@ -267,10 +278,12 @@ def containerEditDeploy_page(service_name):
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
 
-        # print(json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False))
+        # 소스코드 unzip 하고 저장하기 ------------------------------------------------------------------------------------------------------
+        user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+        user_name = user_email.replace('@', '').replace('.', '')
 
         # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        folder_path = os.path.join(BASE_DIR, 'userSource', user_email)
+        folder_path = os.path.join(BASE_DIR, 'userSource', user_name)
         os.makedirs(folder_path, exist_ok=True)
         
         # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
@@ -284,10 +297,10 @@ def containerEditDeploy_page(service_name):
                 zip_ref.extractall(unzip_folder_path)
             os.remove(file_path)  # .zip 파일 삭제
                     
-        #     # GitHub에 업로드
-        #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-        # else:
-        #     return '.zip 파일을 업로드 해주세요.'
+            # GitHub에 업로드
+            # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
+        else:
+            return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
         return make_response('', 204)
@@ -304,10 +317,12 @@ def containerEditDeploy_page(service_name):
 def returnContainerStatus(service_name, container_service_name): #test #test_Front #run
     user_email = oauth2.email
     program_name = service_name
-
-    setUser = 'opc'          
-    namespace = 'buttontest' # 환경 변수
     
+    user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+    user_name = user_email.replace('@', '').replace('.', '')
+    namespace = user_name+'-'+program_name
+    setUser = 'opc'          
+
     # 마스터노드 접속
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -324,7 +339,7 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
 
     getUserData = user_data[user_email]
     # 컨테이너 status 값 파싱 - ssh
-    result_dict = getContainerStatus(user_email+':'+program_name)
+    result_dict = getContainerStatus(namespace)
     print(result_dict.items())
     currentStatus = []
 
@@ -351,7 +366,9 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
         
         print('Refresh currentStatus', currentStatus)
         ssh.close()
-        return currentStatus # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+
+        return json.dumps({"state" : currentStatus}, ensure_ascii=False) 
+        # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
     # 'run' / 'pause' 버튼 동작 --------------------------------------------------------------------------------
     elif request.method == 'POST':  # run /pause
         getButton = request.get_json()
@@ -368,44 +385,17 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
             return 'Error : cannot find button'
         # ssh 명령어 실행
         ssh.exec_command('kubectl scale deployment ' + locate +'-deployment --replicas='+ scale +' -n '+ namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        result_dict = getContainerStatus(user_email+':'+program_name)
+        result_dict = getContainerStatus(namespace)
 
-    #     if button == 'run':
-    #         if result_dict == {}:
-    #             currentStatus.append(['Stop']) ############ pause 상태임
-    #     elif button == 'pause':
-    #         # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
-    #         # for getNameKey in result_dict.keys():
-    #         #     for gnk in getNameKey:
-    #         #         if locate in gnk:
-    #         #             currentStatus.append(result_dict[gnk])
-    #         for getNameKey in result_dict.keys():
-    #             if locate in getNameKey:
-    #                 getStatus = result_dict.get(getNameKey)
-    #                 currentStatus.append(getStatus)
-    #         # currentStatus 배열 JSON 파일에 갱신
-    #         for gud in getUserData:
-    #             if gud['Service Name'] == program_name:
-    #                 if container_service_name.endswith("_Front"):
-    #                     gud['Containers'][0]['State'] = currentStatus
-    #                 elif container_service_name.endswith("_Back"):
-    #                     gud['Containers'][1]['State'] = currentStatus
-    #                 elif container_service_name.endswith("_Db"):
-    #                     gud['Containers'][2]['State'] = currentStatus
-            
-    #     # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
-    #     with open(data_file_path, 'w', encoding='utf-8') as fp:
-    #         json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
-        
-    # print('Run/Pause currentStatus', currentStatus)
-
+        ssh.close()
+        return make_response('', 204)
+    
     return currentStatus # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
 ######################################################################################################################################
 # kubectl delete namespace <$usrname>
 # delete : DELETE /services/{service-name}
-@app.route('/services/<string:service_name>', methods=['POST', 'GET'])
+@app.route('/services/<string:service_name>', methods=['DELETE'])
 def deleteService(service_name): #test #test_Front #run
-    user_email = oauth2.email
     program_name = service_name
 
     setUser = 'opc'          
@@ -418,21 +408,24 @@ def deleteService(service_name): #test #test_Front #run
 
     # 'delete' 동작 명령어 실행 ---------------------------------------------------------------------------------------
     # delete 명령어 실행 후, json 파일에서 삭제함.
-    # ssh.exec_command('kubectl delete namespace ' + namespace)
+    ssh.exec_command('kubectl delete namespace ' + namespace)
     
-    getUserData = user_data[user_email]
-
-    for element in getUserData:
-        if element['Service Name'] == program_name:
-            user_data.remove(element)
-    
+    # service-name 과 서비스명 같은 것 비교해서 JSON 파일에서 삭제
+    for email, data_list in user_data.items():
+        new_data_list = []
+        for element in data_list:
+            if element['Service Name'] != program_name:
+                new_data_list.append(element)
+        user_data[email] = new_data_list
+        print(new_data_list)
+        
     # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
     with open(data_file_path, 'w', encoding='utf-8') as fp:
         json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
     
-    print('After Delete : ', getContainerStatus(namespace))
+    #print('After Delete : ', getContainerStatus(namespace))
     print('return JSON Dumps : ', json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
-    ssh.close()
+    #ssh.close()
     return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
 # Kubectl get svc -n namespace -------------------------------------------------------------------------------------------------------
@@ -525,8 +518,8 @@ def upload_to_github(local_path):
         subprocess.call(['git', 'commit', '-m', commit_message], cwd=local_path, shell=True)
 
         # GitHub 원격 저장소로 푸시 / origin master 브랜치로 생성해야 push 됨 // 리포지토리 수정 필요!!!!!!!!!!!!!!!
-        subprocess.call(['git', 'push', 'https://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@github.com/teamnonstop/test_project.git'], cwd=local_path, shell=True)
-
+        subprocess.call(['git', 'push'], cwd=local_path, shell=True)
+#, 'https://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@github.com/teamnonstop/test_upload.git'
     except subprocess.CalledProcessError as e:
         print(f"Error occurred during Git commands: {e}")
         # 예외 처리
