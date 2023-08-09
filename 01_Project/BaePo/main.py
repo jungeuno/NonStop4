@@ -130,6 +130,7 @@ def containerDeploy_page():
         # 프론트/백/DB -> json 파일에 서비스명 + 컨테이너명(서비스명_Front/서비스면_Back/서비스명_DB) 설정
         # 'state' 컨테이너 status 값 파싱 & JSON 파일에 저장
         result_dict = getContainerStatus(user_email+':'+program_name)
+        getServiceIP = returnServicetIP(user_email+':'+program_name)
         for dict_name in result_dict:
             if 'frontend-deployment' in dict_name:
                 frontStatus.append(result_dict[dict_name])
@@ -172,13 +173,15 @@ def containerDeploy_page():
             user_data[oauth2.email].append({
                 'Service Name': program_name,
                 'Containers' : containers,
-                'Creating Date' : today_date
+                'Creating Date' : today_date,
+                'Service IP' : getServiceIP
             })
         else:
             user_data[oauth2.email] = [{
                 'Service Name': program_name,
                 'Containers' : containers,
-                'Creating Date' : today_date
+                'Creating Date' : today_date,
+                'Service IP' : getServiceIP
             }]
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
@@ -414,6 +417,43 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
     print('Run/Pause currentStatus', currentStatus)
 
     return (currentStatus, 204) # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+######################################################################################################################################
+# Kubectl get svc -n namespace -------------------------------------------------------------------------------------------------------
+# 배포 결과 - 서비스 IP 가져와서 프론트로 반환  
+def returnServicetIP(namespace):
+    setUser = 'opc'          
+    namespace = 'test' # 환경 변수
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
+
+    stdin, stdout, stderr = ssh.exec_command('kubectl get svc -n '+ namespace) # kubectl get deployment -n {$namespace}
+    output_lines = stdout.readlines()  
+    
+    result = "".join(output_lines)
+    print("=== Output ===")
+    print(result)
+    print("==============")
+
+    deployment_info = {}  # 딕셔너리로 저장할 변수
+
+    # 첫 번째 줄은 헤더이므로 무시하고, 두 번째 줄부터 파싱 시작
+    for line in output_lines[1:]:
+        line = line.strip()  # 줄바꿈 문자 제거
+        if not line:
+            continue  # 빈 줄은 무시
+
+        # 줄을 공백으로 분리하여 name과 status 정보 추출
+        columns = line.split()
+        if 'front' in columns[0]: 
+            status = columns[3]
+            break
+    # 딕셔너리에 name을 키로, status를 값으로 저장
+
+    ssh.close()
+
+    return status # NAME : STATUS 파싱한 딕셔너리 반환
 ######################################################################################################################################
 # 컨테이너 status 확인 (Running/Stop/Pending/error 등) / pip install paramiko
 def getContainerStatus(namespace):
