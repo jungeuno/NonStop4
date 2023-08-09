@@ -309,6 +309,9 @@ async function handleContainerRunButtonClick(event){ //container state stop -> r
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body : JSON.stringify(work),
   };
   try{
@@ -337,7 +340,10 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
   const url = BASE_URL + requestURI;
   const options = {
     method: "POST",
-    body : JSON.stringify(work)
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body : JSON.stringify(work),
   };
   try{
     const response=fetch(url,options);
