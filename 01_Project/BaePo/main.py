@@ -292,8 +292,8 @@ def containerEditDeploy_page(service_name):
         # state 수정해주어야 함.
         return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
-# 컨테이너 제어 작업 (stop) / pip install paramiko
-# run / pause / refresh / delete  버튼 
+# 컨테이너 제어 작업 / pip install paramiko
+# run / pause / refresh / delete 동작 버튼 
 # kubectl scale deployment <$container-name>-deployment --replicas=<$scale> -n <$namespace>
 # GET /services/{service-name}/container/state
 @app.route('/services/<string:service_name>/container/state/<string::container_service_name>/<string::button>', methods=['POST', 'GET'])
@@ -303,19 +303,12 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
 
     setUser = 'opc'          
     namespace = 'buttontest' # 환경 변수
-
+    
+    # 마스터노드 접속
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
 
-    getUserData = user_data[user_email]
-    # 컨테이너 status 값 파싱 - ssh
-    result_dict = getContainerStatus(user_email+':'+program_name)
-    print(result_dict.items())
-    currentStatus = []
-    locate = '' #frontend / backend / db
-    getContainerStateLoc = ''
-    
     if container_service_name.endswith("_Front"):
         locate = 'frontend'
         getContainerStateLoc = ['Containers'][0]['State']
@@ -326,6 +319,15 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
         locate = 'db'
         getContainerStateLoc = ['Containers'][2]['State']
 
+    getUserData = user_data[user_email]
+    # 컨테이너 status 값 파싱 - ssh
+    result_dict = getContainerStatus(user_email+':'+program_name)
+    print(result_dict.items())
+    currentStatus = []
+    locate = '' #frontend / backend / db
+    getContainerStateLoc = ''
+
+    # 'refresh' 버튼 동작 --------------------------------------------------------------------------------------
     if button == 'refresh':
         # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
         if container_name in result_dict.keys():
@@ -342,9 +344,41 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
         
         print('Refresh currentStatus', currentStatus)
         ssh.close()
-        return currentStatus
-    
-    # 'run' / 'pause' 버튼 동작
+        return currentStatus # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+    # 'delete' 버튼 동작 ---------------------------------------------------------------------------------------
+    # kubectl delete deployment front-deployment -n <$Username>
+    # kubectl delete service front-service -n <$Username>
+    # kubectl delete deployment back-deployment -n <$Username>
+    # kubectl delete service back-service -n <$Username>
+    # kubectl delete deployment sql-deployment -n <$Username>
+    # kubectl delete service sql-service -n <$Username>
+    # kubectl delete pv <$Username>-pv -n <$Username>
+    # kubectl delete pvc <$Username>-pvc -n <$Username>
+    elif button =='delete':
+        # delete 명령어 실행 후, json 파일에서 삭제함.
+        ssh.exec_command('kubectl delete deployment frontend-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete service frontend-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete deployment backend-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete service backend-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete deployment db-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete service db-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete pv ' + namespace + '-pv -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        ssh.exec_command('kubectl delete pvc ' + namespace + '-pvc -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+
+        for element in getUserData:
+            if element['Service Name'] == program_name:
+                user_data.remove(element)
+        
+        # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+        with open(data_file_path, 'w', encoding='utf-8') as fp:
+            json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
+        
+        print('Delete currentStatus', currentStatus)
+        print('After Delete : ', getContainerStatus(namespace))
+        print('return JSON Dumps : ', json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
+        ssh.close()
+        return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
+    # 'run' / 'pause' 버튼 동작 --------------------------------------------------------------------------------
     elif button == 'run':
         locate = ''
         scale = '2'
@@ -356,7 +390,7 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
     else:
         ssh.close()
         return 'Error : cannot find button'
-    # ssg 명령어 실행
+    # ssh 명령어 실행
     ssh.exec_command('kubectl scale deployment ' + locate +'-deployment --replicas='+ scale +' -n '+ namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
     result_dict = getContainerStatus(user_email+':'+program_name)
 
