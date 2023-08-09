@@ -8,7 +8,7 @@ import paramiko # pip install paramiko
 import datetime as dt
 
 app = Flask(__name__)
-
+app.config['JSON_AS_ASCII'] = False
 # 현재 경로
 BASE_DIR = os.getcwd()
 
@@ -296,11 +296,12 @@ def containerEditDeploy_page(service_name):
         return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
 # 컨테이너 제어 작업 / pip install paramiko
-# run / pause / refresh / delete 동작 버튼 
-# kubectl scale deployment <$container-name>-deployment --replicas=<$scale> -n <$namespace>
-# GET /services/{service-name}/container/state
-@app.route('/services/<string:service_name>/container/state/<string:container_service_name>/<string:button>', methods=['POST', 'GET'])
-def returnContainerStatus(service_name, container_service_name, button): #test #test_Front #run
+# run / pause / refresh  동작 버튼 
+# run : POST /services/{service-name}/containers/{container-name} + 'body에 run 문자열"
+# pause : POST /services/{service-name}/containers/{container-name} + 'body에 pause 문자열"
+# refresh : GET /services/{service-name}/containers/{container-name} 
+@app.route('/services/<string:service_name>/containers/<string:container_service_name>', methods=['POST', 'GET'])
+def returnContainerStatus(service_name, container_service_name): #test #test_Front #run
     user_email = oauth2.email
     program_name = service_name
 
@@ -312,35 +313,38 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
 
+    locate = '' # frontend / backend / db
+
     if container_service_name.endswith("_Front"):
-        locate = 'frontend'
-        getContainerStateLoc = ['Containers'][0]['State']
+        locate = 'front'
     elif container_service_name.endswith("_Back"):
-        locate = 'backend'
-        getContainerStateLoc = ['Containers'][1]['State']
+        locate = 'back'
     elif container_service_name.endswith("_Db"):
         locate = 'db'
-        getContainerStateLoc = ['Containers'][2]['State']
 
     getUserData = user_data[user_email]
     # 컨테이너 status 값 파싱 - ssh
     result_dict = getContainerStatus(user_email+':'+program_name)
     print(result_dict.items())
     currentStatus = []
-    locate = '' #frontend / backend / db
-    getContainerStateLoc = ''
 
     # 'refresh' 버튼 동작 --------------------------------------------------------------------------------------
-    if button == 'refresh':
+    if request.method == 'GET':  # delete
         # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
-        if container_name in result_dict.keys():
-            currentStatus.append(result_dict[container_name])
+        for getNameKey in result_dict.keys():
+            if locate in getNameKey:
+                getStatus = result_dict.get(getNameKey)
+                currentStatus.append(getStatus)
         # currentStatus 배열 JSON 파일에 갱신
-        for element in getUserData:
-            for container_name in result_dict:
-                if locate in container_name:
-                    element[getContainerStateLoc] = currentStatus
-        
+        for gud in getUserData:
+            if gud['Service Name'] == program_name:
+                if container_service_name.endswith("_Front"):
+                    gud['Containers'][0]['State'] = currentStatus
+                elif container_service_name.endswith("_Back"):
+                    gud['Containers'][1]['State'] = currentStatus
+                elif container_service_name.endswith("_Db"):
+                    gud['Containers'][2]['State'] = currentStatus
+    
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
             json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
@@ -348,81 +352,95 @@ def returnContainerStatus(service_name, container_service_name, button): #test #
         print('Refresh currentStatus', currentStatus)
         ssh.close()
         return currentStatus # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
-    # 'delete' 버튼 동작 ---------------------------------------------------------------------------------------
-    # kubectl delete deployment front-deployment -n <$Username>
-    # kubectl delete service front-service -n <$Username>
-    # kubectl delete deployment back-deployment -n <$Username>
-    # kubectl delete service back-service -n <$Username>
-    # kubectl delete deployment sql-deployment -n <$Username>
-    # kubectl delete service sql-service -n <$Username>
-    # kubectl delete pv <$Username>-pv -n <$Username>
-    # kubectl delete pvc <$Username>-pvc -n <$Username>
-    elif button =='delete':
-        # delete 명령어 실행 후, json 파일에서 삭제함.
-        ssh.exec_command('kubectl delete deployment frontend-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete service frontend-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete deployment backend-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete service backend-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete deployment db-deployment -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete service db-service -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete pv ' + namespace + '-pv -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-        ssh.exec_command('kubectl delete pvc ' + namespace + '-pvc -n ' + namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-
-        for element in getUserData:
-            if element['Service Name'] == program_name:
-                user_data.remove(element)
-        
-        # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
-        with open(data_file_path, 'w', encoding='utf-8') as fp:
-            json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
-        
-        print('Delete currentStatus', currentStatus)
-        print('After Delete : ', getContainerStatus(namespace))
-        print('return JSON Dumps : ', json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
-        ssh.close()
-        return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
     # 'run' / 'pause' 버튼 동작 --------------------------------------------------------------------------------
-    elif button == 'run':
-        locate = ''
-        scale = '2'
-        if locate == 'db':
-            scale = '1'
-    elif button == 'pause':
-        locate = ''
-        scale = '0'
-    else:
-        ssh.close()
-        return 'Error : cannot find button'
-    # ssh 명령어 실행
-    ssh.exec_command('kubectl scale deployment ' + locate +'-deployment --replicas='+ scale +' -n '+ namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
-    result_dict = getContainerStatus(user_email+':'+program_name)
+    elif request.method == 'POST':  # run /pause
+        getButton = request.get_json()
+        button = getButton['work']
 
-    if button == 'run':
-        if result_dict == {}:
-            currentStatus.append(['Stop'])
-    elif button == 'pause':
-        # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
-        if container_name in result_dict.keys():
-            currentStatus.append(result_dict[container_name])
-        # currentStatus 배열 JSON 파일에 갱신
-        for element in getUserData:
-            for container_name in result_dict:
-                if locate in container_name:
-                    element[getContainerStateLoc] = currentStatus
+        if button == 'run':
+            scale = '2'
+            if locate == 'db':
+                scale = '1'
+        elif button == 'pause':
+            scale = '0'
+        else:
+            ssh.close()
+            return 'Error : cannot find button'
+        # ssh 명령어 실행
+        ssh.exec_command('kubectl scale deployment ' + locate +'-deployment --replicas='+ scale +' -n '+ namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+        result_dict = getContainerStatus(user_email+':'+program_name)
+
+    #     if button == 'run':
+    #         if result_dict == {}:
+    #             currentStatus.append(['Stop']) ############ pause 상태임
+    #     elif button == 'pause':
+    #         # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
+    #         # for getNameKey in result_dict.keys():
+    #         #     for gnk in getNameKey:
+    #         #         if locate in gnk:
+    #         #             currentStatus.append(result_dict[gnk])
+    #         for getNameKey in result_dict.keys():
+    #             if locate in getNameKey:
+    #                 getStatus = result_dict.get(getNameKey)
+    #                 currentStatus.append(getStatus)
+    #         # currentStatus 배열 JSON 파일에 갱신
+    #         for gud in getUserData:
+    #             if gud['Service Name'] == program_name:
+    #                 if container_service_name.endswith("_Front"):
+    #                     gud['Containers'][0]['State'] = currentStatus
+    #                 elif container_service_name.endswith("_Back"):
+    #                     gud['Containers'][1]['State'] = currentStatus
+    #                 elif container_service_name.endswith("_Db"):
+    #                     gud['Containers'][2]['State'] = currentStatus
+            
+    #     # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+    #     with open(data_file_path, 'w', encoding='utf-8') as fp:
+    #         json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
         
+    # print('Run/Pause currentStatus', currentStatus)
+
+    return currentStatus # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+######################################################################################################################################
+# kubectl delete namespace <$usrname>
+# delete : DELETE /services/{service-name}
+@app.route('/services/<string:service_name>', methods=['POST', 'GET'])
+def deleteService(service_name): #test #test_Front #run
+    user_email = oauth2.email
+    program_name = service_name
+
+    setUser = 'opc'          
+    namespace = 'buttontest' # 환경 변수
+
+    # 마스터노드 접속
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
+
+    # 'delete' 동작 명령어 실행 ---------------------------------------------------------------------------------------
+    # delete 명령어 실행 후, json 파일에서 삭제함.
+    # ssh.exec_command('kubectl delete namespace ' + namespace)
+    
+    getUserData = user_data[user_email]
+
+    for element in getUserData:
+        if element['Service Name'] == program_name:
+            user_data.remove(element)
+    
     # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
     with open(data_file_path, 'w', encoding='utf-8') as fp:
         json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
-        
-    print('Run/Pause currentStatus', currentStatus)
-
-    return (currentStatus, 204) # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+    
+    print('After Delete : ', getContainerStatus(namespace))
+    print('return JSON Dumps : ', json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False))
+    ssh.close()
+    return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
 # Kubectl get svc -n namespace -------------------------------------------------------------------------------------------------------
 # 배포 결과 - 서비스 IP 가져와서 프론트로 반환  
 def returnServicetIP(namespace):
     setUser = 'opc'          
     namespace = 'test' # 환경 변수
+    getIP = ''
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -436,8 +454,6 @@ def returnServicetIP(namespace):
     print(result)
     print("==============")
 
-    deployment_info = {}  # 딕셔너리로 저장할 변수
-
     # 첫 번째 줄은 헤더이므로 무시하고, 두 번째 줄부터 파싱 시작
     for line in output_lines[1:]:
         line = line.strip()  # 줄바꿈 문자 제거
@@ -447,13 +463,13 @@ def returnServicetIP(namespace):
         # 줄을 공백으로 분리하여 name과 status 정보 추출
         columns = line.split()
         if 'front' in columns[0]: 
-            status = columns[3]
+            getIP = columns[3]
             break
     # 딕셔너리에 name을 키로, status를 값으로 저장
 
     ssh.close()
 
-    return status # NAME : STATUS 파싱한 딕셔너리 반환
+    return getIP # NAME : STATUS 파싱한 딕셔너리 반환
 ######################################################################################################################################
 # 컨테이너 status 확인 (Running/Stop/Pending/error 등) / pip install paramiko
 def getContainerStatus(namespace):
