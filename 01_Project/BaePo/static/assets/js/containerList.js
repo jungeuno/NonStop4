@@ -279,6 +279,7 @@ function printContainerList(containerList){
   //console.log("printContainerList Func Starts...");
   const card=document.querySelector("div.content>div.row>div.col-md-12>div#card");
 
+  //container Element card를 담는 틀 만들기
   const cardBodyDiv=document.createElement("div");
   cardBodyDiv.classList.add(CARD_BODY_CLASS);
   cardBodyDiv.id="containerListCard";
@@ -287,7 +288,7 @@ function printContainerList(containerList){
   const cardGroupDiv=document.createElement("div");
   cardGroupDiv.classList.add(CARD_GROUP_CLASS,COL_12_CLASS);
 
-  card.appendChild(cardBodyDiv);
+  //틀에 요소 붙이기
   for (let i = 0; i < containerList.length; i++) {
     let container=makeContainerElement(containerList[i]);
     cardGroupDiv.appendChild(container);
