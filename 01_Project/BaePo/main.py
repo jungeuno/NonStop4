@@ -120,7 +120,7 @@ def containerDeploy_page():
         
         # json 데이터 초기화
         containers = []
-        envx = [0]*16
+        envx = [0]*17
         front = {}
         back = {}
         db = {}
@@ -213,10 +213,10 @@ def containerDeploy_page():
                 f.write(username_txt)
             os.remove(file_path)  # .zip 파일 삭제
                     
-        # #     # GitHub에 업로드
-        # #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
-        # # else:
-        # #     return '.zip 파일을 업로드 해주세요.'
+        #     # GitHub에 업로드
+        #     # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
+        # else:
+        #     return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
         return render_template('containerList.html')
@@ -225,6 +225,7 @@ def containerDeploy_page():
         return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
     return 'Fail'
 ######################################################################################################################################
+# 업데이트 & 수정
 # @app.route('/editDeploy.html')
 @app.route('/services/<string:service_name>', methods=['POST', 'GET'])
 def containerEditDeploy_page(service_name):
@@ -233,9 +234,9 @@ def containerEditDeploy_page(service_name):
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
         program_name = service_name                      # 사용자가 배포하는 프로그램명 받기
 
-        # # 해당 사용자의 컨테이너 리스트 데이터 가져오기
+        # 해당 사용자의 컨테이너 리스트 데이터 가져오기
         getUserData = user_data[oauth2.email]
-        # # 컨테이너 status 값 파싱
+        # 컨테이너 status 값 파싱
         result_dict = getContainerStatus(user_email+':'+program_name)
         print(result_dict.items())
         frontStatus = []
@@ -251,7 +252,6 @@ def containerEditDeploy_page(service_name):
         for element in getUserData:
             if element["Service Name"] == service_name:
                 element["Update"] = today_date
-                
                 for container_name in result_dict:
                     if 'frontend-deployment' in container_name:
                         element['Containers'][0]['State'] = frontStatus
@@ -292,6 +292,95 @@ def containerEditDeploy_page(service_name):
         # state 수정해주어야 함.
         return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
 ######################################################################################################################################
+# 컨테이너 제어 작업 (stop) / pip install paramiko
+# run / pause / refresh / delete  버튼 
+# kubectl scale deployment <$container-name>-deployment --replicas=<$scale> -n <$namespace>
+# GET /services/{service-name}/container/state
+@app.route('/services/<string:service_name>/container/state/<string::container_service_name>/<string::button>', methods=['POST', 'GET'])
+def returnContainerStatus(service_name, container_service_name, button): #test #test_Front #run
+    user_email = oauth2.email
+    program_name = service_name
+
+    setUser = 'opc'          
+    namespace = 'buttontest' # 환경 변수
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
+
+    getUserData = user_data[user_email]
+    # 컨테이너 status 값 파싱 - ssh
+    result_dict = getContainerStatus(user_email+':'+program_name)
+    print(result_dict.items())
+    currentStatus = []
+    locate = '' #frontend / backend / db
+    getContainerStateLoc = ''
+    
+    if container_service_name.endswith("_Front"):
+        locate = 'frontend'
+        getContainerStateLoc = ['Containers'][0]['State']
+    elif container_service_name.endswith("_Back"):
+        locate = 'backend'
+        getContainerStateLoc = ['Containers'][1]['State']
+    elif container_service_name.endswith("_Db"):
+        locate = 'db'
+        getContainerStateLoc = ['Containers'][2]['State']
+
+    if button == 'refresh':
+        # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
+        if container_name in result_dict.keys():
+            currentStatus.append(result_dict[container_name])
+        # currentStatus 배열 JSON 파일에 갱신
+        for element in getUserData:
+            for container_name in result_dict:
+                if locate in container_name:
+                    element[getContainerStateLoc] = currentStatus
+        
+        # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+        with open(data_file_path, 'w', encoding='utf-8') as fp:
+            json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
+        
+        print('Refresh currentStatus', currentStatus)
+        ssh.close()
+        return currentStatus
+    
+    # 'run' / 'pause' 버튼 동작
+    elif button == 'run':
+        locate = ''
+        scale = '2'
+        if locate == 'db':
+            scale = '1'
+    elif button == 'pause':
+        locate = ''
+        scale = '0'
+    else:
+        ssh.close()
+        return 'Error : cannot find button'
+    # ssg 명령어 실행
+    ssh.exec_command('kubectl scale deployment ' + locate +'-deployment --replicas='+ scale +' -n '+ namespace) # kubectl scale deployment front-deployment --replocas -n {$namespace}
+    result_dict = getContainerStatus(user_email+':'+program_name)
+
+    if button == 'run':
+        if result_dict == {}:
+            currentStatus.append(['Stop'])
+    elif button == 'pause':
+        # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
+        if container_name in result_dict.keys():
+            currentStatus.append(result_dict[container_name])
+        # currentStatus 배열 JSON 파일에 갱신
+        for element in getUserData:
+            for container_name in result_dict:
+                if locate in container_name:
+                    element[getContainerStateLoc] = currentStatus
+        
+    # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
+    with open(data_file_path, 'w', encoding='utf-8') as fp:
+        json.dump(user_data, fp, sort_keys=True, indent=4, ensure_ascii=False)
+        
+    print('Run/Pause currentStatus', currentStatus)
+
+    return (currentStatus, 204) # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
+######################################################################################################################################
 # 컨테이너 status 확인 (Running/Stop/Pending/error 등) / pip install paramiko
 def getContainerStatus(namespace):
     setUser = 'opc'          
@@ -327,37 +416,7 @@ def getContainerStatus(namespace):
 
     ssh.close()
 
-    return deployment_info # 딕셔너리 반환
-######################################################################################################################################
-# 컨테이너 제어 작업 (stop/restart/delete) / pip install paramiko
-# @app.route('/controls', methods=['POST', 'GET'])
-# def control_containers():
-#     ssh = paramiko.SSHClient()
-#     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#     ssh.connect('150.136.87.94', port='22', username='opc', key_filename='C:\Users\OWNER\my-key\master-06-26.key')
-
-#     stdin, stdout, stderr = ssh.exec_command('kubectl get pod -n test')
-#     print(''.join(stdout.readlines()))
-
-#     ssh.close()
-
-# stop 버튼
-# kubectl scale deployment front-deployment --replicas=0 -n <$Username>
-# kubectl scale deployment back-deployment --replicas=0 -n <$Username>
-# kubectl scale deployment db-deployment --replicas=0 -n <$Username>
-# restart 버튼
-# kubectl scale deployment front-deployment --replicas=2 -n <$Username>
-# kubectl scale deployment back-deployment --replicas=2 -n <$Username>
-# kubectl scale deployment db-deployment --replicas=2 -n <$Username>
-# delete 버튼
-# kubectl delete deployment front-deployment -n <$Username>
-# kubectl delete service front-service -n <$Username>
-# kubectl delete deployment back-deployment -n <$Username>
-# kubectl delete service back-service -n <$Username>
-# kubectl delete deployment db-deployment -n <$Username>
-# kubectl delete service db-service -n <$Username>
-# kubectl delete pv <$Username>-pv -n <$Username>
-# kubectl delete pvc <$Username>-pvc -n <$Username>
+    return deployment_info # NAME : STATUS 파싱한 딕셔너리 반환
 ######################################################################################################################################
 # 파일 업로드 & Git Push 자동화
 # 해당 폴더에서 미리 userSource 폴더 안에서 [1. git init] [2. git remote add origin <깃허브주소링크>] 셋팅해주어야 함.
