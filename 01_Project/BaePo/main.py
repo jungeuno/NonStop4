@@ -115,8 +115,8 @@ def containerDeploy_page():
         file = request.files['uploadFile_name']          # 업로드되는 파일 받기
         program_name = request.form['service_name']      # 사용자가 배포하는 프로그램명 받기
         front_env = request.form.getlist('frontEnv')     # 선택된 개발 환경 리스트 받기
-        db_env = request.form.getlist('dbEnv')         # 선택된 개발 환경 리스트 받기
-        back_env = request.form.getlist('backEnv')         # 선택된 개발 환경 리스트 받기
+        db_env = request.form.getlist('dbEnv')           # 선택된 개발 환경 리스트 받기
+        back_env = request.form.getlist('backEnv')       # 선택된 개발 환경 리스트 받기
         
         user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
         user_name = user_email.replace('@', '').replace('.', '')
@@ -124,7 +124,7 @@ def containerDeploy_page():
 
         # json 데이터 초기화
         containers = []
-        envx = [0]*17
+        envx = [0]*16
         front = {}
         back = {}
         db = {}
@@ -223,10 +223,10 @@ def containerDeploy_page():
                 f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
                     
-            # GitHub에 업로드
-            upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
-        else:
-            return '.zip 파일을 업로드 해주세요.'
+        #     # GitHub에 업로드
+        #     upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
+        # else:
+        #     return '.zip 파일을 업로드 해주세요.'
 
         return render_template('containerList.html')
     elif request.method == 'GET':
@@ -252,7 +252,7 @@ def containerEditDeploy_page(service_name):
         # 컨테이너 status 값 파싱
         result_dict = getContainerStatus(namespace)
         print(result_dict.items())
-        envx = [0]*17
+        envxa = [0]*16
         frontStatus = []
         backStatuse = []
         dbStatus = []
@@ -269,23 +269,23 @@ def containerEditDeploy_page(service_name):
                 for container_name in result_dict:
                     if 'frontend-deployment' in container_name:
                         element['Containers'][0]['state'] = frontStatus
-                        front_env = element['Containers'][0]['env']
+                        front_enva = element['Containers'][0]['env']
                     elif 'backend-deployment' in container_name:
                         element['Containers'][1]['state'] = backStatuse
-                        back_env = element['Containers'][0]['env']
+                        back_enva = element['Containers'][0]['env']
                     elif 'db-deployment' in container_name:
                         element['Containers'][2]['state'] = dbStatus
-                        db_env = element['Containers'][0]['env']
-        for fe in front_env:
+                        db_enva = element['Containers'][0]['env']
+        for fe in front_enva:
             fe = int(fe)
-            envx[fe] = 1
-        for de in db_env:
+            envxa[fe] = 1
+        for de in db_enva:
             de = int(de)    
-            envx[de] = 1
-        for be in back_env:
+            envxa[de] = 1
+        for be in back_enva:
             be = int(be)        
-            envx[be] = 1
-        print('envx', envx)
+            envxa[be] = 1
+        print('envx', envxa)
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
@@ -310,7 +310,7 @@ def containerEditDeploy_page(service_name):
                 zip_ref.extractall(unzip_folder_path)
             # 체크한 개발 환경 기반으로 env_txt 파일 생성
             env_txt = ''
-            for e in envx:
+            for e in envxa:
                 env_txt += str(e)
             # 체크한 개발 환경 기반으로 env_txt 파일 저장
             env_txt_file_path = os.path.join(unzip_folder_path, program_name,'env.txt')
@@ -321,8 +321,10 @@ def containerEditDeploy_page(service_name):
             with open(username_txt_file_path, 'w', encoding='utf-8') as f:
                 f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
-        else:
-            return '.zip 파일을 업로드 해주세요.'
+        #     # GitHub에 업로드
+        #     upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
+        # else:
+        #     return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
         return make_response('', 204)
@@ -430,11 +432,18 @@ def deleteService(service_name): #test #test_Front #run
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect('150.136.87.94', port = '22', username = setUser, key_filename = './master-06-26.key')
-
     # 'delete' 동작 명령어 실행 ---------------------------------------------------------------------------------------
     # delete 명령어 실행 후, json 파일에서 삭제함.
     ssh.exec_command('kubectl delete namespace ' + namespace)
-    
+    ssh.exec_command('kubectl delete pv '  + namespace + '-pv')
+    ssh.close()
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('129.213.121.220', port = '22', username = setUser, key_filename = './master-06-26.key')
+    ssh.exec_command('rm -r /nfs-share/' + namespace)
+    ssh.close()
+
     # service-name 과 서비스명 같은 것 비교해서 JSON 파일에서 삭제
     for email, data_list in user_data.items():
         new_data_list = []
@@ -547,6 +556,6 @@ def upload_to_github(local_path):
         print(f"Error occurred during Git commands: {e}")
         # 예외 처리
 ######################################################################################################################################
-
+#start_test
 if __name__ == '__main__':
     app.run(port="8080", debug=True)
