@@ -177,10 +177,22 @@
 
           <!-- AVG CPU Processes -->
           <div class="row">
+            <!--for test
             <div class="col-lg-6">
-              <div class="card card-chart" id="avgCPU">
+              <div class="card card-chart" id="requestDurationPercentiles">
                 <div class="card-header">
-                  <h3 class="card-title">AVG CPU</h3>
+                  <h3 class="card-title"></h3>
+                </div>
+                <div class="card-body">
+                  <iframe src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=test&var-Deployment=All&from=1691682417665&to=1691683317665&panelId=46" width="450" height="200" frameborder="0"></iframe>
+                </div>
+              </div>
+            </div>
+            -->
+            <div class="col-lg-6">
+              <div class="card card-chart" id="requestDurationPercentiles">
+                <div class="card-header">
+                  <h3 class="card-title">Requeset Duration Percentles</h3>
                 </div>
                 <div class="card-body">
                   <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
@@ -189,9 +201,9 @@
             </div>
             <!-- AVG Memory Processes -->
             <div class="col-lg-6">
-              <div class="card card-chart" id="avgMemory">
+              <div class="card card-chart" id="requestPerMinutes">
                 <div class="card-header">
-                  <h3 class="card-title">AVG Memory</h3>
+                  <h3 class="card-title">Request Per Minutes</h3>
                 </div>
                 <div class="card-body">
                   <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
@@ -199,12 +211,22 @@
               </div>
             </div>
           </div>
-            <!-- AVG Network Processes -->
+          <!-- AVG Network Processes -->
           <div class="row">
             <div class="col-lg-6">
-              <div class="card card-chart" id="avgNetwork">
+              <div class="card card-chart" id="cpuUsage">
                 <div class="card-header">
-                  <h3 class="card-title">AVG Network</h3>
+                  <h3 class="card-title">CPU Usage</h3>
+                </div>
+                <div class="card-body">
+                  <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card card-chart" id="memoryUsage">
+                <div class="card-header">
+                  <h3 class="card-title">Memory Usage</h3>
                 </div>
                 <div class="card-body">
                   <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
