@@ -378,8 +378,8 @@ async function handleContainerRefreshButtonClick(event){ //container state stop 
       states.forEach((state)=>resultState=state);
       
       const stateBadge=cardDiv.querySelector("div.card-header span.state-badge");
-      stateBadge.classList.toggle(BADGE_INFO_CLASS,resultState==="run");
-      stateBadge.classList.toggle(BADGE_DANGER_CLASS,resultState!=="run");
+      stateBadge.classList.toggle(BADGE_INFO_CLASS,resultState==="Running");
+      stateBadge.classList.toggle(BADGE_DANGER_CLASS,resultState!=="Running");
     } else {
       console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
     }
@@ -447,7 +447,7 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   containerPauseButton.addEventListener("click",handleContainerPauseButtonClick);
   containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
-  if(containerInfo[CONTAINER_KEY_STATE]==="run"){
+  if(containerInfo[CONTAINER_KEY_STATE]==="Running"){
     badgeSpan.classList.add(BADGE_INFO_CLASS);
     containerRunButton.classList.add(DISABLED_CLASS);
   }else{
