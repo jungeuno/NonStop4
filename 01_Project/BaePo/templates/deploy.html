@@ -90,7 +90,7 @@
                     class="dropdown-toggle nav-link"
                     data-toggle="dropdown"
                   >
-                    <p id="userEmail">{{useremail}}</p>
+                    <p id="userEmail"></p>
                     <div class="photo">
                       <img
                         src="../static/assets/img/user.png"
@@ -106,7 +106,7 @@
                       >
                     </li>
                     <li class="nav-link">
-                      <a href="#" class="nav-item dropdown-item">Guide</a>
+                      <!-- <a href="#" class="nav-item dropdown-item">Guide</a> -->
                     </li>
                     <li class="dropdown-divider"></li>
                     <li class="nav-link">
@@ -126,6 +126,116 @@
         </nav>
         <!-- End Navbar -->
 
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+<!-- 서비스명 요구사항 모달창 구현  -->
+<div
+  class="modal fade"
+  id="serviceNameRuleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="serviceNameRuleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="serviceNameRuleModalLabel">
+          <strong>※ 서비스 파일 업로드 시 요구사항 ※</strong>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <li>
+          서비스 이름에 특수기호(!,@,#,$,%,^,&,*,-,_ ,,,)를 포함할 수 없습니다.</br>
+        </li>
+      </div>
+      <div class="modal-footer">
+        <div class="text-center text-danger font-weight-bold">위 요구사항이 지켜지지 않을 시, 서비스 배포가 불가능합니다.</div>  
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 파일 업로드 요구사항 모달창 구현  -->
+<div
+  class="modal fade"
+  id="fileUploadRuleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="fileUploadRuleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="fileUploadRuleModalLabel">
+          <strong>※ 서비스 파일 업로드 시 요구사항 ※</strong>
+        </h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body">
+            <li>
+              서비스 이름과 서비스 파일 이름을 일치시켜 주세요.</br>
+              &nbsp&nbsp&nbsp&nbsp[예, 서비스 이름 : BaePo / 서비스 파일 이름 : BaePo.zip]
+            </li>
+            <li>
+              디렉토리 폴더명을 <strong>'frontend'</strong>, <strong>'backend'</strong>, <strong>'db'</strong>로 프론트, 백, 데이터베이스 파일들을 각각 구분해 주세요.
+            </li>
+            <li>
+              <strong>'frontend'</strong>, <strong>'backend'</strong>, <strong>'db'</strong> 각 디렉토리 안에 파일명이 '<strong>dockerfile</strong>'인 도커 파일을 위치시켜 주세요.
+            </li>  
+            <li>
+              백엔드 서비스는 <strong>5000번 포트</strong>를 사용하고, 이름은 <strong>'api'</strong>로 정의하여 사용해 주세요.
+            </li>
+            <li>
+              데이터베이스 개발 환경으로 <strong>MYSQL</strong>을 사용한 경우,
+              <p><code>
+        &nbsp&nbsp MYSQL_ROOT_PASSWORD: "123456"<br/>
+        &nbsp&nbsp MYSQL_DATABASE: "loginapp"<br/>
+        &nbsp&nbsp MYSQL_USER: "user1"<br/>
+        &nbsp&nbsp MYSQL_PASSWORD: "123456"<br/>
+              </code></p>
+              위와 같은 형식으로 작성하세요.
+              파일 이름은 <strong>'dbenv.txt'</strong>로 <strong>db</strong> 디렉토리 안에 위치시켜 주세요.
+            </li>
+        </div>
+      <div class="modal-footer">
+        <div class="text-center text-danger font-weight-bold">위 요구사항이 지켜지지 않을 시, 서비스 배포가 불가능합니다.</div>   
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+
         <!-- 입력 폼-->
         <div class="content">
           <div class="row">
@@ -143,7 +253,14 @@
                   <div class="card-body">
                     <div class="form-row">
                       <div class="form-group col-12">
-                        <h5 class="mt-4 my-2">서비스 이름</h5>
+                        <h5 class="mt-4 my-2">
+                          서비스 이름
+                          <i
+                            class="fas fa-info-circle text-primary ml-2"
+                            style="cursor: pointer"
+                            onclick="serviceNameRuleModal()"
+                          ></i>
+                        </h5>
                         <input
                           type="text"
                           class="form-control"
@@ -156,7 +273,14 @@
                     </div>
                     <div class="form-row">
                       <div class="form-group">
-                        <h5 class="mt-4 my-2">서비스 파일 업로드</h5>
+                        <h5 class="mt-4 my-2">
+                          서비스 파일 업로드
+                          <i
+                            class="fas fa-info-circle text-primary ml-2"
+                            style="cursor: pointer"
+                            onclick="fileUploadRuleModal()"
+                          ></i>
+                        </h5>
                         <small id="devEnvHelp" class="form-text text-muted"
                           >프론트, 백, 데이터베이스 파일을 하나의 zip파일로
                           압축해서 올려주세요</small
