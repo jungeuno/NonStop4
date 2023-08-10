@@ -142,9 +142,9 @@ def containerDeploy_page():
                 backStatuse.append(result_dict[dict_name])
             elif 'db-deployment' in dict_name:
                 dbStatus.append(result_dict[dict_name])
-        front['State'] = frontStatus
-        back['State'] = backStatuse
-        db['State'] = dbStatus
+        front['state'] = frontStatus
+        back['state'] = backStatuse
+        db['state'] = dbStatus
         # 'name'
         if front_env is not None:
                 front['name'] = program_name+'_Front'
@@ -228,7 +228,6 @@ def containerDeploy_page():
         else:
             return '.zip 파일을 업로드 해주세요.'
 
-        # 응답으로 JSON 형식의 데이터 반환
         return render_template('containerList.html')
     elif request.method == 'GET':
         # state 수정해주어야 함.
@@ -253,6 +252,7 @@ def containerEditDeploy_page(service_name):
         # 컨테이너 status 값 파싱
         result_dict = getContainerStatus(namespace)
         print(result_dict.items())
+        envx = [0]*17
         frontStatus = []
         backStatuse = []
         dbStatus = []
@@ -268,11 +268,24 @@ def containerEditDeploy_page(service_name):
                 element["Update"] = today_date
                 for container_name in result_dict:
                     if 'frontend-deployment' in container_name:
-                        element['Containers'][0]['State'] = frontStatus
+                        element['Containers'][0]['state'] = frontStatus
+                        front_env = element['Containers'][0]['env']
                     elif 'backend-deployment' in container_name:
-                        element['Containers'][1]['State'] = backStatuse
+                        element['Containers'][1]['state'] = backStatuse
+                        back_env = element['Containers'][0]['env']
                     elif 'db-deployment' in container_name:
-                        element['Containers'][2]['State'] = dbStatus
+                        element['Containers'][2]['state'] = dbStatus
+                        db_env = element['Containers'][0]['env']
+        for fe in front_env:
+            fe = int(fe)
+            envx[fe] = 1
+        for de in db_env:
+            de = int(de)    
+            envx[de] = 1
+        for be in back_env:
+            be = int(be)        
+            envx[be] = 1
+        print('envx', envx)
 
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
@@ -283,7 +296,7 @@ def containerEditDeploy_page(service_name):
         user_name = user_email.replace('@', '').replace('.', '')
 
         # BASE 경로 -> {현재 실행되는 path}/userSource/{user_email}
-        folder_path = os.path.join(BASE_DIR, 'userSource', user_name)
+        folder_path = os.path.join(BASE_DIR, 'test_upload', user_name)
         os.makedirs(folder_path, exist_ok=True)
         
         # 저장할 파일의 경로 설정 -> 위의 BASE 경로에서 사용자 별로 배포한 프로그램명 단위로 파일 저장 -> {현재 실행되는 path}/userSource/{user_email}/{program_name}/{본래의 폴더명}
@@ -295,10 +308,19 @@ def containerEditDeploy_page(service_name):
             unzip_folder_path = os.path.splitext(file_path)[0]  # .zip 확장자 제외한 경로
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 zip_ref.extractall(unzip_folder_path)
+            # 체크한 개발 환경 기반으로 env_txt 파일 생성
+            env_txt = ''
+            for e in envx:
+                env_txt += str(e)
+            # 체크한 개발 환경 기반으로 env_txt 파일 저장
+            env_txt_file_path = os.path.join(unzip_folder_path, program_name,'env.txt')
+            with open(env_txt_file_path, 'w') as f:
+                f.write(env_txt)
+            # username.txt 파일 생성 및 저장
+            username_txt_file_path = os.path.join(os.path.join(BASE_DIR, 'test_upload'), 'username.txt')
+            with open(username_txt_file_path, 'w', encoding='utf-8') as f:
+                f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
-                    
-            # GitHub에 업로드
-            # upload_to_github(os.path.join(BASE_DIR, 'userSource'))
         else:
             return '.zip 파일을 업로드 해주세요.'
 
@@ -354,11 +376,11 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
         for gud in getUserData:
             if gud['Service Name'] == program_name:
                 if container_service_name.endswith("_Front"):
-                    gud['Containers'][0]['State'] = currentStatus
+                    gud['Containers'][0]['state'] = currentStatus
                 elif container_service_name.endswith("_Back"):
-                    gud['Containers'][1]['State'] = currentStatus
+                    gud['Containers'][1]['state'] = currentStatus
                 elif container_service_name.endswith("_Db"):
-                    gud['Containers'][2]['State'] = currentStatus
+                    gud['Containers'][2]['state'] = currentStatus
     
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
@@ -396,10 +418,13 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
 # delete : DELETE /services/{service-name}
 @app.route('/services/<string:service_name>', methods=['DELETE'])
 def deleteService(service_name): #test #test_Front #run
+    user_email = oauth2.email
     program_name = service_name
-
-    setUser = 'opc'          
-    namespace = 'buttontest' # 환경 변수
+    
+    user_name = ""              # 사용자 명 파싱하기 - 이메일 값에서 특수문자 제외
+    user_name = user_email.replace('@', '').replace('.', '')
+    namespace = user_name+'-'+program_name
+    setUser = 'opc'  
 
     # 마스터노드 접속
     ssh = paramiko.SSHClient()
@@ -432,7 +457,6 @@ def deleteService(service_name): #test #test_Front #run
 # 배포 결과 - 서비스 IP 가져와서 프론트로 반환  
 def returnServicetIP(namespace):
     setUser = 'opc'          
-    namespace = 'test' # 환경 변수
     getIP = ''
 
     ssh = paramiko.SSHClient()
@@ -467,7 +491,6 @@ def returnServicetIP(namespace):
 # 컨테이너 status 확인 (Running/Stop/Pending/error 등) / pip install paramiko
 def getContainerStatus(namespace):
     setUser = 'opc'          
-    namespace = 'buttontest' # 환경 변수
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
