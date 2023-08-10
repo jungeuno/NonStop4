@@ -113,8 +113,8 @@ function startHtml(){
   //console.log(underbarIndex);
   let deploymentName=containerName.slice(underbarIndex+1).toLowerCase();
   deploymentName=(deploymentName.length>2)?deploymentName+"end":deploymentName; 
-  deploymentName+="-deployment";
-  //console.log(deploymentName);
+  deploymentName=deploymentName+"-deployment";
+  console.log(deploymentName);
 
   const iframeSrcStringObj={
     "requestDurationPercentiles":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680244817&to=1691681144817&panelId=46`,
