@@ -125,6 +125,7 @@ function startHtml(){
   Object.keys(iframeSrcStringObj).forEach((key)=>{
     const target=document.querySelector(`div.card#${key} iframe`);
     target.src=iframeSrcStringObj[key]
+    //푸시용 주석
   });
 
   const logoutButton=document.querySelector("#logoutButton");
