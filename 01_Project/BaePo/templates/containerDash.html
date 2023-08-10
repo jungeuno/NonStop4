@@ -140,14 +140,8 @@
 
                     <div class="col-lg-9">
                       <!-- 컨테이너명 받아오기 -->
-                      <h4 class="card-title">
+                      <h4 class="card-title" id="containerName">
                         <p>Container 1</p>
-                      </h4>
-                    </div>
-                    <!-- 톱니바퀴 클릭 효과 줘야함 ==> 배포관리 페이지로 이동 -->
-                    <div class="col-lg-2">
-                      <h4 class="card-title text-right">
-                        <i class="tim-icons icon-settings-gear-63"></i>
                       </h4>
                     </div>
                   </div>
@@ -156,171 +150,44 @@
             </div>
           </div>
 
-          <!-- CPU Processes -->
+          <!-- AVG CPU Processes -->
           <div class="row">
             <div class="col-lg-6">
-              <div class="card card-chart">
+              <div class="card card-chart" id="avgCPU">
                 <div class="card-header">
-                  <h3 class="card-title">CPU</h3>
+                  <h3 class="card-title">AVG CPU</h3>
                 </div>
                 <div class="card-body">
-                  <div class="chart-area">
-                    <!-- <canvas id="chartLinePurple"></canvas> -->
-                    <!-- 그래프 -->
-                  </div>
+                  <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
                 </div>
               </div>
             </div>
+            <!-- AVG Memory Processes -->
             <div class="col-lg-6">
-              <div class="card card-chart">
+              <div class="card card-chart" id="avgMemory">
                 <div class="card-header">
-                  <h3 class="card-title">Processes</h3>
+                  <h3 class="card-title">AVG Memory</h3>
                 </div>
                 <div class="card-body">
-                  <div class="chart-area">
-                    <!-- <canvas id="CountryChart"></canvas> -->
-                    <!-- 그래프 -->
-                  </div>
+                  <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Memory Loads -->
+            <!-- AVG Network Processes -->
           <div class="row">
             <div class="col-lg-6">
-              <div class="card card-chart">
+              <div class="card card-chart" id="avgNetwork">
                 <div class="card-header">
-                  <h3 class="card-title">Memory</h3>
+                  <h3 class="card-title">AVG Network</h3>
                 </div>
                 <div class="card-body">
-                  <div class="chart-area">
-                    <!-- <canvas id="chartLinePurple"></canvas> -->
-                    <!-- 그래프 -->
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="card card-chart">
-                <div class="card-header">
-                  <h3 class="card-title">Loads</h3>
-                </div>
-                <div class="card-body">
-                  <div class="chart-area">
-                    <!-- <canvas id="CountryChart"></canvas> -->
-                    <!-- 그래프 -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- 관리자 모니터링 - 로깅 -->
-          <div class="row">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header">
-                  <div class="row">
-                    <div class="col-lg-2">
-                      <h3 class="card-title">LOG</h3>
-                    </div>
-                    <div class="col-lg-8">
-                      <div class="form-group">
-                        <form action="/search/result" method="GET">
-                          <input
-                            type="text"
-                            id="searchWord"
-                            name="searchWord"
-                            class="form-control"
-                            placeholder="로그를 검색하세요"
-                          />
-                        </form>
-                      </div>
-                      <!--
-                      <form action="/search/result" method="GET">
-                        <input
-                          type="text"
-                          id="searchWord" name="searchWord"
-                          maxlength="50"
-                          size="60"
-                        />
-                      </form>-->
-                    </div>
-                    <!-- <input id="searchButton" type="image" src="" style="width:25px; height:25px;" alt="Submit Form"/> -->
-                    <div class="col-lg-2">
-                      <button
-                        class="btn btn-fab btn-icon btn-round btn-primary"
-                        onclick="demo.showNotification('bottom','right')"
-                      >
-                        <!-- onclick ==> 검색값 넘겨주기 -->
-                        <i class="tim-icons icon-zoom-split"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table tablesorter" id="">
-                      <!-- 인덱스  -->
-                      <thead class="text-primary">
-                        <tr>
-                          <th>일시</th>
-                          <th>메세지</th>
-                          <th>이슈</th>
-                          <!-- <th class="text-center">Salary</th> -->
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <!-- 로그값 받아오기 -->
-                          <td>Niger</td>
-                          <td>Oud-Turnhout</td>
-                          <td>$36,738</td>
-                        </tr>
-                        <tr>
-                          <td>Minerva Hooper</td>
-                          <td>Curaçao</td>
-                          <td>Sinaai-Waas</td>
-                          <td class="text-center">$23,789</td>
-                        </tr>
-                        <tr>
-                          <td>Sage Rodriguez</td>
-                          <td>Netherlands</td>
-                          <td>Baileux</td>
-                          <td class="text-center">$56,142</td>
-                        </tr>
-                        <tr>
-                          <td>Philip Chaney</td>
-                          <td>Korea, South</td>
-                          <td>Overland Park</td>
-                          <td class="text-center">$38,735</td>
-                        </tr>
-                        <tr>
-                          <td>Doris Greene</td>
-                          <td>Malawi</td>
-                          <td>Feldkirchen in Kärnten</td>
-                          <td class="text-center">$63,542</td>
-                        </tr>
-                        <tr>
-                          <td>Mason Porter</td>
-                          <td>Chile</td>
-                          <td>Gloucester</td>
-                          <td class="text-center">$78,615</td>
-                        </tr>
-                        <tr>
-                          <td>Jon Porter</td>
-                          <td>Portugal</td>
-                          <td>Gloucester</td>
-                          <td class="text-center">$98,615</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;"></iframe>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <!-- 여기까지 - 로깅 -->
       </div>
     </div>
     <!--   Core JS Files   -->

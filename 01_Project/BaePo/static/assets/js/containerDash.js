@@ -64,9 +64,9 @@ const BASE_URL=window.location.origin;
 /*=========================================================================================================================*/ 
 /* main function ==========================================================================================================*/ 
 /*=========================================================================================================================*/ 
-let userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
-let serviceName = localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
-let containerName = localStorage.getItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
+const userEmail = localStorage.getItem(LOCAL_STORAGE_KEY_USER_EMAIL);
+const serviceName = localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
+const containerName = localStorage.getItem(LOCAL_STORAGE_KEY_CONTAINER_NAME);
 
 
 window.TrackJS &&
@@ -96,8 +96,35 @@ async function loadData(){
 
 function startHtml(){
   loadData();
+  //console.log(serviceName);
+  //console.log(containerName);
+  //console.log(userEmail);
 
   document.querySelector("#userEmail").innerText=userEmail;
+
+  document.querySelector("h4.card-title#containerName>p").innerText=containerName;
+
+  let nameSpace=userEmail.replace("@","")
+  nameSpace=nameSpace.replace(/\./g,"");
+  nameSpace=nameSpace+"-"+serviceName;
+  //console.log(nameSpace);
+
+  const underbarIndex=containerName.indexOf("_")
+  //console.log(underbarIndex);
+  let deploymentName=containerName.slice(underbarIndex+1).toLowerCase();
+  deploymentName=(deploymentName.length>2)?deploymentName+"end":deploymentName; 
+  //console.log(deploymentName);
+
+  const iframeSrcStringObj={
+    "avgCPU":`http://129.80.205.63/d-solo/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}-deployment&from=1691651240409&to=1691654840409&panelId=17`,
+    "avgMemory":`http://129.80.205.63/d/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}&from=1691662301319&to=1691665901319&viewPanel=9`,
+    "avgNetwork":`http://129.80.205.63/d/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}&from=1691662568930&to=1691666168930&viewPanel=7`,
+  };
+
+  Object.keys(iframeSrcStringObj).forEach((key)=>{
+    const target=document.querySelector(`div.card#${key} iframe`);
+    target.src=iframeSrcStringObj[key]
+  });
 
   const logoutButton=document.querySelector("#logoutButton");
   logoutButton.addEventListener("click",logout);

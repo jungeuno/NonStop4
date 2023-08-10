@@ -389,7 +389,7 @@ async function handleContainerRefreshButtonClick(event){ //container state stop 
 /*====================================================================================================================*/ 
 
 function handleContainerMonitoringButtonClick(event){ //containerDash.html로 이동 userid, serviceid, containerid가지고
-  const cardDiv=event.target.parentNode.parentNode;
+  const cardDiv=event.target.parentNode.parentNode.parentNode;
   const clickedContainerName=cardDiv.id;
   localStorage.setItem(LOCAL_STORAGE_KEY_CONTAINER_NAME,clickedContainerName)
   window.location.href="containerDash.html";
