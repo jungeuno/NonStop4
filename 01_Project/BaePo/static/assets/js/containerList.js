@@ -74,7 +74,8 @@ const BASE_URL=window.location.origin;
 /*=========================================================================================================================*/ 
 
 async function loadData(userEmail){
-  console.log("(loadData)loadData Func Start...");  const serviceList=[];
+  console.log("(loadData)loadData Func Start...");  
+  const serviceList=[];
 
   //1. 서버에 userData요청, 현재 로그인된 유저의 정보 객체를 반환
   const userData=await getUserData(userEmail); 

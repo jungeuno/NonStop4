@@ -116,9 +116,10 @@ function startHtml(){
   //console.log(deploymentName);
 
   const iframeSrcStringObj={
-    "avgCPU":`http://129.80.205.63/d-solo/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}-deployment&from=1691651240409&to=1691654840409&panelId=17`,
-    "avgMemory":`http://129.80.205.63/d/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}&from=1691662301319&to=1691665901319&viewPanel=9`,
-    "avgNetwork":`http://129.80.205.63/d/ORYiYUzmk/kubernetes-deployment-overview?orgId=1&refresh=30s&var-namespace=${nameSpace}&var-deployment=${deploymentName}&from=1691662568930&to=1691666168930&viewPanel=7`,
+    "requestDurationPercentiles":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680244817&to=1691681144817&panelId=46`,
+    "requestPerMinutes":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680436298&to=1691681336298&panelId=44`,
+    "cpuUsage":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680504234&to=1691681404234&panelId=17`,
+    "memoryUsage":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680558801&to=1691681458801&panelId=25`,
   };
 
   Object.keys(iframeSrcStringObj).forEach((key)=>{
