@@ -447,10 +447,17 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   containerPauseButton.addEventListener("click",handleContainerPauseButtonClick);
   containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
-  if(containerInfo[CONTAINER_KEY_STATE]==="Running"){
+  const state=containerInfo[CONTAINER_KEY_STATE];
+  if(state==="Running"){
+    if(badgeSpan.classList.contains(BADGE_DANGER_CLASS)) {
+      badgeSpan.classList.remove(BADGE_DANGER_CLASS);
+    }
     badgeSpan.classList.add(BADGE_INFO_CLASS);
     containerRunButton.classList.add(DISABLED_CLASS);
-  }else{
+  }else{ 
+    if(badgeSpan.classList.contains(BADGE_INFO_CLASS)) {
+      badgeSpan.classList.remove(BADGE_INFO_CLASS);
+    }
     badgeSpan.classList.add(BADGE_DANGER_CLASS);
     containerPauseButton.classList.add(DISABLED_CLASS);
   }
