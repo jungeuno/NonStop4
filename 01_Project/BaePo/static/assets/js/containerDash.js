@@ -113,6 +113,7 @@ function startHtml(){
   //console.log(underbarIndex);
   let deploymentName=containerName.slice(underbarIndex+1).toLowerCase();
   deploymentName=(deploymentName.length>2)?deploymentName+"end":deploymentName; 
+  deploymentName+="-deployment";
   //console.log(deploymentName);
 
   const iframeSrcStringObj={
