@@ -223,15 +223,15 @@ def containerDeploy_page():
                 f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
                     
-        #     # GitHub에 업로드
-        #     upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
-        # else:
-        #     return '.zip 파일을 업로드 해주세요.'
+            # GitHub에 업로드
+            upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
+        else:
+            return '.zip 파일을 업로드 해주세요.'
 
         return render_template('containerList.html')
     elif request.method == 'GET':
         # state 수정해주어야 함.
-        return json.dumps({user_email: user_data[user_email]}, ensure_ascii=False)
+        return json.dumps({oauth2.email: user_data[oauth2.email]}, ensure_ascii=False)
     return 'Fail'
 ######################################################################################################################################
 # 업데이트 & 수정
@@ -321,10 +321,10 @@ def containerEditDeploy_page(service_name):
             with open(username_txt_file_path, 'w', encoding='utf-8') as f:
                 f.write(namespace)
             os.remove(file_path)  # .zip 파일 삭제
-        #     # GitHub에 업로드
-        #     upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
-        # else:
-        #     return '.zip 파일을 업로드 해주세요.'
+            # GitHub에 업로드
+            upload_to_github(os.path.join(BASE_DIR, 'test_upload'))
+        else:
+            return '.zip 파일을 업로드 해주세요.'
 
         # 응답으로 JSON 형식의 데이터 반환
         return make_response('', 204)
@@ -368,7 +368,7 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
     currentStatus = []
 
     # 'refresh' 버튼 동작 --------------------------------------------------------------------------------------
-    if request.method == 'GET':  # delete
+    if request.method == 'GET':  
         # status 리스트에서 'frontend' 있으면, currentStatus 배열에 status 값 저장
         for getNameKey in result_dict.keys():
             if locate in getNameKey:
@@ -383,6 +383,10 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
                     gud['Containers'][1]['state'] = currentStatus
                 elif container_service_name.endswith("_Db"):
                     gud['Containers'][2]['state'] = currentStatus
+        # getIP
+        for gud in getUserData:
+            if gud['Service Name'] == program_name:
+                gud['Service IP'] = returnServicetIP(namespace)
     
         # JSON 파일에 데이터를 저장 (ensure_ascii 옵션을 False로 설정하여 한글이 유니코드로 저장되도록 함)
         with open(data_file_path, 'w', encoding='utf-8') as fp:
@@ -391,7 +395,7 @@ def returnContainerStatus(service_name, container_service_name): #test #test_Fro
         print('Refresh currentStatus', currentStatus)
         ssh.close()
 
-        return json.dumps({"state" : currentStatus}, ensure_ascii=False) 
+        return render_template('containerList.html', userData=json.dumps({"state" : currentStatus}, ensure_ascii=False)) 
         # 해당 서비스 컨테이너의 Status List 값만 반환 (ex. ['Running', 'Running'])
     # 'run' / 'pause' 버튼 동작 --------------------------------------------------------------------------------
     elif request.method == 'POST':  # run /pause
