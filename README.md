@@ -40,10 +40,10 @@
 
 </br>
 
-## 팀
-- 오정은(팀장) :
-- 안희주 : 
-- 이지우 : 
-- 윤동근 : 
+## 팀원
+- 오정은(팀장) : Backend
+- 안희주 : Frontend, Monitoring
+- 이지우 : Kubernetes
+- 윤동근 : Docker
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:2a009e,100:a000a8&height=200&section=footer)
