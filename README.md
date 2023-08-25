@@ -49,4 +49,10 @@ NFS 서버에서 데이터베이스를 관리하여 장애 발생 시 신속하�
 - 이지우 : Kubernetes
 - 윤동근 : Docker
 
+
+</br>
+
+## 결과
+제 5회 오픈 인프라 개발 경진대회 자유주제_우수상(1위) 수상
+
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:2a009e,100:a000a8&height=200&section=footer)
