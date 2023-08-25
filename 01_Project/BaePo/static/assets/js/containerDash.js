@@ -13,13 +13,17 @@ const CARD_HEADER_CLASS="card-header";
 const CARD_GROUP_CLASS="card-group";
 const CARD_FOOTER_CLASS="card-footer";
 const CARD_TITLE_CLASS="card-title";
+const CARD_CHART_CLASS="card-chart";
 
 const ROW_CLASS="row";
 const COL_1_CLASS="col-1";
 const COL_4_CLASS="col-4";
+const COL_6_CLASS="col-6";
 const COL_10_CLASS="col-10";
 const COL_12_CLASS="col-12";
+const COL_LG_6_CLASS="col-lg-6";
 const MR_3_CLASS="mr-3";
+const MX_2_CLASS="mx-2";
 const PR_0_CLASS="pr-0";
 
 const BADGE_CLASS="badge";
@@ -55,8 +59,8 @@ const CONTAINER_KEY_STATE="state";
 const PINK_BORDER_STYLE="border:1px solid #e44cc4";
 
 //custom class name 
-const MONITORING_BUTTON_CLASS="monitoring-btn";
-const MANAGING_BUTTON_CLASS="managing-btn";
+const FIRST_ROW_CLASS="first-row";
+const SECOND_ROW_CLASS="second-row";
 
 //baseURL used in fetch api
 const BASE_URL=window.location.origin;
@@ -94,6 +98,39 @@ async function loadData(){
   }
 }
 
+async function printDash(nameSpace){
+  const pods=await getPodNames();
+  const pod1=pods[0];
+  const pod2=pods.length===1?pods[0]:pods[1];
+  const iframeSrcStringObj={
+    //for pods
+    pod1:{
+      CreatedTime:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=179`,
+      ResourceUsage:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=171`,
+      NetworkTraffic:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=169`,
+      MemoryStatus:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=180`,
+    },
+    pod2:{
+      CreatedTime:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=184`,
+      ResourceUsage:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=187`,
+      NetworkTraffic:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=189`,
+      MemoryStatus:`http://150.136.87.94:3000/d-solo/4b545447f/baepo-pods?var-namespace=${nameSpace}&var-pod1=${pod1}&var-pod2=${pod2}&panelId=190`,
+    }
+  };
+  document.querySelector("div#pod1>div.card-header>h3").innerText=pod1;
+  document.querySelector("div#pod2>div.card-header>h3").innerText=pod2;
+
+  if(pods.length===1){
+    printDashElement("pod1",iframeSrcStringObj["pod1"]);
+    document.querySelector("div#pod2").setAttribute("display","none");
+
+
+  } else{
+    printDashElement("pod1",iframeSrcStringObj["pod1"]);
+    printDashElement("pod2",iframeSrcStringObj["pod2"]);
+  }
+}
+
 function startHtml(){
   loadData();
   //console.log(serviceName);
@@ -102,7 +139,8 @@ function startHtml(){
 
   document.querySelector("#userEmail").innerText=userEmail;
 
-  document.querySelector("h4.card-title#containerName>p").innerText=containerName;
+  document.querySelector("h3.card-title#containerName>p").innerText=containerName;
+  //document.querySelector("h3.card-title#containerName>p").classList.add(FONT_WEIGHT_BOLD_CLASS);
 
   let nameSpace=userEmail.replace("@","")
   nameSpace=nameSpace.replace(/\./g,"");
@@ -114,20 +152,14 @@ function startHtml(){
   let deploymentName=containerName.slice(underbarIndex+1).toLowerCase();
   deploymentName=(deploymentName.length>2)?deploymentName+"end":deploymentName; 
   deploymentName=deploymentName+"-deployment";
-  console.log(deploymentName);
+  //console.log(deploymentName);
 
-  const iframeSrcStringObj={
-    "requestDurationPercentiles":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680244817&to=1691681144817&panelId=46`,
-    "requestPerMinutes":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680436298&to=1691681336298&panelId=44`,
-    "cpuUsage":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680504234&to=1691681404234&panelId=17`,
-    "memoryUsage":`http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=${nameSpace}&var-Deployment=${deploymentName}&from=1691680558801&to=1691681458801&panelId=25`,
-  };
-
-  Object.keys(iframeSrcStringObj).forEach((key)=>{
-    const target=document.querySelector(`div.card#${key} iframe`);
-    target.src=iframeSrcStringObj[key]
-    //푸시용 주석
+  const newContainerBtn = document.querySelector("#deployButton");
+  newContainerBtn.addEventListener("click", function () {
+    window.location.href = "deploy.html";
   });
+
+  printDash(nameSpace,deploymentName);
 
   const logoutButton=document.querySelector("#logoutButton");
   logoutButton.addEventListener("click",logout);
@@ -145,6 +177,54 @@ $(document).ready(function () {
 
 /*===========================================================================================================================*/ 
 /* common function ==========================================================================================================*/ 
+/*===========================================================================================================================*/ 
+
+function makeDashElement(){
+  const sampleCard=document.createElement("div"); //
+  sampleCard.classList.add(CARD_CLASS,COL_6_CLASS,MR_3_CLASS);
+  sampleCard.style=PINK_BORDER_STYLE;
+  const cardHeader=document.createElement("div");
+  cardHeader.classList.add(CARD_HEADER_CLASS);
+  const h3=document.createElement("h3");
+  cardHeader.appendChild(h3);
+  const cardBody=document.createElement("div");
+  cardBody.classList.add(CARD_BODY_CLASS);
+  const iframe=document.createElement("iframe");
+  iframe.width="97%";
+  iframe.height="100%";
+  iframe.frameBorder="0";
+  cardBody.appendChild(iframe);
+  sampleCard.appendChild(cardHeader);
+  sampleCard.appendChild(cardBody);
+  return sampleCard;
+}
+
+/*===========================================================================================================================*/ 
+
+function printDashElement(cardName,srcObj){
+  console.log("makeDashElement Func Start..");
+  console.log(srcObj);
+  const targetCard=document.querySelector(`div#${cardName}`)
+  const targetRowArr=[
+    targetCard.querySelector(`div.${FIRST_ROW_CLASS}`),
+    targetCard.querySelector(`div.${SECOND_ROW_CLASS}`),
+  ];
+  //making sample
+
+  let cnt=0;
+  let row=0;
+  Object.keys(srcObj).forEach((key)=>{
+    const data=makeDashElement();
+    data.querySelector("h3").innerText=key;
+    data.querySelector("iframe").src=srcObj[key];
+    console.log("targetnode");
+    console.log(targetRowArr[row]);
+    targetRowArr[row].appendChild(data);
+    cnt++;
+    if(cnt%2==0)row++;
+  });
+}
+
 /*===========================================================================================================================*/ 
 
 async function logout(){
@@ -182,6 +262,31 @@ async function getUserData(userEmail){
     };
     try{
       const response=await fetch(url,options);
+      const userData=await response.json();
+      return userData[userEmail];
+  
+    } catch(error){
+      console.log(`${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`);
+    }
+}
+
+/*====================================================================================================================*/ 
+
+async function getPodNames(){
+    const requestURI = `/services/${serviceName}/containers/${containerName}/pods`;
+    const url = BASE_URL + requestURI;
+    const objKey="podNames";
+    const options = {
+      method: "GET",
+    };
+    try{
+      const response=await fetch(url,options);
+      if(response.ok){
+        const jsonObj=await response.json();
+        console.log(jsonObj);
+        console.log(jsonObj[objKey]);
+        return jsonObj[objKey];
+      }
       const userData=await response.json();
       return userData[userEmail];
   

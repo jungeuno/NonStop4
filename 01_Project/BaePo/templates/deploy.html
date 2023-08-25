@@ -32,9 +32,15 @@
     <link href="../static/assets/scss/BsMultiSelect.bs4.css" rel="stylesheet" />
     <!-- BsMultiSelect css 파일-->
     <link href="../static/assets/css/BsMultiSelect.bs4.css" rel="stylesheet" />
+    <!--loader css-->
+    <link href="../static/assets/css/loader.css" rel="stylesheet" />
   </head>
 
   <body class="">
+    <div class="loader"></div>
+    <div class="alert" role="alert">
+      배포에는 1~10분 정도 소요될 수 있습니다.
+    </div>
     <div class="wrapper">
       <div class="sidebar">
         <div class="sidebar-wrapper">
@@ -139,9 +145,9 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title" id="serviceNameRuleModalLabel">
-          <strong>※ 서비스 파일 업로드 시 요구사항 ※</strong>
-        </h4>
+        <h3 class="modal-title" id="serviceNameRuleModalLabel">
+          <strong>※ 서비스 이름 작성 시 요구사항 ※</strong>
+        </h3>
         <button
           type="button"
           class="close"
@@ -182,9 +188,9 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title" id="fileUploadRuleModalLabel">
+        <h3 class="modal-title" id="fileUploadRuleModalLabel">
           <strong>※ 서비스 파일 업로드 시 요구사항 ※</strong>
-        </h4>
+        </h3>
         <button
           type="button"
           class="close"
@@ -211,10 +217,10 @@
             <li>
               데이터베이스 개발 환경으로 <strong>MYSQL</strong>을 사용한 경우,
               <p><code>
-        &nbsp&nbsp MYSQL_ROOT_PASSWORD: "123456"<br/>
-        &nbsp&nbsp MYSQL_DATABASE: "loginapp"<br/>
-        &nbsp&nbsp MYSQL_USER: "user1"<br/>
-        &nbsp&nbsp MYSQL_PASSWORD: "123456"<br/>
+              &nbsp&nbsp MYSQL_ROOT_PASSWORD: "123456"<br/>
+              &nbsp&nbsp MYSQL_DATABASE: "loginapp"<br/>
+              &nbsp&nbsp MYSQL_USER: "user1"<br/>
+              &nbsp&nbsp MYSQL_PASSWORD: "123456"<br/>
               </code></p>
               위와 같은 형식으로 작성하세요.
               파일 이름은 <strong>'dbenv.txt'</strong>로 <strong>db</strong> 디렉토리 안에 위치시켜 주세요.
@@ -242,8 +248,20 @@
             <div class="col-md-12">
               <div class="card">
                 <div class="card-header">
-                  <h3 class="card-title">서비스 배포하기</h3>
+                  <h2 class="card-title">서비스 배포하기</h2>
                 </div>
+              </div>
+              <div class="card">
+                <div class="col-md-12 centered-card">
+                  <div class="card col-20 mt-3" style="border: 1px solid #e44cc4;">
+                    <!-- <div class="card-header">
+                      <h2 class="card-title text-center">서비스 배포하기</h2>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-group col-20">
+                      <div class="card col-6 mx-auto" style="border: 1px solid #e44cc4;">
+                         -->
                 <form
                   method="POST"
                   id="deployForm"
@@ -252,15 +270,16 @@
                 >
                   <div class="card-body">
                     <div class="form-row">
-                      <div class="form-group col-12">
-                        <h5 class="mt-4 my-2">
+                      <div class="form-group col-10">
+                        <h4 class="mt-4 my-2">
                           서비스 이름
                           <i
                             class="fas fa-info-circle text-primary ml-2"
                             style="cursor: pointer"
                             onclick="serviceNameRuleModal()"
+                            required
                           ></i>
-                        </h5>
+                        </h4>
                         <input
                           type="text"
                           class="form-control"
@@ -273,14 +292,15 @@
                     </div>
                     <div class="form-row">
                       <div class="form-group">
-                        <h5 class="mt-4 my-2">
+                        <h4 class="mt-4 my-2">
                           서비스 파일 업로드
                           <i
                             class="fas fa-info-circle text-primary ml-2"
                             style="cursor: pointer"
                             onclick="fileUploadRuleModal()"
+                            required
                           ></i>
-                        </h5>
+                        </h4>
                         <small id="devEnvHelp" class="form-text text-muted"
                           >프론트, 백, 데이터베이스 파일을 하나의 zip파일로
                           압축해서 올려주세요</small
@@ -307,9 +327,9 @@
                     </div>
 
                     <div class="form-row">
-                      <div class="form-group col-12">
+                      <div class="form-group col-10">
                         <label for="frontEnv">
-                          <h5 class="mt-4 my-2">프론트엔드 개발환경</h5>
+                          <h4 class="mt-4 my-2">프론트엔드 개발환경</h4>
                           <small id="frontEnvHelp" class="form-text text-muted"
                             >프론트엔드 개발 환경을 선택해주세요</small
                           >
@@ -320,14 +340,15 @@
                           class="form-control"
                           multiple="multiple"
                         >
-                          <option value="0">apache</option>
-                          <option value="1">nginx</option>
-                          <option value="2">bootstrap</option>
-                          <option value="3">vue</option>
-                          <option value="4">react</option>
+                          <option value="0">Apache</option>
+                          <option value="1">Nginx</option>
+                          <option value="2">Bootstrap</option>
+                          <option value="3">Vue</option>
+                          <option value="4">React</option>
+                          <option value="5">Vanilla JS</option>
                         </select>
                         <label for="dbEnv">
-                          <h5 class="mt-4 my-2">데이터베이스 개발환경</h5>
+                          <h4 class="mt-4 my-2">데이터베이스 개발환경</h4>
                           <small id="dbEnvHelp" class="form-text text-muted"
                             >데이터베이스 개발 환경을 선택해주세요</small
                           >
@@ -338,13 +359,13 @@
                           class="form-control"
                           multiple="multiple"
                         >
-                          <option value="16">mysql</option>
-                          <option value="8">mssql</option>
-                          <option value="9">mariadb</option>
-                          <option value="11">mongodb</option>
+                          <option value="15">Mysql</option>
+                          <option value="16">Mssql</option>
+                          <option value="17">Mariadb</option>
+                          <option value="18">Mongodb</option>
                         </select>
                         <label for="backEnv">
-                          <h5 class="mt-4 my-2">백엔드 개발환경</h5>
+                          <h4 class="mt-4 my-2">백엔드 개발환경</h4>
                           <small id="backEnvHelp" class="form-text text-muted"
                             >백엔드 개발 환경을 선택해주세요</small
                           >
@@ -355,14 +376,15 @@
                           class="form-control"
                           multiple="multiple"
                         >
-                          <option value="5">django</option>
-                          <option value="6">springboot</option>
-                          <option value="10">kotlin</option>
-                          <option value="7">python</option>
-                          <option value="12">c#</option>
-                          <option value="13">go</option>
-                          <option value="14">rust</option>
-                          <option value="15">ruby</option>
+                          <option value="6">Django</option>
+                          <option value="7">Springboot</option>
+                          <option value="8">Python</option>
+                          <option value="9">Kotlin</option>
+                          <option value="10">Go</option>
+                          <option value="11">C#</option>
+                          <option value="12">Java</option>
+                          <option value="13">Ruby</option>
+                          <option value="14">PHP</option>
                         </select>
                       </div>
                     </div>
@@ -382,8 +404,25 @@
                     </div>
                   </div>-->
                   </div>
-
+                </div>
+              </div>
                   <div class="card-footer text-center">
+                    <div class="form-check">
+                      <h4>
+                        <label class="form-check-label">
+                          위의 요구사항을 확인하셨다면 체크 해주세요.
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            value=""
+                            required
+                          />
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </h4>
+                    </div>
                     <button type="submit" class="btn btn-fill btn-primary">
                       배포하기
                     </button>

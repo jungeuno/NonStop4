@@ -90,6 +90,9 @@ async function loadData() {
 
 $(document).ready(function () {
   $().ready(function () {
+    showPage();
+    const form=document.querySelector("form#deployForm");
+    form.addEventListener("submit",handlFormSubmit)
     document.querySelector("#userEmail").innerText = userEmail;
 
     loadData();
@@ -127,12 +130,55 @@ $(document).ready(function () {
 });
 
 /*===========================================================================================================================*/
-/* specific function ==========================================================================================================*/
+/* function ==========================================================================================================*/
 /*===========================================================================================================================*/
 
-/*===========================================================================================================================*/
-/* common function ==========================================================================================================*/
-/*===========================================================================================================================*/
+async function handlFormSubmit(event){ //기존 form 액션말고 fetch로 변경
+  showLoad();
+  const form=document.querySelector("form#deployForm");
+  event.preventDefault();
+  const requestURI = "/services";
+  const url = BASE_URL + requestURI;
+  const options = {
+    method: "POST",
+    body: new FormData(form)
+  };
+  try {
+    const response = await fetch(url, options);
+    if (response.ok) {
+      window.location = "/containerList.html";
+    }
+  } catch (error) {
+    console.log(
+      `${url}로 ${options.method}요청 작업 중 에러 발생 : \n${error}`
+    );
+    console.log(error);
+  }
+}
+
+/*====================================================================================================================*/
+
+function showLoad() {
+  const loader = document.querySelector("div.loader");
+  const alert = document.querySelector("div.alert");
+  const wrapper = document.querySelector("div.wrapper");
+  wrapper.style.display="none";
+  alert.style.display="block";
+  loader.style.display="block";
+};
+
+/*====================================================================================================================*/
+
+function showPage() {
+  const loader = document.querySelector("div.loader");
+  const container = document.querySelector("div.wrapper");
+  const alert = document.querySelector("div.alert");
+  alert.style.display="none";
+  loader.style.display="none";
+  container.style.display="block";
+};
+
+/*====================================================================================================================*/
 
 async function logout() {
   //console.log("logtout Func Starts...");

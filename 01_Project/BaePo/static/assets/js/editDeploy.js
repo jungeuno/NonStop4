@@ -135,6 +135,11 @@ $(document).ready(function () {
     const logoutButton = document.querySelector("#logoutButton");
     logoutButton.addEventListener("click", logout);
 
+    const newContainerBtn = document.querySelector("#deployButton");
+    newContainerBtn.addEventListener("click", function () {
+      window.location.href = "deploy.html";
+    });
+
     $("#frontEnv").bsMultiSelect({
       useCssPatch: true,
       cssPatch: {
@@ -326,4 +331,8 @@ function handleNavElementClick(event, userData) {
 
 function fileUploadRuleModal() {
   $("#fileUploadRuleModal").modal("show");
+}
+
+function deleteModal() {
+  $("#deleteModal").modal("show");
 }

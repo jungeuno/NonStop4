@@ -46,6 +46,48 @@
     </style> -->
   </head>
 
+  <!-- 회원탈퇴 시, 주의 모달창 구현  -->
+  <div
+    class="modal fade"
+    id="withdrawalModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="withdrawalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="withdrawalLabel">
+            <strong>※ 주의 ※</strong>
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <li>
+            지금 탈퇴하시면 현재 배포된 서비스가 모두 중단되고, 삭제되어 복구가
+            불가능합니다.
+          </li>
+        </div>
+        <div class="modal-footer">
+          <div class="text-center text-danger font-weight-bold">
+            탈퇴하시겠습니까?
+          </div>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="withdrawalButton">
+            탈퇴
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <body class="d-flex justify-content-center align-items-center">
     <div class="container">
       <div class="row justify-content-center mt-5">
@@ -113,8 +155,15 @@
                 <div class="text-center">
                   <div class="card-footer">
                     <small>
-                      <a href="#" class="card-link">로그아웃</a>
-                      <a href="#" class="card-link">회원탈퇴</a>
+                      <a href="#" class="card-link" id="logoutButton"
+                        >로그아웃</a
+                      >
+                      <a
+                        href="#"
+                        class="card-link"
+                        id="withdrawalModalButton"
+                        >회원탈퇴</a
+                      >
                     </small>
                   </div>
                 </div>
@@ -129,9 +178,6 @@
     <script src="../static/assets/js/core/popper.min.js"></script>
     <script src="../static/assets/js/core/bootstrap.min.js"></script>
     <script src="../static/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="../static/assets/js/black-dashboard.min.js?v=1.0.0"></script>
-    <!-- Black Dashboard DEMO methods, don't include it in your project! -->
     <script src="../static/assets/js/mypage.js"></script>
     <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   </body>

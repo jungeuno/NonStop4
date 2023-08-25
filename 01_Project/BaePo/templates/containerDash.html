@@ -27,7 +27,7 @@
       href="../static/assets/img/apple-icon.png"
     />
     <link rel="icon" type="image/png" href="../static/assets/img/favicon.png" />
-    <title>Baeoi</title>
+    <title>Baepo</title>
     <!--     Fonts and icons     -->
     <link
       href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800"
@@ -157,18 +157,54 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-header">
-                  <div class="row">
-                    <div class="col-lg-1">
-                      <h4 class="card-title">
-                        <i class="tim-icons icon-html5"></i>
-                      </h4>
-                    </div>
+                  <h3 class="card-title" id="containerName"><!-- 컨테이너명 받아오기 -->
+                    <p></p>
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    <div class="col-lg-9">
-                      <!-- 컨테이너명 받아오기 -->
-                      <h4 class="card-title" id="containerName">
-                        <p></p>
-                      </h4>
+          <!-- AVG CPU Processes -->
+
+          <div class="card" id="cluster">
+            <div class="card-header">
+              <h3 class="card-title text-left">Cluster</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="card-group col-12">
+                  <!--monitoring data card-->
+                  <div
+                    class="card col-6 mr-3"
+                    style="border: 1px solid #e44cc4"
+                  >
+                    <div class="card-header">
+                      <h3 class="card-title text-left">노드별 CPU 점유율</h3>
+                    </div>
+                    <div class="card-body">
+                      <iframe
+                        src="http://150.136.87.94:3000/d-solo/5b545447f/baepo-cluster?orgId=1&refresh=5s&from=1692537808883&to=1692548608883&panelId=35"
+                        width="97%"
+                        height="100%"
+                        frameborder="0"
+                      ></iframe>
+                    </div>
+                  </div>
+                  <div
+                    class="card col-6 mr-3"
+                    style="border: 1px solid #e44cc4"
+                  >
+                    <div class="card-header">
+                      <h3 class="card-title text-left">노드별 메모리 사용량</h3>
+                    </div>
+                    <div class="card-body">
+                      <iframe
+                        src="http://150.136.87.94:3000/d-solo/5b545447f/baepo-cluster?orgId=1&refresh=5s&from=1692537847058&to=1692548647058&panelId=33"
+                        width="97%"
+                        height="100%"
+                        frameborder="0"
+                      ></iframe>
                     </div>
                   </div>
                 </div>
@@ -176,70 +212,30 @@
             </div>
           </div>
 
-          <!-- AVG CPU Processes -->
-          <div class="row">
-            <!--for test
-            <div class="col-lg-6">
-              <div class="card card-chart" id="requestDurationPercentiles">
-                <div class="card-header">
-                  <h3 class="card-title"></h3>
-                </div>
-                <div class="card-body">
-                  <iframe src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=test&var-Deployment=All&from=1691682417665&to=1691683317665&panelId=46" width="450" height="200" frameborder="0"></iframe>
-                          src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=teamnonstop00gmailcom-testupload&var-Deployment=frontend&from=1691680244817&to=1691681144817&panelId=46"
-                          src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=teamnonstop00gmailcom-testupload&var-Deployment=All&from=1691685764461&to=1691686664461&panelId=46"
-                          http://150.136.87.94:3000/d/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=teamnonstop00gmailcom-testupload&var-Deployment=frontend-deployment&from=1691685808631&to=1691686708631&viewPanel=46
-
-                  <iframe src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All;var-Namespace=teamnonstop00gmailcom-testupload&amp;var-Deployment=-deployment&amp;from=1691680244817&amp;to=1691681144817&amp;panelId=46%22%3E" aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;" </iframe>
-                  <iframe src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&var-Node=All&var-Namespace=teamnonstop00gmailcom-testupload&var-Deployment=frontend-deployment&from=1691686325856&to=1691687225863&panelId=46" ></iframe>
-
-                  <iframe aria-hidden="true" frameborder="0" tabindex="-1" style="z-index: -1; position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none;" src="http://150.136.87.94:3000/d-solo/e424dc61-1f8e-4765-ab32-287ef63ab35d/baepo?orgId=1&amp;var-Node=All&amp;var-Namespace=teamnonstop00gmailcom-testupload&amp;var-Deployment=-deployment&amp;from=1691680244817&amp;to=1691681144817&amp;panelId=46%22%3E</iframe>
-                  <iframe width="450" height="200" frameborder="0"></iframe>
-
-                </div>
-              </div>
+          <div class="card" id="pod1">
+            <div class="card-header">
+              <h3 class="card-title text-left"></h3>
             </div>
-            -->
-            <div class="col-lg-6">
-              <div class="card card-chart" id="requestDurationPercentiles">
-                <div class="card-header">
-                  <h3 class="card-title">Requeset Duration Percentles</h3>
-                </div>
-                <div class="card-body">
-                  <iframe class="mx-2" width="97%" height="100%" frameborder="0"></iframe>
-                </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="card-group col-12 first-row"></div>
               </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="card card-chart" id="requestPerMinutes">
-                <div class="card-header">
-                  <h3 class="card-title">Request Per Minutes</h3>
-                </div>
-                <div class="card-body">
-                  <iframe class="mx-2" width="97%" height="100%" frameborder="0"></iframe>
-                </div>
+              <div class="row mt-3">
+                <div class="card-group col-12 second-row"></div>
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="card card-chart" id="cpuUsage">
-                <div class="card-header">
-                  <h3 class="card-title">CPU Usage</h3>
-                </div>
-                <div class="card-body">
-                  <iframe class="mx-2" width="97%" height="100%" frameborder="0"></iframe>
-                </div>
-              </div>
+
+          <div class="card" id="pod2">
+            <div class="card-header">
+              <h3 class="card-title text-left"></h3>
             </div>
-            <div class="col-lg-6">
-              <div class="card card-chart" id="memoryUsage">
-                <div class="card-header">
-                  <h3 class="card-title">Memory Usage</h3>
-                </div>
-                <div class="card-body">
-                  <iframe class="mx-2" width="97%" height="100%" frameborder="0"></iframe>
-                </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="card-group col-12 first-row"></div>
+              </div>
+              <div class="row mt-3">
+                <div class="card-group col-12 second-row"></div>
               </div>
             </div>
           </div>

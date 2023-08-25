@@ -18,6 +18,7 @@ const CARD_TITLE_CLASS="card-title";
 
 const ROW_CLASS="row";
 const COL_1_CLASS="col-1";
+const COL_2_CLASS="col-2";
 const COL_3_CLASS="col-3";
 const COL_4_CLASS="col-4";
 const COL_10_CLASS="col-10";
@@ -60,6 +61,8 @@ const CONTAINER_KEY_STATE="state";
 
 //custom style for containerCardElement
 const PINK_BORDER_STYLE="border:1px solid #e44cc4";
+const RUN_BUTTON_CLASS="run-button";
+const PAUSE_BUTTON_CLASS="pause-button";
 
 //custom class name 
 const MONITORING_BUTTON_CLASS="monitoring-btn";
@@ -361,9 +364,15 @@ async function handleContainerPauseButtonClick(event){ //container state stop ->
 
 async function handleContainerRefreshButtonClick(event){ //container state stop -> run변경
   console.log("refresh butto clicked");
+
   const cardDiv=event.target.parentNode.parentNode.parentNode;
+  const stateBadge=cardDiv.querySelector("span");
+  const runButton=cardDiv.querySelector(`button.${RUN_BUTTON_CLASS}`);
+  const pauseButton=cardDiv.querySelector(`button.${PAUSE_BUTTON_CLASS}`);
+
   const serviceName=localStorage.getItem(LOCAL_STORAGE_KEY_SERVICE_NAME);
   const containerName=cardDiv.id;
+
   const requestURI = `/services/${serviceName}/containers/${containerName}`;
   const url = BASE_URL + requestURI;
   const options = {
@@ -376,10 +385,22 @@ async function handleContainerRefreshButtonClick(event){ //container state stop 
       let resultState=null;
       const states=obj[CONTAINER_KEY_STATE];
       states.forEach((state)=>resultState=state);
+
+      if(resultState==="Running"){
+        stateBadge.classList.remove(BADGE_DANGER_CLASS);
+        stateBadge.classList.add(BADGE_INFO_CLASS);
+        runButton.classList.add(DISABLED_CLASS);
+        pauseButton.classList.remove(DISABLED_CLASS);
+      } else {
+        stateBadge.classList.remove(BADGE_INFO_CLASS);
+        stateBadge.classList.add(BADGE_DANGER_CLASS);
+        runButton.classList.remove(DISABLED_CLASS);
+        pauseButton.classList.add(DISABLED_CLASS);
+
+      }
       
-      const stateBadge=cardDiv.querySelector("div.card-header span.state-badge");
-      stateBadge.classList.toggle(BADGE_INFO_CLASS,resultState==="Running");
-      stateBadge.classList.toggle(BADGE_DANGER_CLASS,resultState!=="Running");
+
+      //window.location.reload();
     } else {
       console.log(`${url}로 ${options.method}요청 비정상 응답 : [${response.status}] ${response.statusText}`);
     }
@@ -440,24 +461,22 @@ function makeContainerElement(containerInfo){ //container data받아서 html에 
   sampleButton.appendChild(sampleI);
 
   const containerRunButton=sampleButton.cloneNode(true);
+  containerRunButton.classList.add(RUN_BUTTON_CLASS);
   containerRunButton.addEventListener("click",handleContainerRunButtonClick);
   containerRunButton.querySelector("i").classList.add(ICON_TRIANGLE_RIGHT_17_CLASS);
 
   const containerPauseButton=sampleButton.cloneNode(true);
+  containerPauseButton.classList.add(PAUSE_BUTTON_CLASS);
   containerPauseButton.addEventListener("click",handleContainerPauseButtonClick);
   containerPauseButton.querySelector("i").classList.add(ICON_BUTTON_PAUSE_CLASS);
 
-  const state=containerInfo[CONTAINER_KEY_STATE];
-  if(state==="Running"){
-    if(badgeSpan.classList.contains(BADGE_DANGER_CLASS)) {
-      badgeSpan.classList.remove(BADGE_DANGER_CLASS);
-    }
+  const states=containerInfo[CONTAINER_KEY_STATE];
+  let resultState=null;
+  states.forEach((state)=>resultState=state);
+  if(resultState==="Running"){
     badgeSpan.classList.add(BADGE_INFO_CLASS);
     containerRunButton.classList.add(DISABLED_CLASS);
   }else{ 
-    if(badgeSpan.classList.contains(BADGE_INFO_CLASS)) {
-      badgeSpan.classList.remove(BADGE_INFO_CLASS);
-    }
     badgeSpan.classList.add(BADGE_DANGER_CLASS);
     containerPauseButton.classList.add(DISABLED_CLASS);
   }
@@ -490,13 +509,19 @@ function makeCardTitleHeader(serviceName,serviceIP){
   serviceNameH3.id=serviceName;
   serviceNameH3.innerText=serviceName;
   //card title for service ip
+  const serviceIPA=document.createElement("a");
   const serviceIPH3=document.createElement("h3");
   serviceIPH3.classList.add(CARD_TITLE_CLASS,D_INLINE_CLASS,COL_4_CLASS,TEXT_CENTER_CLASS);
   serviceIPH3.id=serviceIP;
   serviceIPH3.innerText=serviceIP ? serviceIP : "";
+  serviceIPA.href=`http://${serviceIPH3.innerText}`;
+  serviceIPA.target="_blank";
+  serviceIPA.rel="noopener noreferrer";
+  serviceIPA.appendChild(serviceIPH3);
+
   //card title for managing button
   const serviceManagingButton=document.createElement("button");
-  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,COL_3_CLASS,TEXT_RIGHT_CLASS);
+  serviceManagingButton.classList.add(CARD_TITLE_CLASS, BTN_CLASS,BTN_PRIMARY_CLASS,BTN_LINK_CLASS,COL_2_CLASS,TEXT_RIGHT_CLASS);
   serviceManagingButton.id="serviceManagingButton";
   const serviceMangingButtonIcon=document.createElement("i");
   serviceMangingButtonIcon.classList.add(TIMS_ICONS_CLASS,ICON_SETTING_GEAR_63_CLASS);
@@ -504,8 +529,9 @@ function makeCardTitleHeader(serviceName,serviceIP){
   serviceManagingButton.appendChild(serviceMangingButtonIcon);
 
   cardHeaderDiv.appendChild(serviceNameH3);
-  cardHeaderDiv.appendChild(serviceIPH3);
+  cardHeaderDiv.appendChild(serviceIPA);
   cardHeaderDiv.appendChild(serviceManagingButton);
+  //cardHeaderDiv.appendChild(refreshButton);
   return cardHeaderDiv;
 }
 
